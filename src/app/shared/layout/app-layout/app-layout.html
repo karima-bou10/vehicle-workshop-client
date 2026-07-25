@@ -1,1 +1,13 @@
-<p>app-layout works!</p>
+<div class="layout">
+  <app-sidebar [reduit]="sidebarReduite()" />
+
+  <div class="layout__corps">
+    <app-header [titre]="titrePage()"
+                [sidebarReduite]="sidebarReduite()"
+                (basculerSidebar)="basculerSidebar()" />
+
+    <main class="layout__contenu">
+      <router-outlet />
+    </main>
+  </div>
+</div>

@@ -1,39 +1,139 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
-@use '@angular/material' as mat;
+/* ============ Tokens ============ */
+:root {
+  /* Structure — anthracite */
+  --anthracite-900: #16191d;
+  --anthracite-800: #1f242b;
+  --anthracite-700: #2b323b;
+  --anthracite-600: #3a434e;
 
-html {
-  height: 100%;
-  @include mat.theme(
-    (
-      color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
-      ),
-      typography: Roboto,
-      density: 0,
-    )
-  );
+  /* Fonds & bordures */
+  --surface:        #ffffff;
+  --surface-alt:    #f5f6f8;
+  --bg:             #eef0f3;
+  --border:         #dce0e6;
+  --border-strong:  #c3c9d2;
+
+  /* Texte */
+  --text:           #1f242b;
+  --text-muted:     #6b7381;
+  --text-invert:    #f2f4f7;
+
+  /* Sémantique */
+  --primary:        #2563eb;   /* actions */
+  --primary-dark:   #1d4ed8;
+  --primary-soft:   #e5edfd;
+  --warning:        #ea8a1f;   /* attente */
+  --warning-soft:   #fdf0de;
+  --success:        #15925a;   /* terminé */
+  --success-soft:   #e2f4ea;
+  --danger:         #d13b3b;   /* blocage / annulé */
+  --danger-soft:    #fbe6e6;
+  --neutral:        #6b7381;
+  --neutral-soft:   #eceef1;
+
+  /* Rayons, ombres, espacements */
+  --radius-sm: 4px;
+  --radius:    6px;
+  --radius-lg: 10px;
+  --shadow-1:  0 1px 2px rgba(22, 25, 29, .08);
+  --shadow-2:  0 4px 16px rgba(22, 25, 29, .12);
+  --shadow-3:  0 12px 32px rgba(22, 25, 29, .20);
+
+  --sidebar-w:           248px;
+  --sidebar-w-collapsed:  64px;
+  --header-h:             60px;
+
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+
+  --transition: 180ms cubic-bezier(.4, 0, .2, 1);
 }
 
-body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
+/* ============ Base ============ */
+* { box-sizing: border-box; }
 
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
+html, body {
+  height: 100%;
   margin: 0;
-  height: 100%;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
-/* You can add global styles to this file, and also import other style files */
+
+h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ============ Utilitaires partagés ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+
+  &:disabled { opacity: .55; cursor: not-allowed; }
+
+  &--primary {
+    background: var(--primary);
+    color: #fff;
+    &:hover:not(:disabled) { background: var(--primary-dark); }
+  }
+  &--ghost {
+    background: transparent;
+    border-color: var(--border-strong);
+    color: var(--text);
+    &:hover:not(:disabled) { background: var(--surface-alt); }
+  }
+  &--danger {
+    background: var(--danger);
+    color: #fff;
+    &:hover:not(:disabled) { filter: brightness(.92); }
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label { font-size: 13px; font-weight: 500; color: var(--text); }
+
+  input, select, textarea {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font: inherit;
+    background: var(--surface);
+    transition: border-color var(--transition), box-shadow var(--transition);
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+    &.is-invalid { border-color: var(--danger); }
+  }
+
+  .field__error { font-size: 12px; color: var(--danger); }
+}

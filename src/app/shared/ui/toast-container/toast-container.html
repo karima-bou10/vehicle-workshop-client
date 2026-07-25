@@ -1,0 +1,8 @@
+<div class="toasts" aria-live="polite" aria-atomic="false">
+  @for (n of notifications(); track n.id) {
+    <div class="toast" [class]="'toast--' + n.ton">
+      <span class="toast__message">{{ n.message }}</span>
+      <button type="button" class="toast__fermer" aria-label="Fermer" (click)="fermer(n.id)">×</button>
+    </div>
+  }
+</div>

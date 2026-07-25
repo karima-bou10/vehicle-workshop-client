@@ -1,1 +1,71 @@
-<p>login works!</p>
+<div class="login">
+
+  <!-- Volet gauche : identité de l'application -->
+  <section class="login__marque" aria-hidden="true">
+    <div class="login__marque-contenu">
+      <span class="login__logo">VW</span>
+      <h2 class="login__baseline">Gestion des interventions atelier</h2>
+      <p class="login__accroche">
+        Suivez chaque véhicule de sa réception à sa restitution.
+      </p>
+
+      <ol class="login__workflow">
+        <li>Reçue</li>
+        <li>Diagnostic</li>
+        <li>Devis</li>
+        <li>Réparation</li>
+        <li>Terminée</li>
+        <li>Restituée</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Volet droit : formulaire -->
+  <section class="login__panneau">
+    <form class="login__form" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
+
+      <h1 class="login__titre">Connexion</h1>
+      <p class="login__sous-titre">Accédez à votre espace atelier.</p>
+
+      @if (erreur()) {
+        <p class="login__alerte" role="alert">{{ erreur() }}</p>
+      }
+
+      <div class="field">
+        <label for="username">Identifiant</label>
+        <input id="username"
+               type="text"
+               autocomplete="username"
+               formControlName="username"
+               [class.is-invalid]="champInvalide('username')" />
+        @if (champInvalide('username')) {
+          <span class="field__error">L'identifiant est obligatoire.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <div class="login__mdp">
+          <input id="password"
+                 [type]="motDePasseVisible() ? 'text' : 'password'"
+                 autocomplete="current-password"
+                 formControlName="password"
+                 [class.is-invalid]="champInvalide('password')" />
+          <button type="button"
+                  class="login__mdp-bascule"
+                  [attr.aria-label]="motDePasseVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                  (click)="basculerMotDePasse()">
+            {{ motDePasseVisible() ? 'Masquer' : 'Afficher' }}
+          </button>
+        </div>
+        @if (champInvalide('password')) {
+          <span class="field__error">Le mot de passe doit contenir au moins 4 caractères.</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn--primary login__submit" [disabled]="enCours()">
+        {{ enCours() ? 'Connexion…' : 'Se connecter' }}
+      </button>
+    </form>
+  </section>
+</div>

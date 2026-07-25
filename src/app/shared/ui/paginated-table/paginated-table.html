@@ -1,1 +1,53 @@
-<p>paginated-table works!</p>
+<div class="table-bloc">
+
+  @if (chargement()) {
+    <app-loading-spinner [pleinePage]="true" message="Chargement des données…" />
+  } @else if (lignes().length === 0) {
+    <app-empty-state [titre]="messageVide()" />
+  } @else {
+    <div class="table-bloc__scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            @for (col of colonnes(); track col.key) {
+              <th [style.width]="col.width" [style.text-align]="col.align ?? 'left'">
+                {{ col.label }}
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (ligne of lignes(); track $index) {
+            <tr>
+              @if (ligneTemplate(); as tpl) {
+                <ng-container *ngTemplateOutlet="tpl; context: { $implicit: ligne }" />
+              } @else {
+                @for (col of colonnes(); track col.key) {
+                  <td [style.text-align]="col.align ?? 'left'">{{ valeur(ligne, col.key) }}</td>
+                }
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span class="pagination__compteur">
+        {{ premierIndex() }}–{{ dernierIndex() }} sur {{ totalElements() }}
+      </span>
+
+      <div class="pagination__actions">
+        <button type="button" class="btn btn--ghost" [disabled]="estPremiere()" (click)="precedent()">
+          Précédent
+        </button>
+        <span class="pagination__page">
+          Page {{ pageIndex() + 1 }} / {{ totalPages() }}
+        </span>
+        <button type="button" class="btn btn--ghost" [disabled]="estDerniere()" (click)="suivant()">
+          Suivant
+        </button>
+      </div>
+    </div>
+  }
+</div>

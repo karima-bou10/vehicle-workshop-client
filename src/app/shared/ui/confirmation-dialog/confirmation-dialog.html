@@ -1,1 +1,33 @@
-<p>confirmation-dialog works!</p>
+@if (ouvert()) {
+  <div class="dialog-overlay" (click)="annuler.emit()">
+    <div class="dialog"
+         role="dialog"
+         aria-modal="true"
+         [attr.aria-label]="titre()"
+         (click)="$event.stopPropagation()">
+
+      <h3 class="dialog__titre">{{ titre() }}</h3>
+
+      @if (message()) {
+        <p class="dialog__message">{{ message() }}</p>
+      }
+
+      <div class="dialog__actions">
+        <button type="button" class="btn btn--ghost"
+                [disabled]="enCours()"
+                (click)="annuler.emit()">
+          {{ libelleAnnuler() }}
+        </button>
+
+        <button type="button"
+                class="btn"
+                [class.btn--primary]="variante() === 'primary'"
+                [class.btn--danger]="variante() === 'danger'"
+                [disabled]="enCours()"
+                (click)="confirmer.emit()">
+          {{ enCours() ? 'Traitement…' : libelleConfirmer() }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

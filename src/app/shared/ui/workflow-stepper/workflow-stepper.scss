@@ -1,0 +1,86 @@
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+
+  &__etape {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 96px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+
+    /* Le trait qui relie l'étape précédente à celle-ci */
+    &:not(:first-child)::before {
+      content: '';
+      position: absolute;
+      top: 13px;
+      right: 50%;
+      left: -50%;
+      height: 2px;
+      background: var(--border-strong);
+    }
+
+    &--faite::before,
+    &--courante::before { background: var(--primary); }
+  }
+
+  &__marqueur {
+    position: relative;
+    z-index: 1;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 2px solid var(--border-strong);
+    background: var(--surface);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: background var(--transition), border-color var(--transition);
+
+    svg { width: 13px; height: 13px; }
+  }
+
+  &__label {
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--text-muted);
+    padding: 0 4px;
+  }
+
+  &__etape--faite &__marqueur {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+
+  &__etape--courante &__marqueur {
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-soft);
+  }
+
+  &__etape--courante &__label {
+    color: var(--text);
+    font-weight: 600;
+  }
+}
+
+.stepper-annulee {
+  margin: 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--danger);
+  background: var(--danger-soft);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--danger);
+}
