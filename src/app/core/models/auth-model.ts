@@ -12,16 +12,11 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   type: string;          // "Bearer"
-  username: string;
-  nom?: string;
-  prenom?: string;
-  roles: RoleModel[];
+  expiresIn: string;       // durée de validité du token en secondes
 }
 
 /** Identité conservée côté client, dérivée de LoginResponse. */
 export interface AuthUser {
   username: string;
-  nom?: string;
-  prenom?: string;
-  roles: RoleModel[];
+  role: RoleModel;
 }

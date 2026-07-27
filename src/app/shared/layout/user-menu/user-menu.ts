@@ -23,10 +23,10 @@ export class UserMenu {
 
   readonly roleLibelle = () => {
     const u = this.auth.currentUser();
+   
     if (!u) return '';
-    return u.roles.includes('ROLE_MANAGER')
-      ? ROLE_LABELS.ROLE_MANAGER
-      : ROLE_LABELS.ROLE_USER;
+     console.log("roleLibelle", u.role);
+    return ROLE_LABELS[u.role];
   };
 
   basculer(event: MouseEvent): void {
