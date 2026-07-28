@@ -1,1 +1,107 @@
-<p>intervention-list works!</p>
+<section class="intervention-list-page">
+	<header class="page-header">
+		<div>
+			<p class="eyebrow">Atelier automobile</p>
+			<h1>Liste des interventions</h1>
+			<p class="subtitle">
+				Priorite et echeance sont mises en avant pour aider au tri quotidien.
+			</p>
+		</div>
+
+		<button type="button" class="refresh-button" (click)="retry()">
+			Actualiser
+		</button>
+	</header>
+
+	@if (loading()) {
+		<div class="state-card">
+			<h2>Chargement en cours</h2>
+			<p>Recuperation des interventions depuis le backend.</p>
+		</div>
+	} @else if (error()) {
+		<div class="state-card error">
+			<h2>Chargement impossible</h2>
+			<p>{{ error() }}</p>
+			<button type="button" class="refresh-button" (click)="retry()">
+				Reessayer
+			</button>
+		</div>
+	} @else if (!displayedInterventions().length) {
+		<div class="state-card">
+			<h2>Aucune intervention</h2>
+			<p>Le backend n'a retourne aucun enregistrement.</p>
+		</div>
+	} @else {
+		<div class="summary-grid">
+			<article class="summary-card">
+				<span>Total</span>
+				<strong>{{ displayedInterventions().length }}</strong>
+			</article>
+			<article class="summary-card">
+				<span>Urgentes</span>
+				<strong>
+					{{ displayedInterventions().filter((item) => badgeClass(item.priority).includes('crit') || badgeClass(item.priority).includes('urgent') || badgeClass(item.priority).includes('haut')).length }}
+				</strong>
+			</article>
+			<article class="summary-card">
+				<span>Non assignees</span>
+				<strong>
+					{{ displayedInterventions().filter((item) => item.assignedMechanic === 'Non assigne').length }}
+				</strong>
+			</article>
+		</div>
+
+		<div class="table-shell">
+			<table>
+				<thead>
+					<tr>
+						<th>Reference</th>
+						<th>Client</th>
+						<th>Vehicule</th>
+						<th>Type</th>
+						<th>Statut</th>
+						<th>Priorite</th>
+						<th>SLA</th>
+						<th>Creation</th>
+						<th>Echeance</th>
+						<th>Mecanicien</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@for (intervention of displayedInterventions(); track trackByIntervention($index, intervention)) {
+						<tr>
+							<td class="reference">{{ intervention.reference }}</td>
+							<td>{{ intervention.customerName }}</td>
+							<td>{{ intervention.vehicleLabel }}</td>
+							<td>{{ intervention.interventionType }}</td>
+							<td>
+								<span class="badge" [class]="'badge ' + badgeClass(intervention.status)">
+									{{ formatLabel(intervention.status) }}
+								</span>
+							</td>
+							<td>
+								<span class="badge" [class]="'badge ' + badgeClass(intervention.priority)">
+									{{ formatLabel(intervention.priority) }}
+								</span>
+							</td>
+							<td>
+								<span class="badge" [class]="'badge ' + badgeClass(intervention.slaStatus)">
+									{{ formatLabel(intervention.slaStatus) }}
+								</span>
+							</td>
+							<td>{{ intervention.createdAt ? (intervention.createdAt | date: 'dd/MM/yyyy HH:mm') : '-' }}</td>
+							<td>{{ intervention.dueAt ? (intervention.dueAt | date: 'dd/MM/yyyy HH:mm') : '-' }}</td>
+							<td>{{ intervention.assignedMechanic }}</td>
+							<td>
+								<a [routerLink]="['/interventions', intervention.id]" class="detail-link">
+									Voir detail
+								</a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+</section>

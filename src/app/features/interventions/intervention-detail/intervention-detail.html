@@ -1,1 +1,63 @@
-<p>intervention-detail works!</p>
+<section class="intervention-detail-page">
+
+	@if (loading()) {
+		<article class="state-card">
+			<h2>Chargement en cours</h2>
+			<p>Recuperation du detail de l'intervention.</p>
+		</article>
+	} @else if (error()) {
+		<article class="state-card error">
+			<h2>Chargement impossible</h2>
+			<p>{{ error() }}</p>
+			<button type="button" class="retry-button" (click)="retry()">Reessayer</button>
+		</article>
+	} @else if (intervention(); as item) {
+
+		<header class="page-header">
+			<div>
+				<h1>{{ title() }}</h1>
+				<p class="page-subtitle">Detail de l'intervention</p>
+			</div>
+			<div class="header-actions">
+				<a routerLink="/interventions" class="ghost-link">← Retour liste</a>
+				<a routerLink="/interventions/nouveau" class="primary-link">Nouvelle intervention</a>
+			</div>
+		</header>
+
+		<article class="info-card">
+			<div class="info-row">
+				<span class="info-label">Type d'intervention</span>
+				<span class="info-value">{{ formatLabel(item.interventionType) }}</span>
+			</div>
+			<div class="info-row">
+				<span class="info-label">Client</span>
+				<span class="info-value">{{ item.customerName || 'Client inconnu' }}</span>
+			</div>
+			<div class="info-row">
+				<span class="info-label">Vehicule</span>
+				<span class="info-value">{{ item.vehicleLabel || 'Vehicule non renseigne' }}</span>
+			</div>
+			<div class="info-row">
+				<span class="info-label">Mecanicien assigne</span>
+				<span class="info-value">{{ item.assignedMechanic || 'Non assigne' }}</span>
+			</div>
+			<div class="info-row">
+				<span class="info-label">Priorite</span>
+				<span [class]="'inline-badge ' + badgeClass(item.priority)">{{ formatLabel(item.priority) }}</span>
+			</div>
+			<div class="info-row">
+				<span class="info-label">SLA</span>
+				<span [class]="'inline-badge ' + badgeClass(item.slaStatus)">{{ formatLabel(item.slaStatus) }}</span>
+			</div>
+			<div class="info-row">
+				<span class="info-label">Cree le</span>
+				<span class="info-value">{{ item.createdAt ? (item.createdAt | date: 'dd MMM yyyy, HH:mm') : '-' }}</span>
+			</div>
+			<div class="info-row">
+				<span class="info-label">Echeance</span>
+				<span class="info-value">{{ item.dueAt ? (item.dueAt | date: 'dd MMM yyyy, HH:mm') : '-' }}</span>
+			</div>
+		</article>
+
+	}
+</section>

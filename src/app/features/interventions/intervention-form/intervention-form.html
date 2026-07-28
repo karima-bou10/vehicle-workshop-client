@@ -1,1 +1,123 @@
-<p>intervention-form works!</p>
+<section class="intervention-form-page">
+	<header class="page-header">
+		<div>
+			<p class="eyebrow">Atelier automobile</p>
+			<h1>Nouvelle intervention</h1>
+			<p class="subtitle">
+				Renseigne les informations principales pour creer une intervention.
+			</p>
+		</div>
+
+		<a routerLink="/interventions" class="back-link">Retour a la liste</a>
+	</header>
+
+	<form class="form-shell" [formGroup]="form" (ngSubmit)="submit()">
+		<div class="grid two-columns">
+			<label>
+				<span>Type d'intervention</span>
+				<select formControlName="typeIntervention">
+					@for (type of typeOptions; track type) {
+						<option [value]="type">{{ type }}</option>
+					}
+				</select>
+			</label>
+
+			<label>
+				<span>Statut</span>
+				<select formControlName="statut">
+					@for (status of statutOptions; track status) {
+						<option [value]="status">{{ status }}</option>
+					}
+				</select>
+			</label>
+		</div>
+
+		<div class="grid two-columns">
+			<label>
+				<span>Priorite</span>
+				<select formControlName="priorite">
+					@for (priority of prioriteOptions; track priority) {
+						<option [value]="priority">{{ priority }}</option>
+					}
+				</select>
+			</label>
+
+			<label>
+				<span>Cout estime</span>
+				<input type="number" min="0" step="0.01" formControlName="coutEstime" />
+				@if (hasError('coutEstime')) {
+					<small>Le cout estime doit etre positif.</small>
+				}
+			</label>
+		</div>
+
+		<div class="grid two-columns">
+			<label>
+				<span>ID Vehicule</span>
+				<input type="number" min="1" formControlName="vehiculeId" />
+				@if (hasError('vehiculeId')) {
+					<small>L'ID vehicule est obligatoire.</small>
+				}
+			</label>
+
+			<label>
+				<span>ID Mecanicien</span>
+				<input type="number" min="1" formControlName="mecanicienId" />
+				@if (hasError('mecanicienId')) {
+					<small>L'ID mecanicien est obligatoire.</small>
+				}
+			</label>
+		</div>
+
+		<label>
+			<span>Description client</span>
+			<textarea rows="3" formControlName="descriptionClient"></textarea>
+			@if (hasError('descriptionClient')) {
+				<small>Minimum 5 caracteres.</small>
+			}
+		</label>
+
+		<label>
+			<span>Diagnostic</span>
+			<textarea rows="3" formControlName="diagnostic"></textarea>
+			@if (hasError('diagnostic')) {
+				<small>Minimum 5 caracteres.</small>
+			}
+		</label>
+
+		<div class="grid three-columns">
+			<label>
+				<span>Date depot</span>
+				<input type="datetime-local" formControlName="dateDepot" />
+				@if (hasError('dateDepot')) {
+					<small>La date de depot est obligatoire.</small>
+				}
+			</label>
+
+			<label>
+				<span>Date restitution prevue</span>
+				<input type="datetime-local" formControlName="dateRestitutionPrevue" />
+			</label>
+
+			<label>
+				<span>Date cloture</span>
+				<input type="datetime-local" formControlName="dateCloture" />
+			</label>
+		</div>
+
+		@if (serverError()) {
+			<div class="message error">{{ serverError() }}</div>
+		}
+
+		@if (serverSuccess()) {
+			<div class="message success">{{ serverSuccess() }}</div>
+		}
+
+		<div class="actions">
+			<a routerLink="/interventions" class="secondary-action">Annuler</a>
+			<button type="submit" class="primary-action" [disabled]="submitting()">
+				{{ submitting() ? 'Enregistrement...' : "Enregistrer l'intervention" }}
+			</button>
+		</div>
+	</form>
+</section>

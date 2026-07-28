@@ -1,0 +1,190 @@
+.intervention-list-page {
+	min-height: 100dvh;
+	padding: 2rem;
+	background:
+		radial-gradient(circle at top left, rgba(195, 233, 255, 0.9), transparent 28%),
+		linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%);
+	color: #16324f;
+}
+
+.page-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+	margin: 0 0 0.5rem;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	font-size: 0.75rem;
+	color: #4f6b88;
+}
+
+h1 {
+	margin: 0;
+	font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.subtitle {
+	margin: 0.75rem 0 0;
+	max-width: 42rem;
+	color: #4f6b88;
+}
+
+.refresh-button {
+	border: 0;
+	border-radius: 999px;
+	padding: 0.85rem 1.3rem;
+	background: linear-gradient(135deg, #0f6cbd, #2f8fda);
+	color: #fff;
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: 0 14px 28px rgba(15, 108, 189, 0.2);
+}
+
+.summary-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+.summary-card,
+.state-card,
+.table-shell {
+	border: 1px solid rgba(128, 153, 179, 0.22);
+	border-radius: 1.25rem;
+	background: rgba(255, 255, 255, 0.88);
+	backdrop-filter: blur(10px);
+	box-shadow: 0 18px 40px rgba(22, 50, 79, 0.08);
+}
+
+.summary-card {
+	padding: 1.25rem;
+}
+
+.summary-card span {
+	display: block;
+	margin-bottom: 0.4rem;
+	color: #607d99;
+}
+
+.summary-card strong {
+	font-size: 2rem;
+}
+
+.state-card {
+	padding: 2rem;
+}
+
+.state-card.error {
+	border-color: rgba(188, 61, 61, 0.25);
+}
+
+.table-shell {
+	overflow: auto;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+th,
+td {
+	padding: 1rem;
+	text-align: left;
+	border-bottom: 1px solid rgba(128, 153, 179, 0.16);
+	white-space: nowrap;
+}
+
+th {
+	font-size: 0.78rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #607d99;
+}
+
+tbody tr:hover {
+	background: rgba(15, 108, 189, 0.04);
+}
+
+.reference {
+	font-weight: 700;
+}
+
+.detail-link {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.38rem 0.72rem;
+	border-radius: 999px;
+	border: 1px solid rgba(15, 108, 189, 0.35);
+	color: #0f6cbd;
+	text-decoration: none;
+	font-weight: 700;
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	border-radius: 999px;
+	padding: 0.35rem 0.75rem;
+	font-size: 0.82rem;
+	font-weight: 700;
+	background: #e8f0f7;
+	color: #35506d;
+}
+
+.badge.en-attente,
+.badge.a-verifier,
+.badge.normale,
+.badge.moyenne {
+	background: #eaf2ff;
+	color: #245ea6;
+}
+
+.badge.assignee,
+.badge.terminee,
+.badge.on-track,
+.badge.a-l-heure {
+	background: #e7f8ef;
+	color: #1b7f4c;
+}
+
+.badge.critique,
+.badge.urgente,
+.badge.high,
+.badge.overdue,
+.badge.en-retard {
+	background: #ffe8e2;
+	color: #b1401e;
+}
+
+.badge.haute,
+.badge.at-risk,
+.badge.a-risque {
+	background: #fff2d8;
+	color: #9c6700;
+}
+
+@media (max-width: 900px) {
+	.intervention-list-page {
+		padding: 1rem;
+	}
+
+	.page-header {
+		flex-direction: column;
+	}
+
+	.summary-grid {
+		grid-template-columns: 1fr;
+	}
+
+	th,
+	td {
+		padding: 0.85rem;
+	}
+}
