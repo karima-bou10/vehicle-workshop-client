@@ -1,1 +1,76 @@
-<p>mecanicien-list works!</p>
+<div class="page">
+
+  <header class="page__entete">
+    <div>
+      <h2 class="page__titre">Mécaniciens</h2>
+      <p class="page__sous-titre">{{ page().totalElements }} membre(s) de l'équipe atelier</p>
+    </div>
+    <div class="page__actions">
+      <a class="btn btn--primary" routerLink="/mecaniciens/nouveau">Ajouter un mécanicien</a>
+    </div>
+  </header>
+
+  <app-paginated-table
+    [colonnes]="colonnes"
+    [lignes]="page().content"
+    [pageIndex]="page().number"
+    [taillePage]="page().size"
+    [totalElements]="page().totalElements"
+    [chargement]="chargement()"
+    [ligneTemplate]="ligne"
+    messageVide="Aucun mécanicien enregistré"
+    (pageChange)="charger($event)" />
+
+  <ng-template #ligne let-m>
+    <td>
+      <span class="nom">{{ m.prenom }} {{ m.nom }}</span>
+    </td>
+    <td>{{ m.specialite }}</td>
+    <td>
+      {{ m.email }}
+      <span class="annexe mono">{{ m.telephone }}</span>
+    </td>
+    <td style="text-align:center">
+      <span class="charge" [class.charge--saturee]="m.nbInterventionsEnCours >= 3">
+        {{ m.nbInterventionsEnCours }} en cours
+      </span>
+    </td>
+    <td>
+      <app-status-tag
+        [libelle]="m.actif ? 'Actif' : 'Inactif'"
+        [ton]="m.actif ? 'success' : 'neutral'" />
+    </td>
+    <td>
+      <div class="actions-ligne">
+        <a class="bouton-icone" [routerLink]="['/mecaniciens', m.id, 'modifier']" title="Modifier">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3Z" />
+          </svg>
+        </a>
+
+        <button type="button"
+                class="bouton-icone bouton-icone--danger"
+                [disabled]="!supprimable(m)"
+                [title]="supprimable(m) ? 'Retirer de l\'équipe' : 'Interventions en cours'"
+                (click)="aSupprimer.set(m)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />
+          </svg>
+        </button>
+      </div>
+    </td>
+  </ng-template>
+
+  <app-confirmation-dialog
+    [ouvert]="aSupprimer() !== null"
+    variante="danger"
+    titre="Retirer le mécanicien"
+    [message]="(aSupprimer()?.prenom ?? '') + ' ' + (aSupprimer()?.nom ?? '') +
+               ' ne pourra plus être affecté à une intervention. Son historique est conservé.'"
+    libelleConfirmer="Retirer"
+    [enCours]="suppressionEnCours()"
+    (confirmer)="confirmerSuppression()"
+    (annuler)="aSupprimer.set(null)" />
+</div>

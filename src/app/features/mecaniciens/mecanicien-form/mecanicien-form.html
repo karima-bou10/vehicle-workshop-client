@@ -1,1 +1,83 @@
-<p>mecanicien-form works!</p>
+<div class="page">
+
+  <header class="page__entete">
+    <div>
+      <h2 class="page__titre">
+        {{ modeEdition() ? 'Modifier le mécanicien' : 'Ajouter un mécanicien' }}
+      </h2>
+      <p class="page__sous-titre">
+        Seuls les mécaniciens actifs apparaissent dans le sélecteur d'affectation.
+      </p>
+    </div>
+  </header>
+
+  <section class="carte">
+    @if (chargement()) {
+      <app-loading-spinner [pleinePage]="true" message="Chargement…" />
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
+
+        <div class="form-grille">
+
+          <div class="field">
+            <label for="prenom">Prénom</label>
+            <input id="prenom" formControlName="prenom" [class.is-invalid]="invalide('prenom')" />
+            @if (invalide('prenom')) {
+              <span class="field__error">Le prénom est obligatoire.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="nom">Nom</label>
+            <input id="nom" formControlName="nom" [class.is-invalid]="invalide('nom')" />
+            @if (invalide('nom')) {
+              <span class="field__error">Le nom est obligatoire.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="specialite">Spécialité</label>
+            <select id="specialite" formControlName="specialite">
+              @for (s of specialites; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="telephone">Téléphone</label>
+            <input id="telephone" formControlName="telephone"
+                   [class.is-invalid]="invalide('telephone')" />
+            @if (invalide('telephone')) {
+              <span class="field__error">Numéro de téléphone invalide.</span>
+            }
+          </div>
+
+          <div class="field form-grille__pleine">
+            <label for="email">Adresse e-mail</label>
+            <input id="email" type="email" formControlName="email"
+                   [class.is-invalid]="invalide('email')" />
+            @if (invalide('email')) {
+              <span class="field__error">Adresse e-mail invalide.</span>
+            }
+          </div>
+
+          <label class="bascule form-grille__pleine">
+            <input type="checkbox" formControlName="actif" />
+            <span>
+              Disponible pour affectation
+              <small>Décochez en cas d'absence prolongée — l'historique reste intact.</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <a class="btn btn--ghost" routerLink="/mecaniciens">Annuler</a>
+          <button type="submit" class="btn btn--primary" [disabled]="envoiEnCours()">
+            {{ envoiEnCours() ? 'Enregistrement…' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    }
+  </section>
+</div>

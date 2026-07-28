@@ -21,12 +21,12 @@ export class AuthService {
 
   readonly displayName = computed(() => {
     const u = this._currentUser();
-    return u ? `${u.prenom} ${u.nom}` : '';
+    return u ? `${u.username}` : '';
   });
 
   readonly initiales = computed(() => {
     const u = this._currentUser();
-    return u ? `${u.prenom?.charAt(0) || ''}${u.nom?.charAt(0) || ''}`.toUpperCase() : '';
+    return u ? `${u.username?.charAt(0) || ''}`.toUpperCase() : '';
   });
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
@@ -35,10 +35,9 @@ export class AuthService {
       .pipe(
         tap(res => {
           const user: AuthUser = {
-            username: res.username,
-            nom: res.nom,
-            prenom: res.prenom,
-            roles: res.roles,
+            username: res.username, // Assuming the username is part of the credentials
+            token: res.token,
+            roles: res.roles, // Assuming roles are part of the credentials or fetched separately
           };
           this.storage.saveSession(res.token, user);
           this._currentUser.set(user);

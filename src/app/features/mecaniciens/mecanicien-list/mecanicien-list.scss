@@ -1,0 +1,28 @@
+.nom { font-weight: 500; }
+
+.annexe {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.charge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--surface-alt);
+  font-size: 12px;
+  color: var(--text-muted);
+
+  &--saturee {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+}
+
+.bouton-icone:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+
+  &:hover { background: transparent; color: var(--text-muted); }
+}

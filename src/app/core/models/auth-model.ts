@@ -10,18 +10,16 @@ export interface LoginRequest {
 
 /** Réponse de POST /api/auth/login (AuthController côté Spring Boot). */
 export interface LoginResponse {
+  username: string;
   token: string;
   type: string;          // "Bearer"
-  username: string;
-  nom?: string;
-  prenom?: string;
+  expiresIn: Date;
   roles: RoleModel[];
 }
 
 /** Identité conservée côté client, dérivée de LoginResponse. */
 export interface AuthUser {
   username: string;
-  nom?: string;
-  prenom?: string;
   roles: RoleModel[];
+  token: string;
 }
