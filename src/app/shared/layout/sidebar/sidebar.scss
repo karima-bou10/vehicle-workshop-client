@@ -3,7 +3,10 @@
   flex-direction: column;
   width: var(--sidebar-w);
   height: 100vh;
-  background: var(--anthracite-900);
+  //background: var(--anthracite-900);
+  background: linear-gradient(
+    #4d04cb 100%
+  );
   color: var(--text-invert);
   transition: width var(--transition);
   overflow: hidden;

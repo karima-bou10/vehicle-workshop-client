@@ -1,1 +1,59 @@
-<p>vehicule-detail works!</p>
+@if (loading()) {
+  <app-loading-spinner [pleinePage]="true" message="Chargement de la fiche véhicule…" />
+} @else if (vehicule(); as v) {
+
+  <div class="page">
+
+    <div class="page__entete">
+      <div>
+        <h2 class="page__titre mono">{{ v.immatriculationFictive }}</h2>
+        <p class="page__sous-titre">{{ v.marque }} {{ v.modele }} — {{ v.annee }}</p>
+      </div>
+
+      <div class="page__actions">
+        <a class="btn btn--ghost" routerLink="/vehicules">Retour</a>
+        <a class="btn btn--ghost" [routerLink]="['/vehicules', v.id, 'modifier']">Modifier</a>
+        <a class="btn btn--primary"
+           [routerLink]="['/interventions/nouveau']"
+           [queryParams]="{ vehiculeId: v.id }">
+          Nouvelle intervention
+        </a>
+      </div>
+    </div>
+
+    <div class="grille grille--2">
+
+      <section class="carte">
+        <h3 class="carte__titre">Véhicule</h3>
+        <dl class="def">
+          <dt>ImmatriculationFictive</dt><dd class="mono">{{ v.immatriculationFictive }}</dd>
+          <dt>Marque et modèle</dt><dd>{{ v.marque }} {{ v.modele }}</dd>
+          <dt>Année</dt><dd>{{ v.annee }}</dd>
+          <dt>Kilométrage</dt><dd>{{ v.kilometrage | number }} km</dd>
+          <dt>Client fictif</dt><dd class="mono">{{ v.clientFictif}}</dd>
+        </dl>
+      </section>
+    </div>
+
+    <section class="carte">
+      <h3 class="carte__titre">Historique atelier</h3>
+
+      @if (interventions().length === 0) {
+        <app-empty-state
+          titre="Aucune intervention"
+          description="Ce véhicule n'est jamais passé à l'atelier." />
+      } @else {
+        <ul class="historique-vehicule">
+          @for (i of interventions(); track i.id) {
+            <li class="historique-vehicule__ligne">
+              <a class="lien" [routerLink]="['/interventions', i.id]">#{{ i.id }}</a>
+              <span class="historique-vehicule__objet">{{ i.demandeClient }}</span>
+              <app-status-tag [statut]="i.statut" />
+              <span class="muted">{{ i.dateReception | date:'dd/MM/yyyy' }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+}

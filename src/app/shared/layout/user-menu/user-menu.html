@@ -2,9 +2,6 @@
 
   @if (ouvert()) {
     <div class="user-menu__panneau" (click)="$event.stopPropagation()">
-      <button type="button" class="user-menu__action" (click)="deconnexion()">
-        Changer d'utilisateur
-      </button>
       <button type="button" class="user-menu__action user-menu__action--danger" (click)="deconnexion()">
         Se déconnecter
       </button>
