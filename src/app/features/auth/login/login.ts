@@ -24,36 +24,36 @@ export class Login {
     password: ['', [Validators.required, Validators.minLength(4)]],
   });
 
-  readonly enCours = signal(false);
-  readonly erreur = signal<string | null>(null);
-  readonly motDePasseVisible = signal(false);
+  readonly submitting = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly passwordVisible = signal(false);
 
   /** Redirection après connexion : ?redirect=/interventions/12 sinon /dashboard */
   private readonly redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/dashboard';
 
   constructor() {
     if (this.route.snapshot.queryParamMap.has('expired')) {
-      this.erreur.set('Votre session a expiré. Connectez-vous à nouveau.');
+      this.error.set('Votre session a expiré. Connectez-vous à nouveau.');
     }
-    // Déjà connecté : on ne réaffiche pas le login.
+    // Already logged in: skip showing the login page.
     if (this.auth.isAuthenticated()) {
       this.router.navigateByUrl(this.redirect);
     }
   }
 
-  basculerMotDePasse(): void {
-    this.motDePasseVisible.update(v => !v);
+  togglePassword(): void {
+    this.passwordVisible.update(v => !v);
   }
 
-  soumettre(): void {
-    this.erreur.set(null);
+  submit(): void {
+    this.error.set(null);
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.enCours.set(true);
+    this.submitting.set(true);
 
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => {
@@ -61,8 +61,8 @@ export class Login {
         this.router.navigateByUrl(this.redirect);
       },
       error: (err: HttpErrorResponse) => {
-        this.enCours.set(false);
-        this.erreur.set(
+        this.submitting.set(false);
+        this.error.set(
           err.status === 400 || err.status === 401 || err.status === 403
             ? 'Identifiant ou mot de passe incorrect.'
             : "Connexion impossible. Le serveur ne répond pas.",
@@ -71,7 +71,7 @@ export class Login {
     });
   }
 
-  champInvalide(nom: 'username' | 'password'): boolean {
+  isInvalid(nom: 'username' | 'password'): boolean {
     const c = this.form.controls[nom];
     return c.invalid && (c.touched || c.dirty);
   }

@@ -1,1 +1,73 @@
-<p>vehicule-form works!</p>
+<div class="page">
+
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">{{ editMode() ? 'Modifier le véhicule' : 'Nouveau véhicule' }}</h2>
+      <p class="page__sous-titre">Fiche véhicule et coordonnées du client.</p>
+    </div>
+  </div>
+
+  <div class="carte">
+    @if (loading()) {
+      <app-loading-spinner [pleinePage]="true" message="Chargement de la fiche…" />
+    } @else {
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+        <div class="field">
+          <label for="immatriculationFictive">Immatriculation fictive  *</label>
+          <input id="immatriculationFictive" formControlName="immatriculationFictive"
+                 placeholder="AB-123-CD" style="text-transform:uppercase"
+                 [class.is-invalid]="isInvalid('immatriculationFictive')" />
+          @if (isInvalid('immatriculationFictive')) {
+            <span class="field__error">Format attendu : AB-123-CD.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="marque">Marque *</label>
+          <input id="marque" formControlName="marque" [class.is-invalid]="isInvalid('marque')" />
+          @if (isInvalid('marque')) { <span class="field__error">La marque est obligatoire.</span> }
+        </div>
+
+        <div class="field">
+          <label for="modele">Modèle *</label>
+          <input id="modele" formControlName="modele" [class.is-invalid]="isInvalid('modele')" />
+          @if (isInvalid('modele')) { <span class="field__error">Le modèle est obligatoire.</span> }
+        </div>
+
+        <div class="field">
+          <label for="annee">Année *</label>
+          <input id="annee" type="number" formControlName="annee"
+                 min="1950" [max]="maxYear" [class.is-invalid]="isInvalid('annee')" />
+          @if (isInvalid('annee')) {
+            <span class="field__error">Année comprise entre 1950 et {{ maxYear }}.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="kilometrage">Kilométrage *</label>
+          <input id="kilometrage" type="number" formControlName="kilometrage" min="0"
+                 [class.is-invalid]="isInvalid('kilometrage')" />
+          @if (isInvalid('kilometrage')) {
+            <span class="field__error">Kilométrage invalide.</span>
+          }
+        </div>
+
+        <h3 class="form__pleine-largeur carte__titre" style="margin:8px 0 0">Client</h3>
+
+        <div class="field">
+          <label for="clientFictif">Client fictif *</label>
+          <input id="clientFictif" formControlName="clientFictif" [class.is-invalid]="isInvalid('clientFictif')" />
+          @if (isInvalid('clientFictif')) { <span class="field__error">Le client fictif est obligatoire.</span> }
+        </div>
+
+        <div class="form__actions">
+          <a class="btn btn--ghost" routerLink="/vehicules">Annuler</a>
+          <button type="submit" class="btn btn--primary" [disabled]="submitting()">
+            {{ submitting() ? 'Enregistrement…' : (editMode() ? 'Enregistrer' : 'Créer le véhicule') }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>
