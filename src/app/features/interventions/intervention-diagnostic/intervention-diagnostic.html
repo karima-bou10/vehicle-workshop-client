@@ -1,1 +1,44 @@
-<p>intervention-diagnostic works!</p>
+<section class="intervention-diagnostic">
+  <h2>Diagnostic intervention</h2>
+
+  @if (loading()) {
+    <p>Chargement...</p>
+  } @else if (errorMessage()) {
+    <p class="intervention-diagnostic__error">{{ errorMessage() }}</p>
+  } @else {
+    <p>
+      Intervention #{{ intervention()?.id }} - statut actuel:
+      <strong>{{ intervention()?.statut }}</strong>
+    </p>
+
+    <form [formGroup]="form">
+      <label>
+        Diagnostic
+        <textarea rows="5" formControlName="diagnostic"></textarea>
+      </label>
+
+      <label>
+        Coût estimé
+        <input type="number" min="0.01" step="0.01" formControlName="coutEstime" />
+      </label>
+
+      <label>
+        Auteur
+        <input type="text" formControlName="auteur" />
+      </label>
+
+      <label>
+        Commentaire
+        <textarea rows="3" formControlName="commentaire"></textarea>
+      </label>
+
+      <div class="intervention-diagnostic__actions">
+        <button type="button" (click)="retourDetail()">Retour détail</button>
+        <button type="button" [disabled]="!canSave()" (click)="enregistrerDiagnostic()">Enregistrer</button>
+        <button type="button" [disabled]="!canSave()" (click)="enregistrerEtPasserDevis()">
+          Enregistrer + Devis à valider
+        </button>
+      </div>
+    </form>
+  }
+</section>

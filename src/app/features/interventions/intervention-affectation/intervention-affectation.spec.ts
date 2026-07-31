@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 
 import { InterventionAffectation } from './intervention-affectation';
+import { InterventionService } from '../services/intervention-service';
 
 describe('InterventionAffectation', () => {
   let component: InterventionAffectation;
@@ -8,7 +11,74 @@ describe('InterventionAffectation', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InterventionAffectation]
+      imports: [InterventionAffectation],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({ id: '1' })
+            }
+          }
+        },
+        {
+          provide: InterventionService,
+          useValue: {
+            getById: () =>
+              of({
+                id: 1,
+                typeIntervention: 'REPARATION',
+                descriptionClient: 'Fuite huile',
+                diagnostic: 'Joint à remplacer',
+                statut: 'DEVIS_A_VALIDER',
+                priorite: 'HAUTE',
+                coutEstime: 200,
+                dateDepot: '2026-07-31',
+                dateRestitutionPrevue: '2026-08-02',
+                dateCloture: '',
+                vehiculeId: 12,
+                immatriculationVehicule: 'AA-123-BB',
+                mecanicienId: 0,
+                nomMecanicien: ''
+              }),
+            updateAffectation: () =>
+              of({
+                id: 1,
+                typeIntervention: 'REPARATION',
+                descriptionClient: 'Fuite huile',
+                diagnostic: 'Joint à remplacer',
+                statut: 'DEVIS_A_VALIDER',
+                priorite: 'HAUTE',
+                coutEstime: 200,
+                dateDepot: '2026-07-31',
+                dateRestitutionPrevue: '2026-08-02',
+                dateCloture: '',
+                vehiculeId: 12,
+                immatriculationVehicule: 'AA-123-BB',
+                mecanicienId: 5,
+                nomMecanicien: 'Yacine'
+              }),
+            updateStatus: () =>
+              of({
+                id: 1,
+                typeIntervention: 'REPARATION',
+                descriptionClient: 'Fuite huile',
+                diagnostic: 'Joint à remplacer',
+                statut: 'EN_REPARATION',
+                priorite: 'HAUTE',
+                coutEstime: 200,
+                dateDepot: '2026-07-31',
+                dateRestitutionPrevue: '2026-08-02',
+                dateCloture: '',
+                vehiculeId: 12,
+                immatriculationVehicule: 'AA-123-BB',
+                mecanicienId: 5,
+                nomMecanicien: 'Yacine'
+              })
+          }
+        }
+      ]
     })
     .compileComponents();
 

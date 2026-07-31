@@ -1,1 +1,51 @@
-<p>intervention-list works!</p>
+<section class="intervention-list">
+  <header class="intervention-list__header">
+    <h2>Liste des interventions</h2>
+    <button type="button" (click)="creerIntervention()">Nouvelle intervention</button>
+  </header>
+
+  @if (loading()) {
+    <p>Chargement...</p>
+  } @else if (errorMessage()) {
+    <p class="intervention-list__error">{{ errorMessage() }}</p>
+  } @else if (interventions().length > 0) {
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Statut</th>
+          <th>Priorité</th>
+          <th>Véhicule</th>
+          <th>Mécanicien</th>
+          <th>Date dépôt</th>
+          <th>Coût estimé</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (intervention of interventions(); track intervention.id) {
+          <tr>
+            <td>{{ intervention.id }}</td>
+            <td>{{ intervention.typeIntervention }}</td>
+            <td><app-status-tag [value]="intervention.statut" /></td>
+            <td>{{ intervention.priorite }}</td>
+            <td>{{ intervention.immatriculationVehicule }}</td>
+            <td>{{ intervention.nomMecanicien || '-' }}</td>
+            <td>{{ intervention.dateDepot | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ intervention.coutEstime || 0 }}</td>
+            <td class="intervention-list__actions">
+              <button type="button" (click)="voirDetail(intervention.id)">Détail</button>
+              <button type="button" (click)="allerDiagnostic(intervention.id)">Diagnostic</button>
+              <button type="button" (click)="allerAffectation(intervention.id)">Affectation</button>
+              <button type="button" (click)="voirHistorique(intervention.id)">Historique</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p>Aucune intervention trouvée.</p>
+  }
+</section>

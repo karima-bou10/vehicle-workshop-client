@@ -1,1 +1,84 @@
-<p>intervention-detail works!</p>
+<section class="intervention-detail">
+  <h2>Détail de l'intervention</h2>
+
+  @if (loading()) {
+    <p>Chargement...</p>
+  } @else if (errorMessage() && !intervention()) {
+    <p class="intervention-detail__error">{{ errorMessage() }}</p>
+    <button type="button" (click)="retourListe()">Retour à la liste</button>
+  } @else if (intervention(); as currentIntervention) {
+    @if (errorMessage()) {
+      <p class="intervention-detail__error">{{ errorMessage() }}</p>
+    }
+
+    <app-workflow-stepper [intervention]="currentIntervention" />
+
+    <dl>
+      <dt>ID</dt>
+      <dd>{{ currentIntervention.id }}</dd>
+
+      <dt>Type</dt>
+      <dd>{{ currentIntervention.typeIntervention }}</dd>
+
+      <dt>Description client</dt>
+      <dd>{{ currentIntervention.descriptionClient }}</dd>
+
+      <dt>Diagnostic</dt>
+      <dd>{{ currentIntervention.diagnostic || '-' }}</dd>
+
+      <dt>Statut</dt>
+      <dd><app-status-tag [value]="currentIntervention.statut" /></dd>
+
+      <dt>Priorité</dt>
+      <dd>{{ currentIntervention.priorite }}</dd>
+
+      <dt>Coût estimé</dt>
+      <dd>{{ currentIntervention.coutEstime || 0 }}</dd>
+
+      <dt>Date dépôt</dt>
+      <dd>{{ currentIntervention.dateDepot | date:'dd/MM/yyyy' }}</dd>
+
+      <dt>Date restitution prévue</dt>
+      <dd>{{ currentIntervention.dateRestitutionPrevue | date:'dd/MM/yyyy' }}</dd>
+
+      <dt>Date clôture</dt>
+      <dd>{{ currentIntervention.dateCloture | date:'dd/MM/yyyy' }}</dd>
+
+      <dt>Véhicule</dt>
+      <dd>{{ currentIntervention.immatriculationVehicule }}</dd>
+
+      <dt>Mécanicien</dt>
+      <dd>{{ currentIntervention.nomMecanicien || '-' }}</dd>
+    </dl>
+
+    <section class="intervention-detail__transition">
+      <h3>Transition de statut</h3>
+      <label>
+        Auteur
+        <input #authorInput type="text" [value]="transitionAuthor()" (input)="setTransitionAuthor(authorInput.value)" />
+      </label>
+      <label>
+        Commentaire
+        <textarea
+          #commentInput
+          rows="3"
+          [value]="transitionComment()"
+          (input)="setTransitionComment(commentInput.value)"
+        ></textarea>
+      </label>
+      <div class="intervention-detail__actions">
+        <button type="button" (click)="passerStatutSuivant()" [disabled]="actionLoading() || !nextStatusLabel()">
+          @if (nextStatusLabel(); as nextStatus) { Passer en {{ nextStatus }} } @else { Pas de transition possible }
+        </button>
+        <button type="button" (click)="annulerIntervention()" [disabled]="actionLoading()">Annuler intervention</button>
+      </div>
+    </section>
+
+    <div class="intervention-detail__actions">
+      <button type="button" (click)="allerDiagnostic()">Diagnostic</button>
+      <button type="button" (click)="allerAffectation()">Affectation</button>
+      <button type="button" (click)="allerHistorique()">Historique</button>
+      <button type="button" (click)="retourListe()">Retour à la liste</button>
+    </div>
+  }
+</section>

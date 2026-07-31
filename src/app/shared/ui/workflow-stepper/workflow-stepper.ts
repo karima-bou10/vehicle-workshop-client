@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { STATUT_METADATA, StatutIntervention, WORKFLOW_ORDRE } from '../../../core/models';
-
-interface Etape {
-  statut: StatutIntervention;
-  label: string;
-  etat: 'faite' | 'courante' | 'a-venir';
-  rang: number;
-}
+import { InterventionResponse } from '../../../features/interventions/models/intervention.model';
+import {
+  getInterventionRuleChecks,
+  getWorkflowStepState,
+  INTERVENTION_WORKFLOW_STEPS,
+  type InterventionWorkflowStep,
+} from '../../../features/interventions/models/intervention-workflow';
 
 @Component({
   selector: 'app-workflow-stepper',
@@ -15,17 +14,16 @@ interface Etape {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkflowStepper {
-  readonly statut = input.required<StatutIntervention>();
+  readonly intervention = input.required<InterventionResponse>();
 
-  readonly annulee = computed(() => this.statut() === 'ANNULEE');
+  protected readonly steps = INTERVENTION_WORKFLOW_STEPS;
+  protected readonly ruleChecks = computed(() => getInterventionRuleChecks(this.intervention()));
 
-  readonly etapes = computed<Etape[]>(() => {
-    const courant = WORKFLOW_ORDRE.indexOf(this.statut());
-    return WORKFLOW_ORDRE.map((statut, i) => ({
-      statut,
-      label: STATUT_METADATA[statut].label,
-      rang: i + 1,
-      etat: courant === -1 || i > courant ? 'a-venir' : i === courant ? 'courante' : 'faite',
-    }));
-  });
+  protected getStepState(step: InterventionWorkflowStep): string {
+    return getWorkflowStepState(this.intervention().statut, step.key);
+  }
+
+  protected stepClass(step: InterventionWorkflowStep): string {
+    return `workflow-stepper__step workflow-stepper__step--${this.getStepState(step)}`;
+  }
 }

@@ -1,1 +1,54 @@
-<p>intervention-affectation works!</p>
+<section class="intervention-affectation">
+  <h2>Affectation mécanicien</h2>
+
+  @if (loading()) {
+    <p>Chargement...</p>
+  } @else if (errorMessage()) {
+    <p class="intervention-affectation__error">{{ errorMessage() }}</p>
+  } @else {
+    <p>
+      Intervention #{{ intervention()?.id }} - statut actuel:
+      <strong>{{ intervention()?.statut }}</strong>
+    </p>
+
+    <form [formGroup]="form">
+      <label>
+        ID mécanicien
+        <input type="number" formControlName="mecanicienId" min="1" />
+      </label>
+
+      <label>
+        Nom mécanicien
+        <input type="text" formControlName="nomMecanicien" />
+      </label>
+
+      <label>
+        Spécialité
+        <input type="text" formControlName="specialite" />
+      </label>
+
+      <label class="intervention-affectation__checkbox">
+        <input type="checkbox" formControlName="disponible" />
+        Mécanicien disponible
+      </label>
+
+      <label>
+        Auteur
+        <input type="text" formControlName="auteur" />
+      </label>
+
+      <label>
+        Commentaire
+        <textarea rows="3" formControlName="commentaire"></textarea>
+      </label>
+
+      <div class="intervention-affectation__actions">
+        <button type="button" (click)="retourDetail()">Retour détail</button>
+        <button type="button" [disabled]="!canSave()" (click)="affecter()">Enregistrer affectation</button>
+        <button type="button" [disabled]="!canSave()" (click)="affecterEtPasserReparation()">
+          Enregistrer + En réparation
+        </button>
+      </div>
+    </form>
+  }
+</section>

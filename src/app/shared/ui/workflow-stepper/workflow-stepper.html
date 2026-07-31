@@ -1,21 +1,24 @@
-@if (annulee()) {
-  <p class="stepper-annulee">Intervention annulée — le workflow est interrompu.</p>
-} @else {
-  <ol class="stepper">
-    @for (etape of etapes(); track etape.statut) {
-      <li class="stepper__etape" [class]="'stepper__etape--' + etape.etat">
-        <span class="stepper__marqueur">
-          @if (etape.etat === 'faite') {
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"
-                 aria-hidden="true">
-              <path d="M3.5 8.5l3 3 6-7" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          } @else {
-            {{ etape.rang }}
-          }
-        </span>
-        <span class="stepper__label">{{ etape.label }}</span>
+<ul class="workflow-stepper__steps">
+  @for (step of steps; track step.key) {
+    <li [class]="stepClass(step)">
+      <div class="workflow-stepper__bullet"></div>
+      <div>
+        <strong>{{ step.label }}</strong>
+        @if (step.key === 'DIAGNOSTIC_EN_COURS' || step.key === 'DEVIS_A_VALIDER') {
+          <p class="workflow-stepper__description">{{ step.description }}</p>
+        }
+      </div>
+    </li>
+  }
+</ul>
+
+<div class="workflow-stepper__rules">
+  <h3>Règles d'exécution</h3>
+  <ul>
+    @for (rule of ruleChecks; track rule.key) {
+      <li [class]="rule.passed ? '' : 'workflow-stepper__rule--failed'">
+        {{ rule.passed ? '✓' : '✗' }} {{ rule.message }}
       </li>
     }
-  </ol>
-}
+  </ul>
+</div>

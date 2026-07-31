@@ -1,71 +1,50 @@
-import { HttpClient, HttpParams } from "@angular/common/http";
-import { Injectable, inject } from "@angular/core";
-import { Observable } from "rxjs";
-import { environment } from "../../../../environments/environment.development";
-import { Page, StatutIntervention } from "../../../core/models";
-import { InterventionFiltre, HistoriqueIntervention, InterventionRequest, DiagnosticRequest, AffectationRequest, ChangementStatutRequest, InterventionModel } from "../models/intervention-model";
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { HistoriqueInterventionResponse } from '../models/historique.model';
+import {
+  CreateInterventionRequest,
+  InterventionResponse,
+  UpdateAffectationRequest,
+  UpdateDiagnosticRequest,
+  UpdateInterventionStatusRequest
+} from '../models/intervention.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class InterventionService {
-  private readonly http = inject(HttpClient);
-  private readonly base = `${environment.apiUrl}/interventions`;
 
-  // ---------- Lecture ----------
+  private http = inject(HttpClient);
 
-  lister(filtre: InterventionFiltre): Observable<Page<InterventionModel>> {
-    let params = new HttpParams().set('page', filtre.page).set('size', filtre.size);
+  private apiUrl = 'http://localhost:8080/api/intervention';
 
-    if (filtre.statut) params = params.set('statut', filtre.statut);
-    if (filtre.mecanicienId) params = params.set('mecanicienId', filtre.mecanicienId);
-    if (filtre.recherche?.trim()) params = params.set('recherche', filtre.recherche.trim());
-
-    return this.http.get<Page<InterventionModel>>(this.base, { params });
+  getAll(): Observable<InterventionResponse[]> {
+    return this.http.get<InterventionResponse[]>(this.apiUrl);
   }
 
-  parId(id: number): Observable<InterventionModel> {
-    return this.http.get<InterventionModel>(`${this.base}/${id}`);
+  getById(id: number): Observable<InterventionResponse> {
+    return this.http.get<InterventionResponse>(`${this.apiUrl}/${id}`);
   }
 
-  parVehicule(vehiculeId: number): Observable<InterventionModel[]> {
-    return this.http.get<InterventionModel[]>(`${environment.apiUrl}/vehicules/${vehiculeId}/interventions`);
+  getHistory(id: number): Observable<HistoriqueInterventionResponse[]> {
+    return this.http.get<HistoriqueInterventionResponse[]>(`${this.apiUrl}/${id}/historique`);
   }
 
-  historique(id: number): Observable<HistoriqueIntervention[]> {
-    return this.http.get<HistoriqueIntervention[]>(`${this.base}/${id}/historique`);
+  create(payload: CreateInterventionRequest): Observable<InterventionResponse> {
+    return this.http.post<InterventionResponse>(this.apiUrl, payload);
   }
 
-  // ---------- Écriture ----------
-
-  creer(corps: InterventionRequest): Observable<InterventionModel> {
-    return this.http.post<InterventionModel>(this.base, corps);
+  updateDiagnostic(id: number, payload: UpdateDiagnosticRequest): Observable<InterventionResponse> {
+    return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}/diagnostic`, payload);
   }
 
-  enregistrerDiagnostic(id: number, corps: DiagnosticRequest): Observable<InterventionModel> {
-    return this.http.patch<InterventionModel>(`${this.base}/${id}/diagnostic`, corps);
+  updateAffectation(id: number, payload: UpdateAffectationRequest): Observable<InterventionResponse> {
+    return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}/affectation`, payload);
   }
 
-  affecter(id: number, corps: AffectationRequest): Observable<InterventionModel> {
-    return this.http.patch<InterventionModel>(`${this.base}/${id}/affectation`, corps);
+  updateStatus(id: number, payload: UpdateInterventionStatusRequest): Observable<InterventionResponse> {
+    return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}/statut`, payload);
   }
-
-  // ---------- Transitions du workflow ----------
-
-  demarrerDiagnostic(id: number)  { return this.transition(id, 'DIAGNOSTIC_EN_COURS'); }
-  envoyerDevis(id: number)        { return this.transition(id, 'DEVIS_A_VALIDER'); }
-  validerDevis(id: number)        { return this.transition(id, 'EN_REPARATION'); }
-  terminer(id: number)            { return this.transition(id, 'TERMINEE'); }
-  restituer(id: number)           { return this.transition(id, 'RESTITUEE'); }
-
-  annuler(id: number, motif: string) {
-    return this.transition(id, 'ANNULEE', motif);
-  }
-
-  private transition(
-    id: number,
-    statut: StatutIntervention,
-    commentaire: string | null = null,
-  ): Observable<InterventionModel> {
-    const corps: ChangementStatutRequest = { statut, commentaire };
-    return this.http.patch<InterventionModel>(`${this.base}/${id}/statut`, corps);
-  }
+}
 }

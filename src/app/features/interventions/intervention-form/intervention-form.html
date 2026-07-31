@@ -1,1 +1,58 @@
-<p>intervention-form works!</p>
+<section class="intervention-form">
+  <h2>Création intervention</h2>
+
+  @if (errorMessage()) {
+    <p class="intervention-form__error">{{ errorMessage() }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <label>
+      Véhicule (ID)
+      <input type="number" formControlName="vehiculeId" min="1" />
+    </label>
+
+    <label>
+      Type d intervention
+      <select formControlName="typeIntervention">
+        @for (type of interventionTypes; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Description client
+      <textarea rows="4" formControlName="descriptionClient"></textarea>
+    </label>
+
+    <label>
+      Priorité
+      <select formControlName="priorite">
+        @for (priority of priorities; track priority) {
+          <option [value]="priority">{{ priority }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Date dépôt
+      <input type="date" formControlName="dateDepot" />
+    </label>
+
+    <label>
+      Date restitution prévue
+      <input type="date" formControlName="dateRestitutionPrevue" [min]="form.controls.dateDepot.value" />
+    </label>
+
+    <p class="intervention-form__hint">
+      Le statut initial sera <strong>Reçue</strong> conformément à RG-AUTO-03.
+    </p>
+
+    <div class="intervention-form__actions">
+      <button type="button" (click)="cancel()">Annuler</button>
+      <button type="submit" [disabled]="!canSubmit()">
+        @if (loading()) { Création... } @else { Créer intervention }
+      </button>
+    </div>
+  </form>
+</section>

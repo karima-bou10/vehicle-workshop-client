@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { STATUT_METADATA, StatutIntervention, StatusVariant } from '../../../core/models';
-import { NotificationTon } from '../../../core/services/notification-service';
+import { getInterventionStatusLabel, normalizeInterventionStatus } from '../../../features/interventions/models/intervention-workflow';
 
 @Component({
   selector: 'app-status-tag',
@@ -9,20 +9,38 @@ import { NotificationTon } from '../../../core/services/notification-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusTag {
-  /** Statut métier — le libellé et la couleur en découlent. */
   readonly statut = input<StatutIntervention | null>(null);
-
-  /** Mode libre : libellé + ton fournis directement (ex. « Disponible » sur un mécanicien). */
+  readonly value = input<string | null>(null);
   readonly libelle = input<string | null>(null);
   readonly ton = input<StatusVariant>('neutral');
 
   readonly texte = computed(() => {
-    const s = this.statut();
-    return s ? STATUT_METADATA[s].label : (this.libelle() ?? '—');
+    const statut = this.statut();
+    if (statut) {
+      return STATUT_METADATA[statut].label;
+    }
+
+    const value = this.value();
+    if (value) {
+      return getInterventionStatusLabel(value);
+    }
+
+    return this.libelle() ?? '—';
   });
 
   readonly tonEffectif = computed(() => {
-    const s = this.statut();
-    return s ? STATUT_METADATA[s].variant : this.ton();
+    const statut = this.statut();
+    if (statut) {
+      return STATUT_METADATA[statut].variant;
+    }
+
+    const value = this.value();
+    if (value) {
+      return normalizeInterventionStatus(value).toLowerCase();
+    }
+
+    return this.ton();
   });
+
+  readonly classes = computed(() => `status-tag status-tag--${this.tonEffectif()}`);
 }

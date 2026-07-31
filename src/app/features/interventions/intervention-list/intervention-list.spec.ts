@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 
 import { InterventionList } from './intervention-list';
+import { InterventionService } from '../services/intervention-service';
 
 describe('InterventionList', () => {
   let component: InterventionList;
@@ -8,7 +11,16 @@ describe('InterventionList', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InterventionList]
+      imports: [InterventionList],
+      providers: [
+        provideRouter([]),
+        {
+          provide: InterventionService,
+          useValue: {
+            getAll: () => of([])
+          }
+        }
+      ]
     })
     .compileComponents();
 

@@ -26,7 +26,12 @@ export const routes: Routes = [
         data: { titre: 'Véhicules' },
         loadChildren: () => import('./features/vehicules/vehicules.routes').then(m => m.VEHICULES_ROUTES),
       },
-      // { path: 'interventions', ... },
+      {
+        path: 'interventions',
+        data: { titre: 'Interventions' },
+        loadChildren: () =>
+          import('./features/interventions/interventions.routes').then(m => m.interventionsRoutes),
+      },
       // { path: 'mecaniciens', ... },  // + canActivate: [roleGuard('ROLE_MANAGER')]
     ],
   },
