@@ -21,7 +21,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard-home/dashboard-home').then(m => m.DashboardHome),
       },
-
+      {
+        path: 'vehicules',
+        data: { titre: 'Véhicules' },
+        loadChildren: () => import('./features/vehicules/vehicules.routes').then(m => m.VEHICULES_ROUTES),
+      },
+    
       {
         path: 'mecaniciens',
         data: { titre: 'Mécaniciens' },

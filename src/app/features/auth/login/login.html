@@ -22,13 +22,13 @@
 
   <!-- Volet droit : formulaire -->
   <section class="login__panneau">
-    <form class="login__form" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
+    <form class="login__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
 
       <h1 class="login__titre">Connexion</h1>
       <p class="login__sous-titre">Accédez à votre espace atelier.</p>
 
-      @if (erreur()) {
-        <p class="login__alerte" role="alert">{{ erreur() }}</p>
+      @if (error()) {
+        <p class="login__alerte" role="alert">{{ error() }}</p>
       }
 
       <div class="field">
@@ -37,8 +37,8 @@
                type="text"
                autocomplete="username"
                formControlName="username"
-               [class.is-invalid]="champInvalide('username')" />
-        @if (champInvalide('username')) {
+               [class.is-invalid]="isInvalid('username')" />
+        @if (isInvalid('username')) {
           <span class="field__error">L'identifiant est obligatoire.</span>
         }
       </div>
@@ -47,24 +47,24 @@
         <label for="password">Mot de passe</label>
         <div class="login__mdp">
           <input id="password"
-                 [type]="motDePasseVisible() ? 'text' : 'password'"
+                 [type]="passwordVisible() ? 'text' : 'password'"
                  autocomplete="current-password"
                  formControlName="password"
-                 [class.is-invalid]="champInvalide('password')" />
+                 [class.is-invalid]="isInvalid('password')" />
           <button type="button"
                   class="login__mdp-bascule"
-                  [attr.aria-label]="motDePasseVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
-                  (click)="basculerMotDePasse()">
-            {{ motDePasseVisible() ? 'Masquer' : 'Afficher' }}
+                  [attr.aria-label]="passwordVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                  (click)="togglePassword()">
+            {{ passwordVisible() ? 'Masquer' : 'Afficher' }}
           </button>
         </div>
-        @if (champInvalide('password')) {
+        @if (isInvalid('password')) {
           <span class="field__error">Le mot de passe doit contenir au moins 4 caractères.</span>
         }
       </div>
 
-      <button type="submit" class="btn btn--primary login__submit" [disabled]="enCours()">
-        {{ enCours() ? 'Connexion…' : 'Se connecter' }}
+      <button type="submit" class="btn btn--primary login__submit" [disabled]="submitting()">
+        {{ submitting() ? 'Connexion…' : 'Se connecter' }}
       </button>
     </form>
   </section>

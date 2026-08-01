@@ -139,31 +139,29 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
   .field__error { font-size: 12px; color: var(--danger); }
 }
 
-/* ============ Structure de page ============ */
 .page {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  max-width: 1180px;
+
+  &__entete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  &__titre { font-size: 18px; }
+
+  &__sous-titre {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  &__actions { display: flex; align-items: center; gap: 10px; }
 }
-
-.page__entete {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.page__titre { font-size: 18px; }
-
-.page__sous-titre {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.page__actions { display: flex; gap: 10px; }
 
 /* ============ Carte ============ */
 .carte {
@@ -172,20 +170,33 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1);
   padding: 20px;
+
+  &__titre {
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  &__entete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
 }
 
-.carte__titre {
-  font-size: 14px;
-  margin-bottom: 16px;
-}
+/* ============ Grilles ============ */
+.grille { display: grid; gap: 18px; }
+.grille--2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.grille--3 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.grille--4 { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
 
-/* ============ Filtres ============ */
+/* ============ Barre de filtres ============ */
 .filtres {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 1.5rem;
 
   input, select {
     height: 36px;
@@ -205,33 +216,67 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
   input[type='search'] { min-width: 250px; }
 }
 
-/* ============ Formulaires ============ */
-.form-grille {
+/* ============ Liste de définitions (fiches détail) ============ */
+.def {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: 170px 1fr;
+  gap: 12px 18px;
+  margin: 0;
+  font-size: 13.5px;
 
-  .form-grille__pleine { grid-column: 1 / -1; }
+  dt { color: var(--text-muted); }
+  dd { margin: 0; font-weight: 500; }
 
-  @media (max-width: 720px) { grid-template-columns: 1fr; }
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+    dd { margin-bottom: 10px; }
+  }
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 22px;
-  padding-top: 18px;
-  border-top: 1px solid var(--border);
+/* ============ Formulaires ============ */
+.form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+
+  &__pleine-largeur { grid-column: 1 / -1; }
+
+  &__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+
+  textarea {
+    min-height: 90px;
+    padding: 10px 12px;
+    resize: vertical;
+    line-height: 1.5;
+  }
 }
 
 /* ============ Divers ============ */
-.mono { font-family: var(--font-mono); font-size: 12.5px; }
+.mono { font-family: var(--font-mono); font-size: 12.5px; padding-left: 10px; }
+
+.lien {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover { text-decoration: underline; }
+}
+
+.muted { color: var(--text-muted); }
 
 .actions-ligne {
   display: flex;
+  gap: 6px;
   justify-content: flex-end;
-  gap: 4px;
 }
 
 .bouton-icone {
@@ -244,23 +289,9 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: background var(--transition), color var(--transition);
 
   svg { width: 16px; height: 16px; }
 
   &:hover { background: var(--surface-alt); color: var(--text); }
   &--danger:hover { background: var(--danger-soft); color: var(--danger); }
-}
-
-.definitions {
-  display: grid;
-  grid-template-columns: 160px minmax(0, 1fr);
-  gap: 12px 18px;
-  margin: 0;
-  font-size: 13.5px;
-
-  dt { color: var(--text-muted); }
-  dd { margin: 0; }
-
-  @media (max-width: 560px) { grid-template-columns: 1fr; gap: 2px 0; }
 }
