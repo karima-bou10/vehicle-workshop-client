@@ -1,10 +1,12 @@
+import { Intervention } from "../../interventions/models/intervention.model";
+
 export interface Mecanicien {
   id: number;
   nom: string;
   prenom: string;
   specialite: string;
   disponible: boolean;
-  //nbInterventionsEnCours: number;
+  interventions: Intervention[];
 }
 
 export interface CreateMecanicienRequest {

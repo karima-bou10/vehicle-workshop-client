@@ -90,6 +90,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
   font-weight: 500;
   cursor: pointer;
   transition: background var(--transition), border-color var(--transition);
+  text-decoration: none;
 
   &:disabled { opacity: .55; cursor: not-allowed; }
 
@@ -136,4 +137,130 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
   }
 
   .field__error { font-size: 12px; color: var(--danger); }
+}
+
+/* ============ Structure de page ============ */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 1180px;
+}
+
+.page__entete {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page__titre { font-size: 18px; }
+
+.page__sous-titre {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.page__actions { display: flex; gap: 10px; }
+
+/* ============ Carte ============ */
+.carte {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  padding: 20px;
+}
+
+.carte__titre {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* ============ Filtres ============ */
+.filtres {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+
+  input, select {
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font: inherit;
+    background: var(--surface);
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+  }
+
+  input[type='search'] { min-width: 250px; }
+}
+
+/* ============ Formulaires ============ */
+.form-grille {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+
+  .form-grille__pleine { grid-column: 1 / -1; }
+
+  @media (max-width: 720px) { grid-template-columns: 1fr; }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+/* ============ Divers ============ */
+.mono { font-family: var(--font-mono); font-size: 12.5px; }
+
+.actions-ligne {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.bouton-icone {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+
+  svg { width: 16px; height: 16px; }
+
+  &:hover { background: var(--surface-alt); color: var(--text); }
+  &--danger:hover { background: var(--danger-soft); color: var(--danger); }
+}
+
+.definitions {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 12px 18px;
+  margin: 0;
+  font-size: 13.5px;
+
+  dt { color: var(--text-muted); }
+  dd { margin: 0; }
+
+  @media (max-width: 560px) { grid-template-columns: 1fr; gap: 2px 0; }
 }

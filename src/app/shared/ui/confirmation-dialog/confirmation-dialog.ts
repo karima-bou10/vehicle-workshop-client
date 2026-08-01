@@ -18,6 +18,8 @@ export class ConfirmationDialog {
   readonly variante = input<'primary' | 'danger'>('primary');
   readonly enCours = input(false);
 
+  readonly afficherConfirmer = input();
+
   readonly confirmer = output<void>();
   readonly annuler = output<void>();
 
