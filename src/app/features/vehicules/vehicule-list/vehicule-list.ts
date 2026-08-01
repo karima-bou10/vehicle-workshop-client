@@ -11,6 +11,7 @@ import { ConfirmationDialog } from '../../../shared/ui/confirmation-dialog/confi
 import { PaginatedTable, TableColumn } from '../../../shared/ui/paginated-table/paginated-table';
 import { VehiculeService } from '../services/vehicule-service';
 import { VehiculeModel } from '../models/vehicule-model';
+import { InterventionService } from '../../interventions/services/intervention-service';
 
 @Component({
   selector: 'app-vehicule-list',
@@ -20,7 +21,8 @@ import { VehiculeModel } from '../models/vehicule-model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VehiculeList {
-  private readonly service = inject(VehiculeService);
+  private readonly vehiculeService = inject(VehiculeService);
+  private readonly interventionService = inject(InterventionService);
   private readonly notif = inject(NotificationService);
   private readonly router = inject(Router);
 
@@ -30,6 +32,10 @@ export class VehiculeList {
   readonly loading = signal(false);
   readonly toDelete = signal<VehiculeModel | null>(null);
   readonly deleting = signal(false);
+
+  readonly verification = signal(false);
+  readonly alertMessage = signal('');
+  readonly openAlert = signal(false);
 
   readonly search = new FormControl('', { nonNullable: true });
 
@@ -55,7 +61,7 @@ export class VehiculeList {
   load(index: number): void {
     this.loading.set(true);
 
-    this.service
+    this.vehiculeService
       .getAllVehicules({ page: index, size: this.PAGE_SIZE, recherche: this.search.value })
       .subscribe({
         next: page => {
@@ -72,7 +78,22 @@ export class VehiculeList {
 
   requestDelete(v: VehiculeModel, event: MouseEvent): void {
     event.stopPropagation();
-    this.toDelete.set(v);
+    this.verification.set(true);
+    this.interventionService.getInterventionsByVehiculeId(v.id).subscribe({
+      next: (interventions) => {
+        this.verification.set(false);
+        if(interventions.length === 0) {
+          this.toDelete.set(v);
+        } else {
+          this.alertMessage.set(`Le véhicule ${v.immatriculationFictive} a ${interventions.length} intervention(s) associées et ne peut pas être supprimé.`);
+          this.openAlert.set(true);
+        }
+
+      },
+      error: () => {
+        this.verification.set(false);
+      }
+    });
   }
 
   confirmDelete(): void {
@@ -81,7 +102,7 @@ export class VehiculeList {
 
     this.deleting.set(true);
 
-    this.service.deleteVehicule(v.id).subscribe({
+    this.vehiculeService.deleteVehicule(v.id).subscribe({
       next: () => {
         this.notif.success(`Véhicule ${v.immatriculationFictive} supprimé.`);
         this.deleting.set(false);
