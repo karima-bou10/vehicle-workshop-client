@@ -19,6 +19,8 @@ export class ConfirmationDialog {
   readonly enCours = input(false);
 
   readonly afficherConfirmer = input();
+  /** Mode alerte */
+  readonly modeAlert = input(false);
 
   readonly confirmer = output<void>();
   readonly annuler = output<void>();
