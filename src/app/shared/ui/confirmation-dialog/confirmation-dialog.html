@@ -13,11 +13,13 @@
       }
 
       <div class="dialog__actions">
-        <button type="button" class="btn btn--ghost"
-                [disabled]="enCours()"
-                (click)="annuler.emit()">
-          {{ libelleAnnuler() }}
-        </button>
+        @if (!modeAlert()) {
+          <button type="button" class="btn btn--ghost"
+                  [disabled]="enCours()"
+                  (click)="annuler.emit()">
+            {{ libelleAnnuler() }}
+          </button>
+        }
 
         <button type="button"
                 class="btn"
