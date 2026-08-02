@@ -1,4 +1,4 @@
-import { Intervention } from "../../interventions/models/intervention.model";
+import { InterventionModel } from '../../interventions/models/intervention-model';
 
 export interface Mecanicien {
   id: number;
@@ -6,7 +6,7 @@ export interface Mecanicien {
   prenom: string;
   specialite: string;
   disponible: boolean;
-  interventions: Intervention[];
+  interventions: InterventionModel[];
 }
 
 export interface CreateMecanicienRequest {

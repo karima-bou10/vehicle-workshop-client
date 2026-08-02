@@ -62,9 +62,9 @@ export class VehiculeList {
     this.loading.set(true);
 
     this.vehiculeService
-      .getAllVehicules({ page: index, size: this.PAGE_SIZE, recherche: this.search.value })
+      .getAllVehicules({ page: index, size: this.PAGE_SIZE, search: this.search.value })
       .subscribe({
-        next: page => {
+        next: (page) => {
           this.page.set(page);
           this.loading.set(false);
         },

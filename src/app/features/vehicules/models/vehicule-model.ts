@@ -20,5 +20,5 @@ export interface VehiculeRequest {
 export interface VehiculeFiltre {
   page: number;
   size: number;
-  recherche?: string;
+  search?: string;
 }
