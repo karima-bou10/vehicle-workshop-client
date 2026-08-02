@@ -39,9 +39,10 @@ export class VehiculeDetail {
         error: () => this.loading.set(false),
       });
 
-      this.interventionService.parVehicule(id).subscribe({
-        next: liste => this.interventions.set(liste),
-      });
+      // TODO: Add parVehicule method to InterventionService
+      // this.interventionService.parVehicule(id).subscribe({
+      //   next: (liste: any[]) => this.interventions.set(liste),
+      // });
     });
   }
 }

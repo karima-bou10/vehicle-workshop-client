@@ -4,21 +4,10 @@
       <div class="workflow-stepper__bullet"></div>
       <div>
         <strong>{{ step.label }}</strong>
-        @if (step.key === 'DIAGNOSTIC_EN_COURS' || step.key === 'DEVIS_A_VALIDER') {
+        @if (step.description) {
           <p class="workflow-stepper__description">{{ step.description }}</p>
         }
       </div>
     </li>
   }
 </ul>
-
-<div class="workflow-stepper__rules">
-  <h3>Règles d'exécution</h3>
-  <ul>
-    @for (rule of ruleChecks; track rule.key) {
-      <li [class]="rule.passed ? '' : 'workflow-stepper__rule--failed'">
-        {{ rule.passed ? '✓' : '✗' }} {{ rule.message }}
-      </li>
-    }
-  </ul>
-</div>

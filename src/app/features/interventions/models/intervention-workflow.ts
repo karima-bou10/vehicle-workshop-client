@@ -14,6 +14,7 @@ export type KnownInterventionStatus =
 export interface InterventionWorkflowStep {
   key: Exclude<KnownInterventionStatus, 'ANNULEE' | 'UNKNOWN'>;
   label: string;
+  description?: string;
 }
 
 export interface InterventionRuleCheck {
@@ -129,13 +130,13 @@ export function getWorkflowStepState(
 
 export function getInterventionRuleChecks(intervention: InterventionResponse): InterventionRuleCheck[] {
   const normalizedStatus = normalizeInterventionStatus(intervention.statut);
-  const hasVehicle = intervention.vehiculeId > 0 && intervention.immatriculationVehicule.trim().length > 0;
+  const hasVehicle = intervention.vehiculeId > 0 && (intervention.immatriculationVehicule?.trim().length ?? 0) > 0;
   const normalizedType = sanitizeValue(intervention.typeIntervention);
   const hasValidType = INTERVENTION_TYPES.includes(normalizedType as (typeof INTERVENTION_TYPES)[number]);
   const requiresEstimatedCost = COST_REQUIRED_STATUSES.includes(normalizedStatus);
-  const hasEstimatedCost = intervention.coutEstime > 0;
+  const hasEstimatedCost = (intervention.coutEstime ?? 0) > 0;
   const requiresMechanic = MECHANIC_REQUIRED_STATUSES.includes(normalizedStatus);
-  const hasMechanic = intervention.mecanicienId > 0 && intervention.nomMecanicien.trim().length > 0;
+  const hasMechanic = (intervention.mecanicienId ?? 0) > 0 && (intervention.nomMecanicien?.trim().length ?? 0) > 0;
   const currentWorkflowIndex = WORKFLOW_ORDER.findIndex((status) => status === normalizedStatus);
   const followsWorkflow = normalizedStatus === 'ANNULEE' || currentWorkflowIndex >= 0;
 
@@ -231,7 +232,7 @@ export function canTransitionToStatus(
     };
   }
 
-  if (targetStatus === 'DEVIS_A_VALIDER' && intervention.coutEstime <= 0) {
+  if (targetStatus === 'DEVIS_A_VALIDER' && (intervention.coutEstime ?? 0) <= 0) {
     return {
       allowed: false,
       reason: 'Le cout estime est obligatoire avant le passage a Devis a valider.'
@@ -239,7 +240,7 @@ export function canTransitionToStatus(
   }
 
   if (targetStatus === 'EN_REPARATION') {
-    const hasMechanic = intervention.mecanicienId > 0 && intervention.nomMecanicien.trim().length > 0;
+    const hasMechanic = (intervention.mecanicienId ?? 0) > 0 && (intervention.nomMecanicien?.trim().length ?? 0) > 0;
     if (!hasMechanic) {
       return {
         allowed: false,

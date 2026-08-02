@@ -1,51 +1,134 @@
-<section class="intervention-list">
-  <header class="intervention-list__header">
-    <h2>Liste des interventions</h2>
-    <button type="button" (click)="creerIntervention()">Nouvelle intervention</button>
-  </header>
+<div class="page">
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Interventions</h2>
+      <p class="page__sous-titre">{{ interventions().length }} intervention(s) enregistrée(s)</p>
+    </div>
+    <div class="page__actions">
+      <button type="button" class="btn btn--primary" (click)="creerIntervention()">
+        Nouvelle intervention
+      </button>
+    </div>
+  </div>
 
   @if (loading()) {
-    <p>Chargement...</p>
+    <app-loading-spinner [pleinePage]="true" message="Chargement des interventions…" />
   } @else if (errorMessage()) {
-    <p class="intervention-list__error">{{ errorMessage() }}</p>
-  } @else if (interventions().length > 0) {
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Type</th>
-          <th>Statut</th>
-          <th>Priorité</th>
-          <th>Véhicule</th>
-          <th>Mécanicien</th>
-          <th>Date dépôt</th>
-          <th>Coût estimé</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        @for (intervention of interventions(); track intervention.id) {
-          <tr>
-            <td>{{ intervention.id }}</td>
-            <td>{{ intervention.typeIntervention }}</td>
-            <td><app-status-tag [value]="intervention.statut" /></td>
-            <td>{{ intervention.priorite }}</td>
-            <td>{{ intervention.immatriculationVehicule }}</td>
-            <td>{{ intervention.nomMecanicien || '-' }}</td>
-            <td>{{ intervention.dateDepot | date: 'dd/MM/yyyy' }}</td>
-            <td>{{ intervention.coutEstime || 0 }}</td>
-            <td class="intervention-list__actions">
-              <button type="button" (click)="voirDetail(intervention.id)">Détail</button>
-              <button type="button" (click)="allerDiagnostic(intervention.id)">Diagnostic</button>
-              <button type="button" (click)="allerAffectation(intervention.id)">Affectation</button>
-              <button type="button" (click)="voirHistorique(intervention.id)">Historique</button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+    <p class="muted">{{ errorMessage() }}</p>
   } @else {
-    <p>Aucune intervention trouvée.</p>
+    @if (registrationWarning()) {
+      <p class="muted">{{ registrationWarning() }}</p>
+    }
+    <app-paginated-table
+      [colonnes]="columns"
+      [lignes]="interventions()"
+      [totalElements]="interventions().length"
+      [ligneTemplate]="ligne"
+      messageVide="Aucune intervention trouvée"
+    />
+
+    <ng-template #ligne let-i>
+      <td class="mono">{{ i.id }}</td>
+      <td>{{ i.typeIntervention }}</td>
+      <td><app-status-tag [value]="i.statut" /></td>
+      <td>{{ i.priorite }}</td>
+      <td class="mono">{{ i.immatriculationVehicule }}</td>
+      <td>{{ i.nomMecanicien || '—' }}</td>
+      <td class="muted">{{ i.dateDepot | date: 'dd/MM/yyyy' }}</td>
+      <td style="text-align: right; padding-right: 16px">{{ i.coutEstime ?? '—' }} MAD</td>
+      <td>
+        <div class="actions-ligne">
+          <button type="button" class="bouton-icone" title="Détail" (click)="voirDetail(i.id)">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="bouton-icone"
+            title="Diagnostic"
+            (click)="allerDiagnostic(i.id)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="bouton-icone"
+            title="Affectation"
+            (click)="allerAffectation(i.id)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="bouton-icone"
+            title="Devis"
+            (click)="allerDevis(i.id)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 1v22" />
+              <path d="M17 5.5a5 5 0 0 0-10 0c0 6 10 4 10 10a5 5 0 0 1-10 0" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="bouton-icone"
+            title="Historique"
+            (click)="voirHistorique(i.id)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </button>
+        </div>
+      </td>
+    </ng-template>
   }
-</section>
+</div>

@@ -65,7 +65,8 @@
               "buildTarget": "vehicle-workshop-client:build:production"
             },
             "development": {
-              "buildTarget": "vehicle-workshop-client:build:development"
+              "buildTarget": "vehicle-workshop-client:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

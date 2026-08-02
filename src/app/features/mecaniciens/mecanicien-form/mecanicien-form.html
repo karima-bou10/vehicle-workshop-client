@@ -1,1 +1,34 @@
-<p>mecanicien-form works!</p>
+<div class="page">
+
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Nouveau mécanicien</h2>
+      <p class="page__sous-titre">Fiche mécanicien.</p>
+    </div>
+  </div>
+
+  <div class="carte">
+    <form class="form">
+      <div class="field">
+        <label for="nom">Nom *</label>
+        <input id="nom" type="text" />
+      </div>
+
+      <div class="field">
+        <label for="prenom">Prénom *</label>
+        <input id="prenom" type="text" />
+      </div>
+
+      <div class="field">
+        <label for="specialite">Spécialité *</label>
+        <input id="specialite" type="text" />
+      </div>
+
+      <div class="form__actions">
+        <a class="btn btn--ghost" routerLink="/mecaniciens">Annuler</a>
+        <button type="submit" class="btn btn--primary">Créer le mécanicien</button>
+      </div>
+    </form>
+  </div>
+
+</div>

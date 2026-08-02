@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { InterventionResponse } from '../../../features/interventions/models/intervention.model';
 import {
-  getInterventionRuleChecks,
   getWorkflowStepState,
   INTERVENTION_WORKFLOW_STEPS,
   type InterventionWorkflowStep,
@@ -17,7 +16,6 @@ export class WorkflowStepper {
   readonly intervention = input.required<InterventionResponse>();
 
   protected readonly steps = INTERVENTION_WORKFLOW_STEPS;
-  protected readonly ruleChecks = computed(() => getInterventionRuleChecks(this.intervention()));
 
   protected getStepState(step: InterventionWorkflowStep): string {
     return getWorkflowStepState(this.intervention().statut, step.key);

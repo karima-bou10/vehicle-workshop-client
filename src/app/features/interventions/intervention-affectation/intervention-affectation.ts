@@ -1,12 +1,15 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { InterventionResponse } from '../models/intervention.model';
 import { InterventionService } from '../services/intervention-service';
+import { LoadingSpinner } from '../../../shared/ui/loading-spinner/loading-spinner';
+import { AuthService } from '../../../core/services/auth-service';
 
 @Component({
   selector: 'app-intervention-affectation',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, LoadingSpinner],
   templateUrl: './intervention-affectation.html',
   styleUrl: './intervention-affectation.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -16,6 +19,7 @@ export class InterventionAffectation implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly interventionService = inject(InterventionService);
+  private readonly auth = inject(AuthService);
 
   readonly intervention = signal<InterventionResponse | null>(null);
   readonly loading = signal(true);
@@ -23,15 +27,16 @@ export class InterventionAffectation implements OnInit {
   readonly errorMessage = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
-    mecanicienId: [0, [Validators.required, Validators.min(1)]],
-    nomMecanicien: ['', [Validators.required, Validators.minLength(2)]],
-    specialite: ['', [Validators.required, Validators.minLength(2)]],
-    disponible: [true, [Validators.required]],
-    auteur: ['', [Validators.required, Validators.minLength(2)]],
-    commentaire: ['']
+    mecanicienId: [0, [Validators.required, Validators.min(1)]]
   });
 
-  protected readonly canSave = computed(() => this.form.valid && this.form.controls.disponible.value && !this.saving());
+  private readonly formStatus = toSignal(this.form.statusChanges, {
+    initialValue: this.form.status
+  });
+
+  protected readonly canSave = computed(
+    () => this.formStatus() === 'VALID' && !this.saving()
+  );
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -47,8 +52,7 @@ export class InterventionAffectation implements OnInit {
       next: (response) => {
         this.intervention.set(response);
         this.form.patchValue({
-          mecanicienId: response.mecanicienId ?? 0,
-          nomMecanicien: response.nomMecanicien ?? ''
+          mecanicienId: response.mecanicienId ?? 0
         });
         this.loading.set(false);
       },
@@ -79,9 +83,9 @@ export class InterventionAffectation implements OnInit {
   }
 
   private executeSave(moveToRepair: boolean): void {
-    if (!this.form.valid || !this.form.controls.disponible.value) {
+    if (!this.form.valid) {
       this.form.markAllAsTouched();
-      this.errorMessage.set('Le mécanicien doit être disponible avant affectation.');
+      this.errorMessage.set('Le formulaire est invalide.');
       return;
     }
 
@@ -90,49 +94,68 @@ export class InterventionAffectation implements OnInit {
       return;
     }
 
+    const payload = this.form.getRawValue();
+
+    // Defensive guard: mecanicienId must be a valid positive integer
+    if (!payload.mecanicienId || payload.mecanicienId < 1) {
+      this.errorMessage.set('Veuillez renseigner un identifiant de mécanicien valide.');
+      return;
+    }
+
     this.saving.set(true);
     this.errorMessage.set(null);
-    const payload = this.form.getRawValue();
 
     this.interventionService
       .updateAffectation(currentIntervention.id, {
-        mecanicienId: payload.mecanicienId,
-        nomMecanicien: payload.nomMecanicien,
-        specialite: payload.specialite,
-        disponible: payload.disponible,
-        auteur: payload.auteur,
-        commentaire: payload.commentaire || undefined
+        mecanicienId: Number(payload.mecanicienId)
       })
       .subscribe({
         next: (updated) => {
+          this.intervention.set(updated);
           if (!moveToRepair) {
-            this.intervention.set(updated);
             this.saving.set(false);
+            void this.router.navigate(['/interventions', updated.id]);
             return;
           }
 
-          this.interventionService
-            .updateStatus(updated.id, {
-              nouveauStatut: 'EN_REPARATION',
-              auteur: payload.auteur,
-              commentaire: payload.commentaire || 'Passage en réparation après affectation.'
-            })
-            .subscribe({
-              next: (statusUpdated) => {
-                this.intervention.set(statusUpdated);
-                this.saving.set(false);
-                void this.router.navigate(['/interventions', statusUpdated.id]);
-              },
-              error: (error: unknown) => {
-                console.error('Failed to move intervention to repair.', error);
-                this.errorMessage.set('Affectation enregistrée mais transition vers En réparation refusée.');
-                this.saving.set(false);
-              }
-            });
+          this.transitionToRepair(updated);
         },
         error: (error: unknown) => {
           console.error('Failed to save assignment.', error);
           this.errorMessage.set("Impossible d'enregistrer l affectation.");
+          this.saving.set(false);
+        }
+      });
+  }
+
+  private transitionToRepair(intervention: InterventionResponse): void {
+    if (intervention.statut === 'EN_REPARATION') {
+      this.saving.set(false);
+      void this.router.navigate(['/interventions', intervention.id]);
+      return;
+    }
+
+    const author = this.auth.currentUser()?.username.trim() ?? '';
+    if (author.length < 2) {
+      this.errorMessage.set("Impossible d'identifier l'utilisateur connecté.");
+      this.saving.set(false);
+      return;
+    }
+
+    this.interventionService
+      .updateStatus(intervention.id, {
+        nouveauStatut: 'EN_REPARATION',
+        auteur: author
+      })
+      .subscribe({
+        next: (updated) => {
+          this.intervention.set(updated);
+          this.saving.set(false);
+          void this.router.navigate(['/interventions', updated.id]);
+        },
+        error: (error: unknown) => {
+          console.error('Failed to start repair status transition.', error);
+          this.errorMessage.set("Impossible de passer l'intervention en réparation.");
           this.saving.set(false);
         }
       });

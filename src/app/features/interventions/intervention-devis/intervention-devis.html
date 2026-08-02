@@ -1,0 +1,54 @@
+<div class="page">
+
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Ajouter un devis</h2>
+      @if (intervention()) {
+        <p class="page__sous-titre">
+          Intervention #{{ intervention()!.id }} — statut : <strong>{{ intervention()!.statut }}</strong>
+        </p>
+      }
+    </div>
+    <div class="page__actions">
+      <button type="button" class="btn btn--ghost" (click)="retourDetail()">Retour</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner [pleinePage]="true" message="Chargement…" />
+  } @else if (errorMessage()) {
+    <p class="muted" style="color:var(--danger)">{{ errorMessage() }}</p>
+  } @else {
+    <div class="carte">
+      @if (!hasDiagnostic()) {
+        <p class="muted" style="color:var(--danger)">
+          Le diagnostic doit être renseigné avant l'ajout du devis.
+        </p>
+      }
+
+      <form class="form" [formGroup]="form">
+        <div class="field">
+          <label for="coutEstime">Coût estimé (MAD) *</label>
+          <input
+            id="coutEstime"
+            type="number"
+            formControlName="coutEstime"
+            min="1"
+            step="0.01"
+            [class.is-invalid]="form.controls.coutEstime.invalid && form.controls.coutEstime.touched"
+          />
+          @if (form.controls.coutEstime.invalid && form.controls.coutEstime.touched) {
+            <span class="field__error">Le coût estimé est obligatoire et doit être supérieur à 0.</span>
+          }
+        </div>
+
+        <div class="form__actions">
+          <button type="button" class="btn btn--primary" [disabled]="!canSave()" (click)="enregistrerDevis()">
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+</div>

@@ -1,44 +1,44 @@
-<section class="intervention-diagnostic">
-  <h2>Diagnostic intervention</h2>
+<div class="page">
+
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Diagnostic</h2>
+      @if (intervention()) {
+        <p class="page__sous-titre">
+          Intervention #{{ intervention()!.id }} — statut : <strong>{{ intervention()!.statut }}</strong>
+        </p>
+      }
+    </div>
+    <div class="page__actions">
+      <button type="button" class="btn btn--ghost" (click)="retourDetail()">Retour</button>
+    </div>
+  </div>
 
   @if (loading()) {
-    <p>Chargement...</p>
+    <app-loading-spinner [pleinePage]="true" message="Chargement…" />
   } @else if (errorMessage()) {
-    <p class="intervention-diagnostic__error">{{ errorMessage() }}</p>
+    <p class="muted" style="color:var(--danger)">{{ errorMessage() }}</p>
   } @else {
-    <p>
-      Intervention #{{ intervention()?.id }} - statut actuel:
-      <strong>{{ intervention()?.statut }}</strong>
-    </p>
+    <div class="carte">
+      <form class="form" [formGroup]="form">
 
-    <form [formGroup]="form">
-      <label>
-        Diagnostic
-        <textarea rows="5" formControlName="diagnostic"></textarea>
-      </label>
+        <div class="field form__pleine-largeur">
+          <label for="diagnostic">Diagnostic *</label>
+          <textarea id="diagnostic" formControlName="diagnostic"
+                    [class.is-invalid]="form.controls.diagnostic.invalid && form.controls.diagnostic.touched"></textarea>
+          @if (form.controls.diagnostic.invalid && form.controls.diagnostic.touched) {
+            <span class="field__error">Diagnostic obligatoire (5 caractères minimum).</span>
+          }
+        </div>
 
-      <label>
-        Coût estimé
-        <input type="number" min="0.01" step="0.01" formControlName="coutEstime" />
-      </label>
+        <div class="form__actions">
+          <button type="button" class="btn btn--ghost" [disabled]="!canSave()" (click)="enregistrerDiagnostic()">
+            Enregistrer
+          </button>
+        </div>
 
-      <label>
-        Auteur
-        <input type="text" formControlName="auteur" />
-      </label>
-
-      <label>
-        Commentaire
-        <textarea rows="3" formControlName="commentaire"></textarea>
-      </label>
-
-      <div class="intervention-diagnostic__actions">
-        <button type="button" (click)="retourDetail()">Retour détail</button>
-        <button type="button" [disabled]="!canSave()" (click)="enregistrerDiagnostic()">Enregistrer</button>
-        <button type="button" [disabled]="!canSave()" (click)="enregistrerEtPasserDevis()">
-          Enregistrer + Devis à valider
-        </button>
-      </div>
-    </form>
+      </form>
+    </div>
   }
-</section>
+
+</div>

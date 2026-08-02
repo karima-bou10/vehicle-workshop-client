@@ -1,28 +1,29 @@
 .workflow-stepper {
-  display: grid;
-  gap: 1.5rem;
+  overflow-x: auto;
 }
 
 .workflow-stepper__steps {
-  display: grid;
-  gap: 0.85rem;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.25rem;
   list-style: none;
   margin: 0;
   padding: 0;
+  white-space: nowrap;
 }
 
 .workflow-stepper__step {
-  display: grid;
-  grid-template-columns: 0.9rem 1fr;
+  display: flex;
   gap: 0.75rem;
-  align-items: start;
+  align-items: center;
+  flex: 0 0 auto;
 }
 
 .workflow-stepper__bullet {
   width: 0.9rem;
   height: 0.9rem;
   border-radius: 50%;
-  margin-top: 0.2rem;
+  flex: 0 0 auto;
   background: #cbd5e1;
 }
 
@@ -36,26 +37,4 @@
 
 .workflow-stepper__step--blocked .workflow-stepper__bullet {
   background: #dc2626;
-}
-
-.workflow-stepper__rules {
-  border: 1px solid #d1d5db;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  background: #f8fafc;
-}
-
-.workflow-stepper__rules h3 {
-  margin: 0 0 0.75rem;
-}
-
-.workflow-stepper__rules ul {
-  display: grid;
-  gap: 0.75rem;
-  margin: 0;
-  padding-left: 1.1rem;
-}
-
-.workflow-stepper__rule--failed {
-  color: #b91c1c;
 }
