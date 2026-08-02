@@ -18,6 +18,7 @@ export class ConfirmationDialog {
   readonly variante = input<'primary' | 'danger'>('primary');
   readonly enCours = input(false);
 
+  readonly afficherConfirmer = input();
   /** Mode alerte */
   readonly modeAlert = input(false);
 

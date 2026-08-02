@@ -21,14 +21,16 @@
           </button>
         }
 
-        <button type="button"
-                class="btn"
-                [class.btn--primary]="variante() === 'primary'"
-                [class.btn--danger]="variante() === 'danger'"
-                [disabled]="enCours()"
-                (click)="confirmer.emit()">
-          {{ enCours() ? 'Traitement…' : libelleConfirmer() }}
-        </button>
+        @if (afficherConfirmer()) {
+          <button type="button"
+                  class="btn"
+                  [class.btn--primary]="variante() === 'primary'"
+                  [class.btn--danger]="variante() === 'danger'"
+                  [disabled]="enCours()"
+                  (click)="confirmer.emit()">
+            {{ enCours() ? 'Traitement…' : libelleConfirmer() }}
+          </button>
+        }
       </div>
     </div>
   </div>
