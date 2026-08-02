@@ -8,13 +8,11 @@
     </div>
   </header>
 
-  <section class="carte">
+  <div class="carte">
     @if (chargement()) {
       <app-loading-spinner [pleinePage]="true" message="Chargement…" />
     } @else {
-      <form [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
-
-        <div class="form-grille">
+      <form class="form" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
 
           <div class="field">
             <label for="prenom">Prénom</label>
@@ -42,7 +40,7 @@
           </div>
 
           @if (modeEdition()) {
-          <label for="disponible" class="bascule form-grille__pleine">
+          <label for="disponible" class="bascule form__grille__pleine">
             <input id="disponible" type="checkbox" formControlName="disponible" />
             <span>
               Disponible pour affectation
@@ -51,9 +49,8 @@
           </label>
           } 
           
-        </div>
 
-        <div class="form-actions">
+        <div class="form__actions">
           <a class="btn btn--ghost" routerLink="/mecaniciens">Annuler</a>
           <button type="submit" class="btn btn--primary" [disabled]="envoiEnCours()">
             {{ envoiEnCours() ? 'Enregistrement…' : 'Enregistrer' }}
@@ -61,5 +58,5 @@
         </div>
       </form>
     }
-  </section>
+  </div>
 </div>
