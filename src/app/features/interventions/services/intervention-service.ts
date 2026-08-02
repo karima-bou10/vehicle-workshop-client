@@ -26,7 +26,7 @@ export class InterventionService {
     return this.http.get<InterventionModel>(`${this.base}/${id}`);
   }
 
-  parVehicule(vehiculeId: number): Observable<InterventionModel[]> {
+  getInterventionsByVehiculeId(vehiculeId: number): Observable<InterventionModel[]> {
     return this.http.get<InterventionModel[]>(`${environment.apiUrl}/vehicules/${vehiculeId}/interventions`);
   }
 

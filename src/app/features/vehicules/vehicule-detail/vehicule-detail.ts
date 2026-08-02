@@ -39,7 +39,7 @@ export class VehiculeDetail {
         error: () => this.loading.set(false),
       });
 
-      this.interventionService.parVehicule(id).subscribe({
+      this.interventionService.getInterventionsByVehiculeId(id).subscribe({
         next: liste => this.interventions.set(liste),
       });
     });

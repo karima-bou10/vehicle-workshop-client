@@ -9,10 +9,8 @@ import { NotificationTon } from '../../../core/services/notification-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusTag {
-  /** Statut métier — le libellé et la couleur en découlent. */
   readonly statut = input<StatutIntervention | null>(null);
 
-  /** Mode libre : libellé + ton fournis directement (ex. « Disponible » sur un mécanicien). */
   readonly libelle = input<string | null>(null);
   readonly ton = input<StatusVariant>('neutral');
 

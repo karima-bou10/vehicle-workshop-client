@@ -10,6 +10,7 @@ export interface LoginRequest {
 
 /** Réponse de POST /api/auth/login (AuthController côté Spring Boot). */
 export interface LoginResponse {
+  username: string;
   token: string;
   type: string;          // "Bearer"
   expiresIn: string;       // durée de validité du token en secondes

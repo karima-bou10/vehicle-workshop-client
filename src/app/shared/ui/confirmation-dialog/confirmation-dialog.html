@@ -13,20 +13,24 @@
       }
 
       <div class="dialog__actions">
-        <button type="button" class="btn btn--ghost"
-                [disabled]="enCours()"
-                (click)="annuler.emit()">
-          {{ libelleAnnuler() }}
-        </button>
+        @if (!modeAlert()) {
+          <button type="button" class="btn btn--ghost"
+                  [disabled]="enCours()"
+                  (click)="annuler.emit()">
+            {{ libelleAnnuler() }}
+          </button>
+        }
 
-        <button type="button"
-                class="btn"
-                [class.btn--primary]="variante() === 'primary'"
-                [class.btn--danger]="variante() === 'danger'"
-                [disabled]="enCours()"
-                (click)="confirmer.emit()">
-          {{ enCours() ? 'Traitement…' : libelleConfirmer() }}
-        </button>
+        @if (afficherConfirmer()) {
+          <button type="button"
+                  class="btn"
+                  [class.btn--primary]="variante() === 'primary'"
+                  [class.btn--danger]="variante() === 'danger'"
+                  [disabled]="enCours()"
+                  (click)="confirmer.emit()">
+            {{ enCours() ? 'Traitement…' : libelleConfirmer() }}
+          </button>
+        }
       </div>
     </div>
   </div>
