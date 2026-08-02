@@ -1,0 +1,23 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &--neutral { background: var(--neutral-soft);  color: var(--neutral); }
+  &--info    { background: var(--primary-soft);  color: var(--primary-dark); }
+  &--warning { background: var(--warning-soft);  color: var(--warning); }
+  &--success { background: var(--success-soft);  color: var(--success); }
+  &--danger  { background: var(--danger-soft);   color: var(--danger); }
+}

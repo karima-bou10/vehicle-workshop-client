@@ -1,0 +1,96 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-w);
+  height: 100vh;
+  //background: var(--anthracite-900);
+  background: linear-gradient(
+    #4d04cb 100%
+  );
+  color: var(--text-invert);
+  transition: width var(--transition);
+  overflow: hidden;
+
+  &--reduit { width: var(--sidebar-w-collapsed); }
+
+  &__marque {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: var(--header-h);
+    padding: 0 14px;
+    border-bottom: 1px solid var(--anthracite-700);
+    flex-shrink: 0;
+  }
+
+  &__logo {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius);
+    background: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+  }
+
+  &__nom {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    small {
+      font-size: 10.5px;
+      font-weight: 400;
+      color: #8b95a3;
+    }
+  }
+
+  &__nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 10px;
+    overflow-y: auto;
+  }
+
+  /* En mode réduit : on masque les libellés, jamais les icônes */
+  &--reduit &__nom,
+  &--reduit .nav-lien__libelle { opacity: 0; pointer-events: none; }
+
+  &--reduit .nav-lien { justify-content: center; padding-inline: 0; }
+}
+
+.nav-lien {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  color: #b6bec9;
+  text-decoration: none;
+  font-size: 13.5px;
+  white-space: nowrap;
+  transition: background var(--transition), color var(--transition);
+
+  &__icone { width: 19px; height: 19px; flex-shrink: 0; }
+
+  &__libelle { transition: opacity 120ms linear; }
+
+  &:hover {
+    background: var(--anthracite-700);
+    color: #fff;
+  }
+
+  &--actif {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 500;
+  }
+}

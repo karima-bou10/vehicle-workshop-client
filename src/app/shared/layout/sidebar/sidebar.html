@@ -1,1 +1,27 @@
-<p>sidebar works!</p>
+<aside class="sidebar" [class.sidebar--reduit]="reduit()">
+
+  <div class="sidebar__marque">
+    <span class="sidebar__logo" aria-hidden="true">VW</span>
+    <span class="sidebar__nom">
+      Atelier
+      <small>Gestion des interventions</small>
+    </span>
+  </div>
+
+  <nav class="sidebar__nav" aria-label="Navigation principale">
+    @for (item of items(); track item.route) {
+      <a class="nav-lien"
+         [routerLink]="item.route"
+         routerLinkActive="nav-lien--actif"
+         [title]="reduit() ? item.libelle : ''">
+        <svg class="nav-lien__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path [attr.d]="item.icone" />
+        </svg>
+        <span class="nav-lien__libelle">{{ item.libelle }}</span>
+      </a>
+    }
+  </nav>
+
+  <app-user-menu [reduit]="reduit()" />
+</aside>

@@ -1,1 +1,19 @@
-<p>empty-state works!</p>
+<div class="empty">
+  <div class="empty__icone" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M4 7h16M4 12h16M4 17h9" stroke-linecap="round" />
+    </svg>
+  </div>
+
+  <p class="empty__titre">{{ titre() }}</p>
+
+  @if (description()) {
+    <p class="empty__description">{{ description() }}</p>
+  }
+
+  @if (action()) {
+    <button type="button" class="btn btn--primary" (click)="actionClic.emit()">
+      {{ action() }}
+    </button>
+  }
+</div>

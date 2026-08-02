@@ -1,1 +1,83 @@
-<p>vehicule-list works!</p>
+<div class="page">
+
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Véhicules</h2>
+      <p class="page__sous-titre">{{ page().totalElements }} véhicule(s) au fichier atelier</p>
+    </div>
+
+    <div class="page__actions">
+      <a class="btn btn--primary" routerLink="/vehicules/nouveau">Ajouter un véhicule</a>
+    </div>
+  </div>
+
+  <div class="filtres">
+    <input type="search"
+           [formControl]="search"
+           placeholder="Immatriculation, marque, client…"
+           aria-label="Rechercher un véhicule" />
+  </div>
+
+  <app-paginated-table
+    [colonnes]="columns"
+    [lignes]="page().content"
+    [pageIndex]="page().number"
+    [taillePage]="page().size"
+    [totalElements]="page().totalElements"
+    [chargement]="loading()"
+    [ligneTemplate]="ligne"
+    messageVide="Aucun véhicule ne correspond à cette recherche"
+    (pageChange)="load($event)" />
+
+  <ng-template #ligne let-v>
+    <td class="mono">
+      <a class="lien" [routerLink]="['/vehicules', v.id]">{{ v.immatriculationFictive }}</a>
+    </td>
+    <td class="mono">{{ v.marque }}</td>
+    <td class="mono">{{ v.clientFictif }}</td>
+    <td class="mono">{{ v.modele }}</td>
+    <td class="mono">{{ v.annee }}</td>
+    <td class="mono" style="text-align:right; padding-right: 10px;">{{ v.kilometrage | kilometrage }} km</td>
+    <!--<td style="text-align:center">{{ v.interventionsEnCours }}</td>-->
+    <td>
+      <div class="actions-ligne">
+        <a class="bouton-icone" [routerLink]="['/vehicules', v.id, 'modifier']" title="Modifier">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 20h4L19 9l-4-4L4 16v4Z" />
+          </svg>
+        </a>
+
+        <button *hasRole="'ROLE_MANAGER'"
+                type="button"
+                class="bouton-icone bouton-icone--danger"
+                title="Supprimer"
+                (click)="requestDelete(v, $event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round">
+            <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />
+          </svg>
+        </button>
+      </div>
+    </td>
+  </ng-template>
+
+  <app-confirmation-dialog
+    [ouvert]="toDelete() !== null"
+    titre="Supprimer le véhicule"
+    [message]="'Le véhicule ' + (toDelete()?.immatriculationFictive ?? '') +
+               ' sera supprimé.'"
+    libelleConfirmer="Supprimer"
+    variante="danger"
+    [enCours]="deleting()"
+    (confirmer)="confirmDelete()"
+    (annuler)="toDelete.set(null)" />
+
+    <app-confirmation-dialog
+    [ouvert]="openAlert()"
+    titre="Supprimer le véhicule"
+    [message]="alertMessage()"
+    libelleConfirmer="Fermer"
+    [modeAlert]="true"
+    (confirmer)="openAlert.set(false)"/>
+</div>
