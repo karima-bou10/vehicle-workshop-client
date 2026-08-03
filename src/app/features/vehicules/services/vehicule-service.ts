@@ -19,7 +19,7 @@ export class VehiculeService {
       params = params.set('search', filtre.search.trim());
     }
 
-    return this.http.get<Page<VehiculeModel>>(this.base, { params });
+    return this.http.get<Page<VehiculeModel>>(`${this.base}/getVehicules`, { params });
   }
 
   getVehiculeById(id: number): Observable<VehiculeModel> {
