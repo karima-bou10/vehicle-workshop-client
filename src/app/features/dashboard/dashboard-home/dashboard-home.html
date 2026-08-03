@@ -1,1 +1,86 @@
-<p>dashboard-home works!</p>
+<div class="page p-6 bg-gray-50 min-h-screen">
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Bonjour {{ nom() }}</h2>
+      <p class="page__sous-titre">Voici l'état de l'atelier aujourd'hui.</p>
+    </div>
+  </div>
+
+  <!-- Spinner de chargement -->
+   @if (chargement()){
+    <app-loading-spinner [pleinePage]="true" message="Chargement du tableau de bord…" />
+   }
+  
+  <!-- Contenu du Dashboard -->
+   @if((!chargement()) && resume()){
+    
+    <!-- Ligne des KPIs -->
+    <div class="grille grille--5 grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      
+      <div class="stat">
+        <h3 class="stat__libelle">Reçues Aujourd'hui</h3>
+        <p class="stat__valeur">{{ resume()?.recuesAujourdhui }}</p>
+      </div>
+
+      <div class="stat">
+        <h3 class="stat__libelle">En Diagnostic</h3>
+        <p class="stat__valeur">{{ resume()?.enDiagnostic }}</p>
+      </div>
+
+      <div class="stat">
+        <h3 class="stat__libelle">En Réparation</h3>
+        <p class="stat__valeur">{{ resume()?.enReparation }}</p>
+      </div>
+
+      <div class="stat">
+        <h3 class="stat__libelle">Terminées</h3>
+        <p class="stat__valeur">{{ resume()?.terminees }}</p>
+      </div>
+
+      <div class="stat stat__danger">
+        <h3 class="stat__libelle__danger">Retard de restitution</h3>
+        <p class="stat__valeur">{{ resume()?.retardsRestitution }}</p>
+      </div>
+      
+    </div>
+
+    <!-- Ligne des Graphiques -->
+    <div class="grille grille--2 grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Graphique Donut : Répartition des statuts -->
+      <div class="carte bg-white rounded-lg shadow p-6">
+        <h2 class="carte__titre text-lg font-semibold mb-4 text-gray-700">Répartition par Statut</h2>
+        @if (donutVide()) {
+          <app-empty-state titre="Aucune donnée"
+                          description="Aucune intervention à répartir pour le moment." />
+        } @else {
+          <div class="graphe relative h-64">
+          <canvas baseChart
+                  [data]="donutData()"
+                  [options]="donutOptions"
+                  type="doughnut">
+          </canvas>
+        </div>
+        }
+      </div>
+
+      <!-- Graphique Barres : Charge par mécanicien -->
+      <div class="carte bg-white rounded-lg shadow p-6" *hasRole="'ROLE_MANAGER'">
+        <h2 class="carte__titre text-lg font-semibold mb-4 text-gray-700">Charge par Mécanicien (Indisponibles)</h2>
+        @if (charges().length === 0) {
+          <app-empty-state titre="Aucune charge"
+                          description="Aucun mécanicien n'a d'intervention affectée." />
+        } @else {
+          <div class="graphe relative h-64">
+          <canvas baseChart
+                  [data]="barData()"
+                  [options]="barOptions"
+                  type="bar">
+          </canvas>
+        </div>
+        }
+      </div>
+
+    </div>
+  }
+</div>

@@ -11,6 +11,7 @@ import { catchError, firstValueFrom, of } from 'rxjs';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { errorInterceptor } from './core/interceptors/error-interceptor';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { AuthService } from './core/services/auth-service';
 
 export const appConfig: ApplicationConfig = {
@@ -18,6 +19,11 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withComponentInputBinding()),
+    provideCharts(withDefaultRegisterables()),
+    provideHttpClient(
+      // L'ordre compte : authInterceptor ajoute le token, errorInterceptor traite la réponse.
+      withInterceptors([authInterceptor, errorInterceptor]),
+    ),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     provideAppInitializer(() => {
       const auth = inject(AuthService);

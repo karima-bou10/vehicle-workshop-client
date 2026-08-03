@@ -190,6 +190,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
 .grille--2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .grille--3 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
 .grille--4 { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.grille--5 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 
 /* ============ Barre de filtres ============ */
 .filtres {
