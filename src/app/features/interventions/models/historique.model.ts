@@ -5,5 +5,16 @@ export interface HistoriqueInterventionResponse {
   nouveauStatut: string;
   commentaire: string | null;
   auteur: string;
-  date: string;
+  username?: string | null;
+  auteurUsername?: string | null;
+  // Champ date — plusieurs nommages possibles selon le backend
+  date?: string | null;
+  dateModification?: string | null;
+  dateChangement?: string | null;
+  dateCreation?: string | null;
+  dateAction?: string | null;
+  createdAt?: string | null;
+  horodatage?: string | null;
+  changedAt?: string | null;
+  timestamp?: string | null;
 }

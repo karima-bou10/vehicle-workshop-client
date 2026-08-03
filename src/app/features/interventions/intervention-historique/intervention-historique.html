@@ -1,5 +1,4 @@
 <div class="page">
-
   <div class="page__entete">
     <div>
       <h2 class="page__titre">Historique de l'intervention</h2>
@@ -19,22 +18,23 @@
   } @else if (history().length === 0) {
     <app-empty-state
       titre="Aucun historique"
-      description="Aucun changement de statut n'a encore été enregistré pour cette intervention." />
+      description="Aucun changement de statut n'a encore été enregistré pour cette intervention."
+    />
   } @else {
     <app-paginated-table
       [colonnes]="columns"
       [lignes]="history()"
       [totalElements]="history().length"
       [ligneTemplate]="ligne"
-      messageVide="Aucun historique" />
+      messageVide="Aucun historique"
+    />
 
     <ng-template #ligne let-e>
-      <td class="muted">{{ e.date | date:'dd/MM/yyyy HH:mm' }}</td>
-      <td>{{ e.auteur }}</td>
+      <td class="muted">{{ dateLabel(e) }}</td>
+      <td>{{ auteurLabel(e) }}</td>
       <td>{{ e.ancienStatut || '—' }}</td>
       <td>{{ e.nouveauStatut }}</td>
       <td class="muted">{{ e.commentaire || '—' }}</td>
     </ng-template>
   }
-
 </div>

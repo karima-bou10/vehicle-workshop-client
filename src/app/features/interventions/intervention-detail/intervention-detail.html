@@ -18,8 +18,12 @@
       </div>
       <div class="page__actions">
         <button type="button" class="btn btn--ghost" (click)="retourListe()">Retour</button>
-        <button type="button" class="btn btn--ghost" (click)="allerDiagnostic()">Diagnostic</button>
-        <button type="button" class="btn btn--ghost" (click)="allerDevis()">Devis</button>
+        <button type="button" class="btn btn--ghost" (click)="allerEditer()"
+                [disabled]="!canEditer()">Éditer</button>
+        <button type="button" class="btn btn--ghost" (click)="allerDiagnostic()"
+                [disabled]="!canModifierDiagnostic()">Diagnostic</button>
+        <button type="button" class="btn btn--ghost" (click)="allerDevis()"
+                [disabled]="!canModifierDevis()">Devis</button>
         <button type="button" class="btn btn--ghost" (click)="allerAffectation()">Affectation</button>
         <button type="button" class="btn btn--ghost" (click)="allerHistorique()">Historique</button>
       </div>

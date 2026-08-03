@@ -9,6 +9,7 @@ import {
   InterventionResponse,
   UpdateAffectationRequest,
   UpdateDiagnosticRequest,
+  UpdateInterventionRequest,
   UpdateInterventionStatusRequest
 } from '../models/intervention.model';
 
@@ -33,7 +34,7 @@ export class InterventionService {
     return this.http.post<InterventionResponse>(`${this.apiUrl}/new`, payload);
   }
 
-  updateIntervention(id: number, payload: any): Observable<InterventionResponse> {
+  updateIntervention(id: number, payload: UpdateInterventionRequest): Observable<InterventionResponse> {
     return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}`, payload);
   }
 

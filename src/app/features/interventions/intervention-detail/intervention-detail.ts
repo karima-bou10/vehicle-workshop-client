@@ -9,7 +9,7 @@ import { StatusTag } from '../../../shared/ui/status-tag/status-tag';
 import { WorkflowStepper } from '../../../shared/ui/workflow-stepper/workflow-stepper';
 import { LoadingSpinner } from '../../../shared/ui/loading-spinner/loading-spinner';
 import { AuthService } from '../../../core/services/auth-service';
-import { canTransitionToStatus } from '../models/intervention-workflow';
+import { canTransitionToStatus, normalizeInterventionStatus } from '../models/intervention-workflow';
 
 @Component({
   selector: 'app-intervention-detail',
@@ -30,31 +30,33 @@ export class InterventionDetail implements OnInit {
   readonly loading = signal(true);
   readonly actionLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
-
-  // Panneau de confirmation avec commentaire
   readonly pendingTransition = signal<InterventionStatus | null>(null);
   readonly commentaireSaisie = signal('');
+  readonly canEditer = computed(() => {
+    const statut = normalizeInterventionStatus(this.intervention()?.statut);
+    return statut === 'RECUE' || statut === 'DIAGNOSTIC_EN_COURS';
+  });
+
+  readonly canModifierDiagnostic = computed(() => {
+    const statut = normalizeInterventionStatus(this.intervention()?.statut);
+    return statut === 'RECUE' || statut === 'DIAGNOSTIC_EN_COURS';
+  });
+
+  readonly canModifierDevis = computed(() => {
+    const statut = normalizeInterventionStatus(this.intervention()?.statut);
+    return statut === 'DIAGNOSTIC_EN_COURS' || statut === 'DEVIS_A_VALIDER';
+  });
 
   readonly vehiculeLibelle = computed(() => {
     const vehicule = this.vehicule();
     if (!vehicule) {
       return '—';
     }
-    return `${vehicule.marque} ${vehicule.modele}`;
-  });
 
-  readonly commentaireRequis = computed(
-    () => this.pendingTransition() === 'ANNULEE'
-  );
-
-  readonly canConfirmer = computed(() => {
-    if (!this.pendingTransition()) {
-      return false;
-    }
-    if (this.commentaireRequis() && !this.commentaireSaisie().trim()) {
-      return false;
-    }
-    return true;
+    const marque = vehicule.marque?.trim() ?? '';
+    const modele = vehicule.modele?.trim() ?? '';
+    const libelle = `${marque} ${modele}`.trim();
+    return libelle || '—';
   });
 
   ngOnInit(): void {
@@ -72,6 +74,13 @@ export class InterventionDetail implements OnInit {
 
   retourListe(): void {
     void this.router.navigate(['/interventions']);
+  }
+
+  allerEditer(): void {
+    const id = this.intervention()?.id;
+    if (id) {
+      void this.router.navigate(['/interventions', id, 'edit']);
+    }
   }
 
   allerDiagnostic(): void {
@@ -102,61 +111,105 @@ export class InterventionDetail implements OnInit {
     }
   }
 
-  protected canPasserEnReparation(): boolean {
+  canPasserEnReparation(): boolean {
     const currentIntervention = this.intervention();
     if (!currentIntervention) {
       return false;
     }
+
     return canTransitionToStatus(currentIntervention, 'EN_REPARATION').allowed;
   }
 
-  protected canPasserTerminee(): boolean {
+  canPasserTerminee(): boolean {
     const currentIntervention = this.intervention();
     if (!currentIntervention) {
       return false;
     }
+
     return canTransitionToStatus(currentIntervention, 'TERMINEE').allowed;
   }
 
-  protected canPasserRestituee(): boolean {
+  canPasserRestituee(): boolean {
     const currentIntervention = this.intervention();
     if (!currentIntervention) {
       return false;
     }
+
     return canTransitionToStatus(currentIntervention, 'RESTITUEE').allowed;
   }
 
-  protected ouvrirConfirmation(status: InterventionStatus): void {
-    this.commentaireSaisie.set('');
+  ouvrirConfirmation(targetStatus: InterventionStatus): void {
+    const currentIntervention = this.intervention();
+    if (!currentIntervention) {
+      return;
+    }
+
+    const transitionCheck = canTransitionToStatus(currentIntervention, targetStatus);
+    if (!transitionCheck.allowed) {
+      this.errorMessage.set(transitionCheck.reason ?? 'Transition refusée.');
+      return;
+    }
+
     this.errorMessage.set(null);
-    this.pendingTransition.set(status);
+    this.commentaireSaisie.set('');
+    this.pendingTransition.set(targetStatus);
   }
 
-  protected annulerConfirmation(): void {
+  annulerConfirmation(): void {
     this.pendingTransition.set(null);
     this.commentaireSaisie.set('');
   }
 
-  protected confirmerTransition(): void {
+  titreConfirmation(): string {
+    switch (this.pendingTransition()) {
+      case 'EN_REPARATION':
+        return 'Confirmer le passage en réparation';
+      case 'TERMINEE':
+        return 'Confirmer la fin de la réparation';
+      case 'RESTITUEE':
+        return 'Confirmer la restitution au client';
+      case 'ANNULEE':
+        return "Confirmer l'annulation de l'intervention";
+      default:
+        return 'Confirmer la transition';
+    }
+  }
+
+  commentaireRequis(): boolean {
+    return this.pendingTransition() === 'ANNULEE';
+  }
+
+  canConfirmer(): boolean {
+    const targetStatus = this.pendingTransition();
+    if (!targetStatus) {
+      return false;
+    }
+
+    if (this.commentaireRequis() && !this.commentaireSaisie().trim()) {
+      return false;
+    }
+
+    const currentIntervention = this.intervention();
+    if (!currentIntervention) {
+      return false;
+    }
+
+    return canTransitionToStatus(currentIntervention, targetStatus).allowed;
+  }
+
+  confirmerTransition(): void {
     const targetStatus = this.pendingTransition();
     if (!targetStatus) {
       return;
     }
 
-    this.pendingTransition.set(null);
-    const commentaire = this.commentaireSaisie().trim() || undefined;
-    this.commentaireSaisie.set('');
-    this.transitionTo(targetStatus, commentaire);
-  }
-
-  protected titreConfirmation(): string {
-    switch (this.pendingTransition()) {
-      case 'EN_REPARATION': return 'Confirmer le passage en réparation';
-      case 'TERMINEE':      return 'Confirmer la fin de réparation';
-      case 'ANNULEE':       return "Confirmer l'annulation";
-      case 'RESTITUEE':     return 'Confirmer la restitution';
-      default:              return 'Confirmer';
+    const commentaire = this.commentaireSaisie().trim();
+    if (this.commentaireRequis() && !commentaire) {
+      this.errorMessage.set("Le commentaire est obligatoire pour une annulation.");
+      return;
     }
+
+    this.transitionTo(targetStatus, commentaire || undefined);
   }
 
   private transitionTo(targetStatus: InterventionStatus, commentaire?: string): void {
@@ -183,11 +236,13 @@ export class InterventionDetail implements OnInit {
       .updateStatus(currentIntervention.id, {
         nouveauStatut: targetStatus,
         auteur: author,
-        ...(commentaire ? { commentaire } : {})
+        commentaire
       })
       .subscribe({
         next: (updated) => {
           this.intervention.set(updated);
+          this.pendingTransition.set(null);
+          this.commentaireSaisie.set('');
           this.actionLoading.set(false);
         },
         error: (error: unknown) => {
@@ -201,10 +256,10 @@ export class InterventionDetail implements OnInit {
   private loadIntervention(id: number): void {
     this.loading.set(true);
     this.errorMessage.set(null);
+    this.vehicule.set(null);
     this.interventionService.getById(id).subscribe({
       next: (response: InterventionResponse) => {
         this.intervention.set(response);
-        this.vehicule.set(null);
         this.loading.set(false);
         this.loadVehicleDetails(response);
       },
@@ -224,16 +279,12 @@ export class InterventionDetail implements OnInit {
     this.vehiculeService.getVehiculeById(intervention.vehiculeId).subscribe({
       next: (vehicule: VehiculeModel) => {
         this.vehicule.set(vehicule);
-
-        if (intervention.immatriculationVehicule?.trim()) {
-          return;
-        }
-
         this.intervention.update((currentIntervention) =>
           currentIntervention
             ? {
                 ...currentIntervention,
-                immatriculationVehicule: vehicule.immatriculationFictive
+                immatriculationVehicule:
+                  currentIntervention.immatriculationVehicule?.trim() || vehicule.immatriculationFictive
               }
             : null
         );

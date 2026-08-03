@@ -34,7 +34,18 @@ describe('InterventionHistorique', () => {
                   nouveauStatut: 'DIAGNOSTIC_EN_COURS',
                   commentaire: 'Prise en charge atelier',
                   auteur: 'Conseiller',
+                  username: 'conseiller',
                   date: '2026-07-31T10:00:00'
+                },
+                {
+                  id: 2,
+                  interventionId: 1,
+                  ancienStatut: 'DIAGNOSTIC_EN_COURS',
+                  nouveauStatut: 'DEVIS_ATTENTE',
+                  commentaire: null,
+                  auteur: '',
+                  auteurUsername: 'atelier',
+                  dateModification: '2026-07-31 12:30:00'
                 }
               ])
           }
@@ -50,5 +61,17 @@ describe('InterventionHistorique', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should render username when provided in history row', () => {
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('conseiller');
+  });
+
+  it('should render fallback auteur username and dateModification', () => {
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('atelier');
+    expect(fixture.nativeElement.textContent).toContain('31/07/2026');
+    expect(fixture.nativeElement.textContent).toContain('12:30');
   });
 });

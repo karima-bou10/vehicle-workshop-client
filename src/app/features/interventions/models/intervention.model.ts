@@ -69,6 +69,13 @@ export interface CreateInterventionRequest {
   dateRestitutionPrevue: string;
 }
 
+export interface UpdateInterventionRequest {
+  typeIntervention: InterventionType;
+  descriptionClient: string;
+  priorite: InterventionPriority;
+  dateRestitutionPrevue: string;
+}
+
 export interface UpdateDiagnosticRequest {
   diagnostic: string;
 }

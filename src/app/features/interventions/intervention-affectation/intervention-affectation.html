@@ -23,20 +23,24 @@
       <form class="form" [formGroup]="form">
 
         <div class="field">
-          <label for="mecanicienId">ID mécanicien *</label>
-          <input id="mecanicienId" type="number" formControlName="mecanicienId" min="1"
-                 [class.is-invalid]="form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched" />
+          <label for="mecanicienId">Mécanicien disponible *</label>
+          <select id="mecanicienId" formControlName="mecanicienId"
+                  [class.is-invalid]="form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched">
+            <option value="">-- Sélectionner un mécanicien --</option>
+            @for (meca of mecaniciens(); track meca.id) {
+              <option [value]="meca.id">
+                {{ meca.prenom }} {{ meca.nom }} ({{ meca.specialite }})
+              </option>
+            }
+          </select>
           @if (form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched) {
-            <span class="field__error">Identifiant mécanicien obligatoire (min. 1).</span>
+            <span class="field__error">Veuillez sélectionner un mécanicien.</span>
           }
         </div>
 
         <div class="form__actions">
-          <button type="button" class="btn btn--ghost" [disabled]="!canSave()" (click)="affecter()">
+          <button type="button" class="btn btn--primary" [disabled]="!canSave()" (click)="affecter()">
             Enregistrer
-          </button>
-          <button type="button" class="btn btn--primary" [disabled]="!canSave()" (click)="affecterEtPasserReparation()">
-            Enregistrer + Démarrer la réparation
           </button>
         </div>
 

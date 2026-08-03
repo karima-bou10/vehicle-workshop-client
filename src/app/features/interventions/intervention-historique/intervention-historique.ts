@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HistoriqueInterventionResponse } from '../models/historique.model';
 import { InterventionService } from '../services/intervention-service';
@@ -9,7 +8,7 @@ import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
 
 @Component({
   selector: 'app-intervention-historique',
-  imports: [DatePipe, PaginatedTable, LoadingSpinner, EmptyState],
+  imports: [PaginatedTable, LoadingSpinner, EmptyState],
   templateUrl: './intervention-historique.html',
   styleUrl: './intervention-historique.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -45,6 +44,10 @@ export class InterventionHistorique implements OnInit {
     this.interventionId.set(interventionId);
     this.interventionService.getHistory(interventionId).subscribe({
       next: (response) => {
+        if (response.length > 0) {
+          console.log('[historique] premier enregistrement reçu:', response[0]);
+          console.log('[historique] clés disponibles:', Object.keys(response[0]));
+        }
         this.history.set(response);
         this.loading.set(false);
       },
@@ -64,5 +67,94 @@ export class InterventionHistorique implements OnInit {
     }
 
     void this.router.navigate(['/interventions']);
+  }
+
+  protected auteurLabel(entry: HistoriqueInterventionResponse): string {
+    return entry.username?.trim() || entry.auteurUsername?.trim() || entry.auteur?.trim() || '—';
+  }
+
+  protected dateLabel(entry: HistoriqueInterventionResponse): string {
+    // Essaie tous les nommages possibles envoyés par le backend
+    const rawDate =
+      entry.date ??
+      entry.dateModification ??
+      entry.dateChangement ??
+      entry.dateCreation ??
+      entry.dateAction ??
+      entry.createdAt ??
+      entry.horodatage ??
+      entry.changedAt ??
+      entry.timestamp ??
+      this.findDateField(entry);
+
+    if (!rawDate) {
+      return '—';
+    }
+
+    const parsedDate = this.parseHistoryDate(rawDate);
+    if (!parsedDate) {
+      console.warn('[historique] date non parsée:', rawDate);
+      return '—';
+    }
+
+    return parsedDate.toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  /** Cherche dynamiquement un champ contenant "date" ou "time" dans la réponse brute */
+  private findDateField(entry: HistoriqueInterventionResponse): string | null {
+    const raw = entry as unknown as Record<string, unknown>;
+    for (const key of Object.keys(raw)) {
+      const lk = key.toLowerCase();
+      if ((lk.includes('date') || lk.includes('time') || lk.includes('heure')) && typeof raw[key] === 'string') {
+        console.log(`[historique] champ date trouvé dynamiquement: "${key}" =`, raw[key]);
+        return raw[key] as string;
+      }
+    }
+    console.warn('[historique] aucun champ date trouvé dans:', raw);
+    return null;
+  }
+
+  private parseHistoryDate(rawDate: string): Date | null {
+    const normalizedDate = rawDate.trim();
+    if (!normalizedDate) {
+      return null;
+    }
+
+    const parsedDate = new Date(normalizedDate);
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return parsedDate;
+    }
+
+    if (normalizedDate.includes(' ')) {
+      const parsedWithIsoSeparator = new Date(normalizedDate.replace(' ', 'T'));
+      if (!Number.isNaN(parsedWithIsoSeparator.getTime())) {
+        return parsedWithIsoSeparator;
+      }
+    }
+
+    const localDateTimeMatch = normalizedDate.match(
+      /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?$/
+    );
+    if (!localDateTimeMatch) {
+      return null;
+    }
+
+    const [, year, month, day, hour, minute, second = '0'] = localDateTimeMatch;
+    const parsedLocalDateTime = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second)
+    );
+
+    return Number.isNaN(parsedLocalDateTime.getTime()) ? null : parsedLocalDateTime;
   }
 }

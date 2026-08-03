@@ -3,6 +3,7 @@ import { InterventionAffectation } from './intervention-affectation/intervention
 import { InterventionDevis } from './intervention-devis/intervention-devis';
 import { InterventionDiagnostic } from './intervention-diagnostic/intervention-diagnostic';
 import { InterventionDetail } from './intervention-detail/intervention-detail';
+import { InterventionEdit } from './intervention-edit/intervention-edit';
 import { InterventionForm } from './intervention-form/intervention-form';
 import { InterventionHistorique } from './intervention-historique/intervention-historique';
 import { InterventionList } from './intervention-list/intervention-list';
@@ -15,6 +16,10 @@ export const interventionsRoutes: Routes = [
   {
     path: 'new',
     component: InterventionForm
+  },
+  {
+    path: ':id/edit',
+    component: InterventionEdit
   },
   {
     path: ':id/diagnostic',

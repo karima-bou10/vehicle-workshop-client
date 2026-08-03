@@ -1,0 +1,82 @@
+@if (loading()) {
+  <app-loading-spinner [pleinePage]="true" message="Chargement de l'intervention…" />
+} @else {
+
+  <div class="page">
+
+    <div class="page__entete">
+      <div>
+        <h2 class="page__titre">Modifier l'intervention #{{ intervention()?.id }}</h2>
+        <p class="page__sous-titre">
+          {{ intervention()?.typeIntervention }} — <span class="mono">{{ intervention()?.immatriculationVehicule || '—' }}</span>
+        </p>
+      </div>
+    </div>
+
+    @if (isReadOnly()) {
+      <div class="alerte alerte--warning">
+        Cette intervention ne peut plus être modifiée (statut : <strong>{{ intervention()?.statut }}</strong>).
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <p class="field__error" style="margin-bottom:12px">{{ errorMessage() }}</p>
+    }
+
+    <div class="carte">
+      <form class="form" [formGroup]="form" (ngSubmit)="enregistrer()">
+
+        <div class="field">
+          <label for="typeIntervention">Type d'intervention *</label>
+          <select id="typeIntervention" formControlName="typeIntervention">
+            @for (type of interventionTypes; track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="priorite">Priorité *</label>
+          <select id="priorite" formControlName="priorite">
+            @for (priority of priorities; track priority) {
+              <option [value]="priority">{{ priority }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="dateRestitutionPrevue">Restitution prévue *</label>
+          <input id="dateRestitutionPrevue" type="date" formControlName="dateRestitutionPrevue" />
+          @if (form.controls.dateRestitutionPrevue.invalid && form.controls.dateRestitutionPrevue.touched) {
+            <span class="field__error">Date de restitution obligatoire.</span>
+          }
+        </div>
+
+        <div class="field form__pleine-largeur">
+          <label for="descriptionClient">Description client *</label>
+          <textarea
+            id="descriptionClient"
+            rows="4"
+            formControlName="descriptionClient"
+            [class.is-invalid]="form.controls.descriptionClient.invalid && form.controls.descriptionClient.touched">
+          </textarea>
+          @if (form.controls.descriptionClient.invalid && form.controls.descriptionClient.touched) {
+            <span class="field__error">Description obligatoire (10 caractères minimum).</span>
+          }
+        </div>
+
+        <div class="form__actions">
+          <button type="button" class="btn btn--ghost" (click)="retourDetail()">Annuler</button>
+          @if (!isReadOnly()) {
+            <button type="submit" class="btn btn--primary" [disabled]="!canSave()">
+              @if (saving()) { Enregistrement… } @else { Enregistrer les modifications }
+            </button>
+          }
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+
+}

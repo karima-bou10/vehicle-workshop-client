@@ -14,12 +14,57 @@
 
     <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
 
-      <div class="field">
-        <label for="vehiculeId">Véhicule (ID) *</label>
-        <input id="vehiculeId" type="number" formControlName="vehiculeId" min="1"
-               [class.is-invalid]="form.controls.vehiculeId.invalid && form.controls.vehiculeId.touched" />
-        @if (form.controls.vehiculeId.invalid && form.controls.vehiculeId.touched) {
-          <span class="field__error">Identifiant de véhicule obligatoire (min. 1).</span>
+      <div class="form__pleine-largeur">
+        <div class="field">
+          <label for="vehiculeSearch">Recherche véhicule</label>
+          <input
+            id="vehiculeSearch"
+            type="search"
+            [formControl]="vehiculeSearch"
+            (focus)="openVehiculeDropdown()"
+            (keydown.escape)="closeVehiculeDropdown()"
+            placeholder="Immatriculation, marque, modèle, client…" />
+        </div>
+
+        @if (vehiculeSearchErrorMessage()) {
+          <p class="field__error">{{ vehiculeSearchErrorMessage() }}</p>
+        }
+
+        @if (vehiculeDropdownOpen() && vehiculeSearchTerm().length > 0) {
+          <div class="vehicule-dropdown">
+            @if (loadingVehicules()) {
+              <p class="muted">Recherche en cours…</p>
+            } @else if (vehicules().length === 0) {
+              <p class="muted">
+                Aucun véhicule trouvé. <a class="lien" routerLink="/vehicules/nouveau">Créer un véhicule</a>
+              </p>
+            } @else {
+              <ul class="vehicule-dropdown__list">
+                @for (vehicule of vehicules(); track vehicule.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="vehicule-dropdown__option"
+                      (mousedown)="selectVehiculeFromDropdown(vehicule, $event)">
+                      <span class="mono">{{ vehicule.immatriculationFictive }}</span>
+                      <span>{{ vehicule.marque }} {{ vehicule.modele }} ({{ vehicule.annee }})</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+
+        @if (selectedVehicule(); as vehicule) {
+          <div class="vehicule-selection">
+            <p class="vehicule-selection__titre">Véhicule sélectionné</p>
+            <p class="vehicule-selection__valeur">
+              <strong class="mono">{{ vehicule.immatriculationFictive }}</strong> —
+              {{ vehicule.marque }} {{ vehicule.modele }} ({{ vehicule.annee }})
+            </p>
+            <button type="button" class="btn btn--ghost" (click)="clearVehiculeSelection()">Changer de véhicule</button>
+          </div>
         }
       </div>
 
@@ -60,10 +105,6 @@
           <span class="field__error">Description obligatoire (10 caractères minimum).</span>
         }
       </div>
-
-      <p class="form__pleine-largeur muted" style="margin:0; font-size:12px;">
-        Le statut initial sera <strong>Reçue</strong> conformément à RG-AUTO-03.
-      </p>
 
       <div class="form__actions">
         <button type="button" class="btn btn--ghost" (click)="cancel()">Annuler</button>

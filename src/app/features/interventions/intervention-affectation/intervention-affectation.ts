@@ -6,6 +6,8 @@ import { InterventionResponse } from '../models/intervention.model';
 import { InterventionService } from '../services/intervention-service';
 import { LoadingSpinner } from '../../../shared/ui/loading-spinner/loading-spinner';
 import { AuthService } from '../../../core/services/auth-service';
+import { MecanicienService } from '../../mecaniciens/services/mecanicien-service';
+import { MecanicienResponse } from '../../mecaniciens/models/mecanicien.model';
 
 @Component({
   selector: 'app-intervention-affectation',
@@ -19,9 +21,11 @@ export class InterventionAffectation implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly interventionService = inject(InterventionService);
+  private readonly mecanicienService = inject(MecanicienService);
   private readonly auth = inject(AuthService);
 
   readonly intervention = signal<InterventionResponse | null>(null);
+  readonly mecaniciens = signal<MecanicienResponse[]>([]);
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -48,6 +52,7 @@ export class InterventionAffectation implements OnInit {
       return;
     }
 
+    // Charger intervention et mécaniciens disponibles en parallèle
     this.interventionService.getById(interventionId).subscribe({
       next: (response) => {
         this.intervention.set(response);
@@ -62,27 +67,19 @@ export class InterventionAffectation implements OnInit {
         this.loading.set(false);
       }
     });
+
+    this.mecanicienService.getMecaniciensDisponibles().subscribe({
+      next: (response) => {
+        this.mecaniciens.set(response);
+      },
+      error: (error: unknown) => {
+        console.error('Failed to load available mechanics.', error);
+        this.errorMessage.set("Impossible de charger les mécaniciens disponibles.");
+      }
+    });
   }
 
   protected affecter(): void {
-    this.executeSave(false);
-  }
-
-  protected affecterEtPasserReparation(): void {
-    this.executeSave(true);
-  }
-
-  protected retourDetail(): void {
-    const interventionId = this.intervention()?.id;
-    if (interventionId) {
-      void this.router.navigate(['/interventions', interventionId]);
-      return;
-    }
-
-    void this.router.navigate(['/interventions']);
-  }
-
-  private executeSave(moveToRepair: boolean): void {
     if (!this.form.valid) {
       this.form.markAllAsTouched();
       this.errorMessage.set('Le formulaire est invalide.');
@@ -96,9 +93,8 @@ export class InterventionAffectation implements OnInit {
 
     const payload = this.form.getRawValue();
 
-    // Defensive guard: mecanicienId must be a valid positive integer
     if (!payload.mecanicienId || payload.mecanicienId < 1) {
-      this.errorMessage.set('Veuillez renseigner un identifiant de mécanicien valide.');
+      this.errorMessage.set('Veuillez sélectionner un mécanicien valide.');
       return;
     }
 
@@ -112,52 +108,24 @@ export class InterventionAffectation implements OnInit {
       .subscribe({
         next: (updated) => {
           this.intervention.set(updated);
-          if (!moveToRepair) {
-            this.saving.set(false);
-            void this.router.navigate(['/interventions', updated.id]);
-            return;
-          }
-
-          this.transitionToRepair(updated);
+          this.saving.set(false);
+          void this.router.navigate(['/interventions', updated.id]);
         },
         error: (error: unknown) => {
           console.error('Failed to save assignment.', error);
-          this.errorMessage.set("Impossible d'enregistrer l affectation.");
+          this.errorMessage.set("Impossible d'enregistrer l'affectation.");
           this.saving.set(false);
         }
       });
   }
 
-  private transitionToRepair(intervention: InterventionResponse): void {
-    if (intervention.statut === 'EN_REPARATION') {
-      this.saving.set(false);
-      void this.router.navigate(['/interventions', intervention.id]);
+  protected retourDetail(): void {
+    const interventionId = this.intervention()?.id;
+    if (interventionId) {
+      void this.router.navigate(['/interventions', interventionId]);
       return;
     }
 
-    const author = this.auth.currentUser()?.username.trim() ?? '';
-    if (author.length < 2) {
-      this.errorMessage.set("Impossible d'identifier l'utilisateur connecté.");
-      this.saving.set(false);
-      return;
-    }
-
-    this.interventionService
-      .updateStatus(intervention.id, {
-        nouveauStatut: 'EN_REPARATION',
-        auteur: author
-      })
-      .subscribe({
-        next: (updated) => {
-          this.intervention.set(updated);
-          this.saving.set(false);
-          void this.router.navigate(['/interventions', updated.id]);
-        },
-        error: (error: unknown) => {
-          console.error('Failed to start repair status transition.', error);
-          this.errorMessage.set("Impossible de passer l'intervention en réparation.");
-          this.saving.set(false);
-        }
-      });
+    void this.router.navigate(['/interventions']);
   }
 }

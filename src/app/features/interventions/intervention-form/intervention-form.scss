@@ -1,3 +1,58 @@
 :host { display: block; }
 
 .carte { max-width: 820px; }
+
+.vehicule-dropdown {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  background: var(--surface);
+  max-height: 220px;
+  overflow: auto;
+}
+
+.vehicule-dropdown__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.vehicule-dropdown__option {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+}
+
+.vehicule-dropdown__option:hover {
+  background: var(--surface-alt);
+  border-color: var(--border);
+}
+
+.vehicule-selection {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  background: var(--surface-alt);
+}
+
+.vehicule-selection__titre {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.vehicule-selection__valeur {
+  margin: 0;
+}

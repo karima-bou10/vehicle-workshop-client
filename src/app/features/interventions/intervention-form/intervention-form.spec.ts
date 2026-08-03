@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 
 import { InterventionForm } from './intervention-form';
 import { InterventionService } from '../services/intervention-service';
+import { VehiculeService } from '../../vehicules/services/vehicule-service';
 
 describe('InterventionForm', () => {
   let component: InterventionForm;
@@ -33,6 +34,41 @@ describe('InterventionForm', () => {
                 immatriculationVehicule: 'AA-123-BB',
                 mecanicienId: 0,
                 nomMecanicien: ''
+              })
+          }
+        },
+        {
+          provide: VehiculeService,
+          useValue: {
+            getAllVehicules: () =>
+              of({
+                content: [
+                  {
+                    id: 3,
+                    immatriculationFictive: 'AA-123-BB',
+                    marque: 'Renault',
+                    modele: 'Clio',
+                    annee: 2022,
+                    kilometrage: 15000,
+                    clientFictif: 'CLIENT-01'
+                  }
+                ],
+                totalElements: 1,
+                totalPages: 1,
+                number: 0,
+                size: 12,
+                first: true,
+                last: true
+              }),
+            getVehiculeById: () =>
+              of({
+                id: 3,
+                immatriculationFictive: 'AA-123-BB',
+                marque: 'Renault',
+                modele: 'Clio',
+                annee: 2022,
+                kilometrage: 15000,
+                clientFictif: 'CLIENT-01'
               })
           }
         }
