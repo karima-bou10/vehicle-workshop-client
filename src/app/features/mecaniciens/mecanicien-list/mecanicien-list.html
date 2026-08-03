@@ -1,13 +1,94 @@
 <div class="page">
 
-  <div class="page__entete">
+  <header class="page__entete">
     <div>
       <h2 class="page__titre">Mécaniciens</h2>
-      <p class="page__sous-titre">Liste des mécaniciens de l'atelier.</p>
+      <p class="page__sous-titre">{{ page().totalElements }} membre(s) de l'équipe atelier</p>
     </div>
     <div class="page__actions">
       <a class="btn btn--primary" routerLink="/mecaniciens/nouveau">Ajouter un mécanicien</a>
     </div>
+  </header>
+
+  <div class="filtres">
+    <input type="search"
+          [formControl]="search"
+          placeholder="nom, prenom, spécialité…"
+          aria-label="Rechercher un mécanicien" />
+
+    <button type="button" 
+            class="btn" 
+            [class.btn--primary]="afficherDisponibles()" 
+            [class.btn--ghost]="!afficherDisponibles()"
+            (click)="toggleDisponibles()">
+            @if(afficherDisponibles()){
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      }
+      {{ afficherDisponibles() ? 'Affichage : Disponibles' : 'Afficher les disponibles' }}
+    </button>
   </div>
 
+  <app-paginated-table
+    [colonnes]="colonnes"
+    [lignes]="page().content"
+    [pageIndex]="page().number"
+    [taillePage]="page().size"
+    [totalElements]="page().totalElements"
+    [chargement]="chargement()"
+    [ligneTemplate]="ligne"
+    messageVide="Aucun mécanicien enregistré"
+    (pageChange)="onPageChange($event)" />
+
+  <ng-template #ligne let-m>
+    <td>
+      <span class="nom">{{ m.prenom }} {{ m.nom }}</span>
+    </td>
+    <td>
+      <span class="specialite">{{ m.specialite }}</span>
+    </td>
+    <td>
+      <app-status-tag
+        [libelle]="m.disponible ? 'Actif' : 'Inactif'"
+        [ton]="m.disponible ? 'success' : 'neutral'" />
+    </td>
+    <td style="text-align:center">
+      <span class="charge" [class.charge--saturee]="(m.interventions?.length ?? 0) >= 3">
+        {{ m.interventions?.length ?? 0 }}
+      </span>
+    </td>
+    <td>
+      <div class="actions-ligne">
+        <a class="bouton-icone" [routerLink]="['/mecaniciens', m.id, 'modifier']" title="Modifier">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3Z" />
+          </svg>
+        </a>
+
+        <button type="button"
+                class="bouton-icone bouton-icone--danger"
+                [title]="'Retirer de l\'équipe'"
+                (click)="aSupprimer.set(m)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />
+          </svg>
+        </button>
+      </div>
+    </td>
+  </ng-template>
+
+  <app-confirmation-dialog
+    [ouvert]="aSupprimer() !== null"
+    [variante]="estSupprimable() ? 'danger' : 'primary'"
+    [titre]="dialogTitre()"
+    [message]="dialogMessage()"
+    [afficherConfirmer]="estSupprimable()"
+    [libelleAnnuler]="estSupprimable() ? 'Annuler' : 'Fermer'"
+    libelleConfirmer="Retirer"
+    [enCours]="suppressionEnCours()"
+    (confirmer)="confirmerSuppression()"
+    (annuler)="aSupprimer.set(null)" />
 </div>

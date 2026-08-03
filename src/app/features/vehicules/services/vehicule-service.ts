@@ -15,11 +15,11 @@ export class VehiculeService {
       .set('page', filtre.page)
       .set('size', filtre.size);
 
-    if (filtre.recherche?.trim()) {
-      params = params.set('recherche', filtre.recherche.trim());
+    if (filtre.search?.trim()) {
+      params = params.set('search', filtre.search.trim());
     }
 
-    return this.http.get<Page<VehiculeModel>>(this.base, { params });
+    return this.http.get<Page<VehiculeModel>>(`${this.base}/getVehicules`, { params });
   }
 
   getVehiculeById(id: number): Observable<VehiculeModel> {

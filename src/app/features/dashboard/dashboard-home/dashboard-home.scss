@@ -1,0 +1,40 @@
+:host { display: block; }
+
+/* KPI */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100px;;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--neutral);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow var(--transition), transform var(--transition);
+
+  &:hover { box-shadow: var(--shadow-2); transform: translateY(-2px); }
+
+  &__valeur { font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+  &__libelle { font-size: 14px; color: var(--text-muted); }
+  &__libelle__danger { font-size: 14px; color: var(--text); }
+  &__danger {
+    background: var(--danger-soft); 
+    color: var(--danger);
+    border-left: 3px solid var(--danger);
+  }
+
+  &--primary { border-left-color: var(--primary); }
+  &--warning { border-left-color: var(--warning); }
+  &--success { border-left-color: var(--success); }
+  &--danger  { border-left-color: var(--danger); }
+}
+
+/* Conteneur de graphique : hauteur fixe indispensable (Chart.js responsive) */
+.graphe {
+  position: relative;
+  height: 260px;
+}

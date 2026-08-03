@@ -66,10 +66,18 @@
     [ouvert]="toDelete() !== null"
     titre="Supprimer le véhicule"
     [message]="'Le véhicule ' + (toDelete()?.immatriculationFictive ?? '') +
-               ' et son historique d\'interventions seront définitivement supprimés.'"
+               ' sera supprimé.'"
     libelleConfirmer="Supprimer"
     variante="danger"
     [enCours]="deleting()"
     (confirmer)="confirmDelete()"
     (annuler)="toDelete.set(null)" />
+
+    <app-confirmation-dialog
+    [ouvert]="openAlert()"
+    titre="Supprimer le véhicule"
+    [message]="alertMessage()"
+    libelleConfirmer="Fermer"
+    [modeAlert]="true"
+    (confirmer)="openAlert.set(false)"/>
 </div>

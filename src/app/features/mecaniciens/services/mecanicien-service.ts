@@ -2,8 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
-import { Page } from '../../../core/models/page';
-import { MecanicienResponse, CreateMecanicienRequest, UpdateMecanicienRequest, MecanicienFiltre } from '../models/mecanicien.model';
+import { Page } from '../../../core/models';
+import { Mecanicien, CreateMecanicienRequest, UpdateMecanicienRequest } from '../models/mecanicien.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,36 +12,34 @@ export class MecanicienService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/mecaniciens`;
 
-  getAllMecaniciens(filtre: MecanicienFiltre): Observable<Page<MecanicienResponse>> {
-    let params = new HttpParams()
-      .set('page', filtre.page)
-      .set('size', filtre.size);
-
-    if (filtre.recherche?.trim()) {
-      params = params.set('recherche', filtre.recherche.trim());
-    }
-
-    return this.http.get<Page<MecanicienResponse>>(`${this.base}/getAll`, { params });
+  lister(page: number, size: number): Observable<Page<Mecanicien>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<Page<Mecanicien>>(`${this.base}/getAll`, { params });
   }
 
-  getMecanicienById(id: number): Observable<MecanicienResponse> {
-    return this.http.get<MecanicienResponse>(`${this.base}/get/${id}`);
+  disponibles(page: number, size: number): Observable<Page<Mecanicien>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<Page<Mecanicien>>(`${this.base}/getAllDisponibles`, { params });
   }
 
-  createMecanicien(corps: CreateMecanicienRequest): Observable<MecanicienResponse> {
-    return this.http.post<MecanicienResponse>(`${this.base}/create`, corps);
+  rechercher(keyword: string, page: number, size: number): Observable<Page<Mecanicien>> {
+    const params = new HttpParams().set('keyword', keyword).set('page', page).set('size', size);
+    return this.http.get<Page<Mecanicien>>(`${this.base}/search`, { params });
   }
 
-  updateMecanicien(id: number, corps: UpdateMecanicienRequest): Observable<MecanicienResponse> {
-    return this.http.put<MecanicienResponse>(`${this.base}/update/${id}`, corps);
+  parId(id: number): Observable<Mecanicien> {
+    return this.http.get<Mecanicien>(`${this.base}/get/${id}`);
   }
 
-  deleteMecanicien(id: number): Observable<string> {
-    return this.http.delete<string>(`${this.base}/delete/${id}`);
+  creer(payload: CreateMecanicienRequest): Observable<Mecanicien> {
+    return this.http.post<Mecanicien>(`${this.base}/create`, payload);
   }
 
-  getMecaniciensDisponibles(): Observable<MecanicienResponse[]> {
-    return this.http.get<MecanicienResponse[]>(`${this.base}/getAllDisponibles`);
+  modifier(id: number, payload: UpdateMecanicienRequest): Observable<Mecanicien> {
+    return this.http.put<Mecanicien>(`${this.base}/update/${id}`, payload);
+  }
+
+  supprimer(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/delete/${id}`, { responseType: 'text' as 'json' });
   }
 }
-

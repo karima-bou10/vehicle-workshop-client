@@ -1,34 +1,62 @@
 <div class="page">
 
-  <div class="page__entete">
+  <header class="page__entete">
     <div>
-      <h2 class="page__titre">Nouveau mécanicien</h2>
-      <p class="page__sous-titre">Fiche mécanicien.</p>
+      <h2 class="page__titre">
+        {{ modeEdition() ? 'Modifier le mécanicien' : 'Ajouter un mécanicien' }}
+      </h2>
     </div>
-  </div>
+  </header>
 
   <div class="carte">
-    <form class="form">
-      <div class="field">
-        <label for="nom">Nom *</label>
-        <input id="nom" type="text" />
-      </div>
+    @if (chargement()) {
+      <app-loading-spinner [pleinePage]="true" message="Chargement…" />
+    } @else {
+      <form class="form" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
 
-      <div class="field">
-        <label for="prenom">Prénom *</label>
-        <input id="prenom" type="text" />
-      </div>
+          <div class="field">
+            <label for="prenom">Prénom</label>
+            <input id="prenom" formControlName="prenom" [class.is-invalid]="invalide('prenom')" />
+            @if (invalide('prenom')) {
+              <span class="field__error">Le prénom est obligatoire.</span>
+            }
+          </div>
 
-      <div class="field">
-        <label for="specialite">Spécialité *</label>
-        <input id="specialite" type="text" />
-      </div>
+          <div class="field">
+            <label for="nom">Nom</label>
+            <input id="nom" formControlName="nom" [class.is-invalid]="invalide('nom')" />
+            @if (invalide('nom')) {
+              <span class="field__error">Le nom est obligatoire.</span>
+            }
+          </div>
 
-      <div class="form__actions">
-        <a class="btn btn--ghost" routerLink="/mecaniciens">Annuler</a>
-        <button type="submit" class="btn btn--primary">Créer le mécanicien</button>
-      </div>
-    </form>
+          <div class="field">
+            <label for="specialite">Spécialité</label>
+            <select id="specialite" formControlName="specialite">
+              @for (s of specialites; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+          </div>
+
+          @if (modeEdition()) {
+          <label for="disponible" class="bascule form__grille__pleine">
+            <input id="disponible" type="checkbox" formControlName="disponible" />
+            <span>
+              Disponible pour affectation
+              <small>Décochez en cas d'absence prolongée.</small>
+            </span>
+          </label>
+          } 
+          
+
+        <div class="form__actions">
+          <a class="btn btn--ghost" routerLink="/mecaniciens">Annuler</a>
+          <button type="submit" class="btn btn--primary" [disabled]="envoiEnCours()">
+            {{ envoiEnCours() ? 'Enregistrement…' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    }
   </div>
-
 </div>
