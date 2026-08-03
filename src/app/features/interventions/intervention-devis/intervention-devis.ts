@@ -1,19 +1,19 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InterventionResponse } from '../models/intervention.model';
 import { InterventionService } from '../services/intervention-service';
 import { LoadingSpinner } from '../../../shared/ui/loading-spinner/loading-spinner';
 
 @Component({
-  selector: 'app-intervention-diagnostic',
+  selector: 'app-intervention-devis',
   imports: [ReactiveFormsModule, LoadingSpinner],
-  templateUrl: './intervention-diagnostic.html',
-  styleUrl: './intervention-diagnostic.scss',
+  templateUrl: './intervention-devis.html',
+  styleUrl: './intervention-devis.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InterventionDiagnostic implements OnInit {
+export class InterventionDevis implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -25,15 +25,19 @@ export class InterventionDiagnostic implements OnInit {
   readonly errorMessage = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
-    diagnostic: ['', [Validators.required, Validators.minLength(5)]]
+    coutEstime: [0, [Validators.required, Validators.min(1)]]
   });
 
   private readonly formStatus = toSignal(this.form.statusChanges, {
     initialValue: this.form.status
   });
 
+  protected readonly hasDiagnostic = computed(
+    () => (this.intervention()?.diagnostic?.trim().length ?? 0) > 0
+  );
+
   protected readonly canSave = computed(
-    () => this.formStatus() === 'VALID' && !this.saving()
+    () => this.formStatus() === 'VALID' && this.hasDiagnostic() && !this.saving()
   );
 
   ngOnInit(): void {
@@ -50,20 +54,54 @@ export class InterventionDiagnostic implements OnInit {
       next: (response) => {
         this.intervention.set(response);
         this.form.patchValue({
-          diagnostic: response.diagnostic ?? ''
+          coutEstime: response.coutEstime ?? 0
         });
         this.loading.set(false);
       },
       error: (error: unknown) => {
-        console.error('Failed to load intervention for diagnostic.', error);
+        console.error('Failed to load intervention for quote.', error);
         this.errorMessage.set("Impossible de charger l'intervention.");
         this.loading.set(false);
       }
     });
   }
 
-  protected enregistrerDiagnostic(): void {
-    this.executeSave();
+  protected enregistrerDevis(): void {
+    if (!this.form.valid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const currentIntervention = this.intervention();
+    if (!currentIntervention) {
+      return;
+    }
+
+    if (!this.hasDiagnostic()) {
+      this.errorMessage.set('Le diagnostic doit être renseigné avant le devis.');
+      return;
+    }
+
+    this.saving.set(true);
+    this.errorMessage.set(null);
+    const payload = this.form.getRawValue();
+
+    this.interventionService
+      .addDevis(currentIntervention.id, {
+        coutEstime: Number(payload.coutEstime)
+      })
+      .subscribe({
+        next: (updated) => {
+          this.intervention.set(updated);
+          this.saving.set(false);
+          void this.router.navigate(['/interventions', updated.id]);
+        },
+        error: (error: unknown) => {
+          console.error('Failed to save quote.', error);
+          this.errorMessage.set("Impossible d'enregistrer le devis.");
+          this.saving.set(false);
+        }
+      });
   }
 
   protected retourDetail(): void {
@@ -74,38 +112,5 @@ export class InterventionDiagnostic implements OnInit {
     }
 
     void this.router.navigate(['/interventions']);
-  }
-
-  private executeSave(): void {
-    if (!this.form.valid || !this.intervention()) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    const currentIntervention = this.intervention();
-    if (!currentIntervention) {
-      return;
-    }
-
-    this.saving.set(true);
-    this.errorMessage.set(null);
-    const payload = this.form.getRawValue();
-
-    this.interventionService
-      .updateDiagnostic(currentIntervention.id, {
-        diagnostic: payload.diagnostic
-      })
-      .subscribe({
-        next: (updated) => {
-          this.intervention.set(updated);
-          this.saving.set(false);
-          void this.router.navigate(['/interventions', updated.id]);
-        },
-        error: (error: unknown) => {
-          console.error('Failed to save diagnostic.', error);
-          this.errorMessage.set('Impossible de sauvegarder le diagnostic.');
-          this.saving.set(false);
-        }
-      });
   }
 }

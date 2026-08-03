@@ -1,23 +1,37 @@
-.tag {
+.status-tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
 
-  &__dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-  }
+.status-tag--recue,
+.status-tag--diagnostic_en_cours {
+  background: #ffedd5;
+  color: #9a3412;
+}
 
-  &--neutral { background: var(--neutral-soft);  color: var(--neutral); }
-  &--info    { background: var(--primary-soft);  color: var(--primary-dark); }
-  &--warning { background: var(--warning-soft);  color: var(--warning); }
-  &--success { background: var(--success-soft);  color: var(--success); }
-  &--danger  { background: var(--danger-soft);   color: var(--danger); }
+.status-tag--devis_a_valider {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-tag--en_reparation {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.status-tag--terminee,
+.status-tag--restituee {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-tag--annulee,
+.status-tag--unknown {
+  background: #fee2e2;
+  color: #b91c1c;
 }

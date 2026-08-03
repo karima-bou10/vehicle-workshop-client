@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 
 import { MecanicienForm } from './mecanicien-form';
 
@@ -8,7 +9,16 @@ describe('MecanicienForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MecanicienForm]
+      imports: [MecanicienForm],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {}
+          }
+        }
+      ]
     })
     .compileComponents();
 

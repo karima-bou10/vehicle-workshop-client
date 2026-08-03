@@ -90,6 +90,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
   font-weight: 500;
   cursor: pointer;
   transition: background var(--transition), border-color var(--transition);
+  text-decoration: none;
 
   &:disabled { opacity: .55; cursor: not-allowed; }
 

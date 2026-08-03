@@ -62,9 +62,9 @@ export class VehiculeList {
     this.loading.set(true);
 
     this.vehiculeService
-      .getAllVehicules({ page: index, size: this.PAGE_SIZE, recherche: this.search.value })
+      .getAllVehicules({ page: index, size: this.PAGE_SIZE, search: this.search.value })
       .subscribe({
-        next: page => {
+        next: (page) => {
           this.page.set(page);
           this.loading.set(false);
         },
@@ -79,7 +79,7 @@ export class VehiculeList {
   requestDelete(v: VehiculeModel, event: MouseEvent): void {
     event.stopPropagation();
     this.verification.set(true);
-    this.interventionService.getInterventionsByVehiculeId(v.id).subscribe({
+    this.interventionService.listInterventionsByVehiculeId(v.id).subscribe({
       next: (interventions) => {
         this.verification.set(false);
         if(interventions.length === 0) {

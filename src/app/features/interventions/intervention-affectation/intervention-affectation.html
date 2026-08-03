@@ -1,1 +1,47 @@
-<p>intervention-affectation works!</p>
+<div class="page">
+
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Affectation mécanicien</h2>
+      @if (intervention()) {
+        <p class="page__sous-titre">
+          Intervention #{{ intervention()!.id }} — statut : <strong>{{ intervention()!.statut }}</strong>
+        </p>
+      }
+    </div>
+    <div class="page__actions">
+      <button type="button" class="btn btn--ghost" (click)="retourDetail()">Retour</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner [pleinePage]="true" message="Chargement…" />
+  } @else if (errorMessage()) {
+    <p class="muted" style="color:var(--danger)">{{ errorMessage() }}</p>
+  } @else {
+    <div class="carte">
+      <form class="form" [formGroup]="form">
+
+        <div class="field">
+          <label for="mecanicienId">ID mécanicien *</label>
+          <input id="mecanicienId" type="number" formControlName="mecanicienId" min="1"
+                 [class.is-invalid]="form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched" />
+          @if (form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched) {
+            <span class="field__error">Identifiant mécanicien obligatoire (min. 1).</span>
+          }
+        </div>
+
+        <div class="form__actions">
+          <button type="button" class="btn btn--ghost" [disabled]="!canSave()" (click)="affecter()">
+            Enregistrer
+          </button>
+          <button type="button" class="btn btn--primary" [disabled]="!canSave()" (click)="affecterEtPasserReparation()">
+            Enregistrer + Démarrer la réparation
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+
+</div>

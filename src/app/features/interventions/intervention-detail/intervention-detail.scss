@@ -1,0 +1,17 @@
+:host { display: block; }
+
+.confirmation-panel {
+  margin-top: 1.5rem;
+
+  &__titre {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+  }
+}
