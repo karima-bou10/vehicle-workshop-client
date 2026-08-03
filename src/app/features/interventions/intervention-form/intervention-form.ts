@@ -7,7 +7,8 @@ import {
   INTERVENTION_TYPES,
   type CreateInterventionRequest,
   type InterventionPriority,
-  type InterventionType
+  type InterventionType,
+  type UpdateInterventionRequest
 } from '../models/intervention.model';
 import { InterventionService } from '../services/intervention-service';
 import { VehiculeService } from '../../vehicules/services/vehicule-service';
@@ -30,13 +31,16 @@ export class InterventionForm implements OnInit {
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly vehicules = signal<VehiculeModel[]>([]);
+  readonly isEditMode = signal(false);
+  readonly interventionId = signal<number | null>(null);
+  readonly dateCloture = signal<string | null>(null);
 
   protected readonly interventionTypes = INTERVENTION_TYPES;
   protected readonly priorities = INTERVENTION_PRIORITIES;
   protected readonly minDate = new Date().toISOString().slice(0, 10);
 
   protected readonly form = this.fb.nonNullable.group({
-    vehiculeId: [0, [Validators.required, Validators.min(1)]],
+    vehiculeId: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
     typeIntervention: ['DIAGNOSTIC' as InterventionType, [Validators.required]],
     descriptionClient: ['', [Validators.required, Validators.minLength(10)]],
     priorite: ['MOYENNE' as InterventionPriority, [Validators.required]],
@@ -52,17 +56,43 @@ export class InterventionForm implements OnInit {
     () => this.formStatus() === 'VALID' && !this.loading()
   );
 
+  protected readonly formTitle = computed(() =>
+    this.isEditMode() ? "Modifier l'intervention" : 'Nouvelle intervention'
+  );
+
+  protected readonly formSubtitle = computed(() =>
+    this.isEditMode()
+      ? "Mettre à jour les informations de l'intervention."
+      : "Renseigner les informations de l'intervention."
+  );
+
+  protected readonly submitLabel = computed(() => {
+    if (this.loading()) {
+      return this.isEditMode() ? 'Enregistrement…' : 'Création…';
+    }
+    return this.isEditMode() ? 'Enregistrer les modifications' : "Créer l'intervention";
+  });
+
   ngOnInit(): void {
     this.vehiculeService.getAllVehicules({ page: 0, size: 1000 }).subscribe({
       next: (page) => this.vehicules.set(page.content),
       error: () => this.errorMessage.set('Impossible de charger la liste des véhicules.')
     });
 
+    const idParam = this.route.snapshot.paramMap.get('id');
+    const interventionId = Number(idParam);
+    if (idParam && !Number.isNaN(interventionId) && interventionId > 0) {
+      this.isEditMode.set(true);
+      this.interventionId.set(interventionId);
+      this.loadInterventionForEdit(interventionId);
+      return;
+    }
+
     const vehiculeIdParam = this.route.snapshot.queryParamMap.get('vehiculeId');
     if (vehiculeIdParam) {
       const id = Number(vehiculeIdParam);
       if (!Number.isNaN(id) && id > 0) {
-        this.form.controls.vehiculeId.setValue(id);
+        this.form.controls.vehiculeId.setValue(vehiculeIdParam);
       }
     }
   }
@@ -76,27 +106,42 @@ export class InterventionForm implements OnInit {
     const raw = this.form.getRawValue();
 
     // Defensive guard: vehiculeId must be a valid positive integer
-    if (!raw.vehiculeId || raw.vehiculeId < 1) {
-      this.errorMessage.set('Veuillez renseigner un identifiant de véhicule valide.');
+    const vehiculeId = Number(raw.vehiculeId);
+    if (Number.isNaN(vehiculeId) || vehiculeId < 1) {
+      this.errorMessage.set('Veuillez sélectionner un véhicule valide.');
       return;
     }
 
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    const payload: CreateInterventionRequest = {
+    const createPayload: CreateInterventionRequest = {
       ...raw,
-      vehiculeId: Number(raw.vehiculeId),
+      vehiculeId: vehiculeId,
       dateDepot: raw.dateDepot ? `${raw.dateDepot}T00:00:00` : raw.dateDepot,
       dateRestitutionPrevue: raw.dateRestitutionPrevue
         ? `${raw.dateRestitutionPrevue}T00:00:00`
         : raw.dateRestitutionPrevue,
     };
 
-    this.interventionService.create(payload).subscribe({
-      next: (created) => {
+    const editId = this.interventionId();
+    const updatePayload: UpdateInterventionRequest = {
+      typeIntervention: raw.typeIntervention,
+      descriptionClient: raw.descriptionClient,
+      priorite: raw.priorite,
+      dateRestitutionPrevue: raw.dateRestitutionPrevue
+        ? `${raw.dateRestitutionPrevue}T00:00:00`
+        : raw.dateRestitutionPrevue,
+      dateCloture: this.dateCloture()
+    };
+    const saveRequest = this.isEditMode() && editId
+      ? this.interventionService.updateIntervention(editId, updatePayload)
+      : this.interventionService.create(createPayload);
+
+    saveRequest.subscribe({
+      next: (saved) => {
         this.loading.set(false);
-        void this.router.navigate(['/interventions', created.id]);
+        void this.router.navigate(['/interventions', saved.id]);
       },
       error: (error: unknown) => {
         // HttpErrorResponse n'est pas un instanceof Error — on cast directement
@@ -115,10 +160,34 @@ export class InterventionForm implements OnInit {
           status,
           backendMsg,
           fullError: error,
-          payloadSent: payload,
+          payloadSent: this.isEditMode() ? updatePayload : createPayload,
         });
 
         this.errorMessage.set(`Erreur ${status} : ${backendMsg}`);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  private loadInterventionForEdit(id: number): void {
+    this.loading.set(true);
+    this.errorMessage.set(null);
+    this.interventionService.getById(id).subscribe({
+      next: (intervention) => {
+        this.dateCloture.set(intervention.dateCloture);
+        this.form.patchValue({
+          vehiculeId: String(intervention.vehiculeId),
+          typeIntervention: intervention.typeIntervention as InterventionType,
+          descriptionClient: intervention.descriptionClient,
+          priorite: intervention.priorite as InterventionPriority,
+          dateDepot: intervention.dateDepot.split('T')[0],
+          dateRestitutionPrevue: intervention.dateRestitutionPrevue.split('T')[0]
+        });
+        this.loading.set(false);
+      },
+      error: (error: unknown) => {
+        console.error('Failed to load intervention for edit.', error);
+        this.errorMessage.set("Impossible de charger l'intervention à modifier.");
         this.loading.set(false);
       }
     });

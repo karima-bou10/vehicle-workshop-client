@@ -38,6 +38,19 @@
       <td style="text-align: right; padding-right: 16px">{{ i.coutEstime ?? '—' }} MAD</td>
       <td>
         <div class="actions-ligne">
+          <button type="button" class="bouton-icone" title="Modifier" (click)="allerEdition(i.id)">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 20h9" />
+              <path d="m16.5 3.5 4 4L7 21H3v-4z" />
+            </svg>
+          </button>
           <button type="button" class="bouton-icone" title="Détail" (click)="voirDetail(i.id)">
             <svg
               viewBox="0 0 24 24"

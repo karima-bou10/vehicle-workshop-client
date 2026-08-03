@@ -47,6 +47,14 @@ export class InterventionDetail implements OnInit {
     () => this.pendingTransition() === 'ANNULEE'
   );
 
+  readonly diagnosticRenseigne = computed(
+    () => (this.intervention()?.diagnostic?.trim().length ?? 0) > 0
+  );
+
+  readonly devisRenseigne = computed(
+    () => this.intervention()?.coutEstime !== null
+  );
+
   readonly canConfirmer = computed(() => {
     if (!this.pendingTransition()) {
       return false;
@@ -75,6 +83,9 @@ export class InterventionDetail implements OnInit {
   }
 
   allerDiagnostic(): void {
+    if (this.diagnosticRenseigne()) {
+      return;
+    }
     const id = this.intervention()?.id;
     if (id) {
       void this.router.navigate(['/interventions', id, 'diagnostic']);
@@ -82,6 +93,9 @@ export class InterventionDetail implements OnInit {
   }
 
   allerDevis(): void {
+    if (this.devisRenseigne()) {
+      return;
+    }
     const id = this.intervention()?.id;
     if (id) {
       void this.router.navigate(['/interventions', id, 'devis']);
@@ -92,6 +106,13 @@ export class InterventionDetail implements OnInit {
     const id = this.intervention()?.id;
     if (id) {
       void this.router.navigate(['/interventions', id, 'affectation']);
+    }
+  }
+
+  allerEdition(): void {
+    const id = this.intervention()?.id;
+    if (id) {
+      void this.router.navigate(['/interventions', id, 'edit']);
     }
   }
 

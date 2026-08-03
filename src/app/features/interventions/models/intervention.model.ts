@@ -87,6 +87,14 @@ export interface UpdateInterventionStatusRequest {
   commentaire?: string;
 }
 
+export interface UpdateInterventionRequest {
+  typeIntervention: InterventionType;
+  descriptionClient: string;
+  priorite: InterventionPriority;
+  dateRestitutionPrevue: string;
+  dateCloture: string | null;
+}
+
 export interface Intervention {
   id: number | string;
   reference: string;

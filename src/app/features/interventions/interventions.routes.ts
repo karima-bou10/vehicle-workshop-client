@@ -17,6 +17,10 @@ export const interventionsRoutes: Routes = [
     component: InterventionForm
   },
   {
+    path: ':id/edit',
+    component: InterventionForm
+  },
+  {
     path: ':id/diagnostic',
     component: InterventionDiagnostic
   },
