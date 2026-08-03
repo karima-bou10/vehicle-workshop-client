@@ -79,7 +79,7 @@ export class VehiculeList {
   requestDelete(v: VehiculeModel, event: MouseEvent): void {
     event.stopPropagation();
     this.verification.set(true);
-    this.interventionService.getInterventionsByVehiculeId(v.id).subscribe({
+    this.interventionService.listInterventionsByVehiculeId(v.id).subscribe({
       next: (interventions) => {
         this.verification.set(false);
         if(interventions.length === 0) {

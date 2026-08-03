@@ -1,1 +1,125 @@
-<p>intervention-detail works!</p>
+@if (loading()) {
+  <app-loading-spinner [pleinePage]="true" message="Chargement de l'intervention…" />
+} @else if (errorMessage() && !intervention()) {
+  <div class="page">
+    <p class="muted" style="color:var(--danger)">{{ errorMessage() }}</p>
+    <div><button type="button" class="btn btn--ghost" (click)="retourListe()">Retour à la liste</button></div>
+  </div>
+} @else if (intervention(); as ci) {
+
+  <div class="page">
+
+    <div class="page__entete">
+      <div>
+        <h2 class="page__titre">Intervention #{{ ci.id }}</h2>
+        <p class="page__sous-titre">
+          {{ ci.typeIntervention }} — {{ vehiculeLibelle() }} — <span class="mono">{{ ci.immatriculationVehicule || '—' }}</span>
+        </p>
+      </div>
+      <div class="page__actions">
+        <button type="button" class="btn btn--ghost" (click)="retourListe()">Retour</button>
+        <button type="button" class="btn btn--ghost" (click)="allerDiagnostic()">Diagnostic</button>
+        <button type="button" class="btn btn--ghost" (click)="allerDevis()">Devis</button>
+        <button type="button" class="btn btn--ghost" (click)="allerAffectation()">Affectation</button>
+        <button type="button" class="btn btn--ghost" (click)="allerHistorique()">Historique</button>
+      </div>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="muted" style="color:var(--danger)">{{ errorMessage() }}</p>
+    }
+
+    <app-workflow-stepper [intervention]="ci" />
+
+    <div class="grille grille--2">
+
+      <section class="carte">
+        <h3 class="carte__titre">Détails</h3>
+        <dl class="def">
+          <dt>Type</dt>              <dd>{{ ci.typeIntervention }}</dd>
+          <dt>Description client</dt><dd>{{ ci.descriptionClient }}</dd>
+          <dt>Diagnostic</dt>        <dd>{{ ci.diagnostic || '—' }}</dd>
+          <dt>Statut</dt>            <dd><app-status-tag [value]="ci.statut" /></dd>
+          <dt>Priorité</dt>          <dd>{{ ci.priorite }}</dd>
+          <dt>Coût estimé</dt>       <dd>{{ ci.coutEstime ?? '—' }} MAD</dd>
+        </dl>
+      </section>
+
+      <section class="carte">
+        <h3 class="carte__titre">Dates &amp; affectation</h3>
+        <dl class="def">
+          <dt>Date de dépôt</dt>       <dd>{{ ci.dateDepot | date:'dd/MM/yyyy' }}</dd>
+          <dt>Restitution prévue</dt>  <dd>{{ ci.dateRestitutionPrevue | date:'dd/MM/yyyy' }}</dd>
+          <dt>Date de clôture</dt>     <dd>{{ ci.dateCloture | date:'dd/MM/yyyy' }}</dd>
+          <dt>Véhicule</dt>            <dd class="mono">{{ ci.immatriculationVehicule || '—' }}</dd>
+          <dt>Marque / modèle</dt>     <dd>{{ vehiculeLibelle() }}</dd>
+          <dt>Mécanicien</dt>          <dd>{{ ci.nomMecanicien || '—' }}</dd>
+        </dl>
+      </section>
+
+    </div>
+
+    <div class="form__actions">
+      @if (!pendingTransition()) {
+        @if (canPasserEnReparation()) {
+          <button type="button" class="btn btn--primary"
+                  (click)="ouvrirConfirmation('EN_REPARATION')" [disabled]="actionLoading()">
+            Passer en réparation
+          </button>
+        }
+        @if (canPasserTerminee()) {
+          <button type="button" class="btn btn--primary"
+                  (click)="ouvrirConfirmation('TERMINEE')" [disabled]="actionLoading()">
+            Terminer la réparation
+          </button>
+        }
+        @if (canPasserRestituee()) {
+          <button type="button" class="btn btn--primary"
+                  (click)="ouvrirConfirmation('RESTITUEE')" [disabled]="actionLoading()">
+            Restituer au client
+          </button>
+        }
+        @if (ci.statut !== 'ANNULEE' && ci.statut !== 'RESTITUEE' && ci.statut !== 'TERMINEE') {
+          <button type="button" class="btn btn--danger"
+                  (click)="ouvrirConfirmation('ANNULEE')" [disabled]="actionLoading()">
+            Annuler l'intervention
+          </button>
+        }
+      }
+    </div>
+
+    @if (pendingTransition()) {
+      <div class="confirmation-panel carte">
+        <h4 class="confirmation-panel__titre">{{ titreConfirmation() }}</h4>
+        <div class="field">
+          <label for="commentaire-transition">
+            Commentaire @if (commentaireRequis()) { <span aria-hidden="true">*</span> }
+          </label>
+          <textarea
+            id="commentaire-transition"
+            rows="3"
+            [value]="commentaireSaisie()"
+            (input)="commentaireSaisie.set($any($event.target).value)"
+            [placeholder]="commentaireRequis() ? 'Motif d\'annulation obligatoire…' : 'Commentaire optionnel…'"
+            [class.is-invalid]="commentaireRequis() && !commentaireSaisie().trim()">
+          </textarea>
+          @if (commentaireRequis() && !commentaireSaisie().trim()) {
+            <span class="field__error">Le commentaire est obligatoire pour une annulation.</span>
+          }
+        </div>
+        <div class="form__actions">
+          <button type="button" class="btn btn--ghost"
+                  (click)="annulerConfirmation()" [disabled]="actionLoading()">
+            Annuler
+          </button>
+          <button type="button" class="btn btn--primary"
+                  (click)="confirmerTransition()"
+                  [disabled]="!canConfirmer() || actionLoading()">
+            Confirmer
+          </button>
+        </div>
+      </div>
+    }
+
+  </div>
+}

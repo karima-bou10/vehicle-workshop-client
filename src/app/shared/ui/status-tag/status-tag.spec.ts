@@ -14,6 +14,8 @@ describe('StatusTag', () => {
 
     fixture = TestBed.createComponent(StatusTag);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('value', 'Recue');
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 

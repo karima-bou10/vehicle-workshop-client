@@ -1,1 +1,74 @@
-<p>intervention-form works!</p>
+<div class="page">
+
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Nouvelle intervention</h2>
+      <p class="page__sous-titre">Renseigner les informations de l'intervention.</p>
+    </div>
+  </div>
+
+  <div class="carte">
+    @if (errorMessage()) {
+      <p class="field__error" style="margin-bottom:12px">{{ errorMessage() }}</p>
+    }
+
+    <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <div class="field">
+        <label for="vehiculeId">Véhicule (ID) *</label>
+        <input id="vehiculeId" type="number" formControlName="vehiculeId" min="1"
+               [class.is-invalid]="form.controls.vehiculeId.invalid && form.controls.vehiculeId.touched" />
+        @if (form.controls.vehiculeId.invalid && form.controls.vehiculeId.touched) {
+          <span class="field__error">Identifiant de véhicule obligatoire (min. 1).</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="typeIntervention">Type d'intervention *</label>
+        <select id="typeIntervention" formControlName="typeIntervention">
+          @for (type of interventionTypes; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="priorite">Priorité *</label>
+        <select id="priorite" formControlName="priorite">
+          @for (priority of priorities; track priority) {
+            <option [value]="priority">{{ priority }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="dateDepot">Date de dépôt *</label>
+        <input id="dateDepot" type="date" formControlName="dateDepot" />
+      </div>
+
+      <div class="field">
+        <label for="dateRestitutionPrevue">Restitution prévue *</label>
+        <input id="dateRestitutionPrevue" type="date" formControlName="dateRestitutionPrevue"
+               [min]="form.controls.dateDepot.value" />
+      </div>
+
+      <div class="field form__pleine-largeur">
+        <label for="descriptionClient">Description client *</label>
+        <textarea id="descriptionClient" formControlName="descriptionClient"
+                  [class.is-invalid]="form.controls.descriptionClient.invalid && form.controls.descriptionClient.touched"></textarea>
+        @if (form.controls.descriptionClient.invalid && form.controls.descriptionClient.touched) {
+          <span class="field__error">Description obligatoire (10 caractères minimum).</span>
+        }
+      </div>
+
+      <div class="form__actions">
+        <button type="button" class="btn btn--ghost" (click)="cancel()">Annuler</button>
+        <button type="submit" class="btn btn--primary" [disabled]="!canSubmit()">
+          @if (loading()) { Création… } @else { Créer l'intervention }
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

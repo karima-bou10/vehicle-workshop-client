@@ -14,7 +14,7 @@
         <a class="btn btn--ghost" routerLink="/vehicules">Retour</a>
         <a class="btn btn--ghost" [routerLink]="['/vehicules', v.id, 'modifier']">Modifier</a>
         <a class="btn btn--primary"
-           [routerLink]="['/interventions/nouveau']"
+           [routerLink]="['/interventions', 'new']"
            [queryParams]="{ vehiculeId: v.id }">
           Nouvelle intervention
         </a>

@@ -1,1 +1,44 @@
-<p>intervention-diagnostic works!</p>
+<div class="page">
+
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Diagnostic</h2>
+      @if (intervention()) {
+        <p class="page__sous-titre">
+          Intervention #{{ intervention()!.id }} — statut : <strong>{{ intervention()!.statut }}</strong>
+        </p>
+      }
+    </div>
+    <div class="page__actions">
+      <button type="button" class="btn btn--ghost" (click)="retourDetail()">Retour</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner [pleinePage]="true" message="Chargement…" />
+  } @else if (errorMessage()) {
+    <p class="muted" style="color:var(--danger)">{{ errorMessage() }}</p>
+  } @else {
+    <div class="carte">
+      <form class="form" [formGroup]="form">
+
+        <div class="field form__pleine-largeur">
+          <label for="diagnostic">Diagnostic *</label>
+          <textarea id="diagnostic" formControlName="diagnostic"
+                    [class.is-invalid]="form.controls.diagnostic.invalid && form.controls.diagnostic.touched"></textarea>
+          @if (form.controls.diagnostic.invalid && form.controls.diagnostic.touched) {
+            <span class="field__error">Diagnostic obligatoire (5 caractères minimum).</span>
+          }
+        </div>
+
+        <div class="form__actions">
+          <button type="button" class="btn btn--ghost" [disabled]="!canSave()" (click)="enregistrerDiagnostic()">
+            Enregistrer
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+
+</div>

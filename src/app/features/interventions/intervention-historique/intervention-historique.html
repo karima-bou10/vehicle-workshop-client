@@ -1,1 +1,40 @@
-<p>intervention-historique works!</p>
+<div class="page">
+
+  <div class="page__entete">
+    <div>
+      <h2 class="page__titre">Historique de l'intervention</h2>
+      @if (interventionId()) {
+        <p class="page__sous-titre">Intervention #{{ interventionId() }}</p>
+      }
+    </div>
+    <div class="page__actions">
+      <button type="button" class="btn btn--ghost" (click)="retourDetail()">Retour</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner [pleinePage]="true" message="Chargement de l'historique…" />
+  } @else if (errorMessage()) {
+    <p class="muted">{{ errorMessage() }}</p>
+  } @else if (history().length === 0) {
+    <app-empty-state
+      titre="Aucun historique"
+      description="Aucun changement de statut n'a encore été enregistré pour cette intervention." />
+  } @else {
+    <app-paginated-table
+      [colonnes]="columns"
+      [lignes]="history()"
+      [totalElements]="history().length"
+      [ligneTemplate]="ligne"
+      messageVide="Aucun historique" />
+
+    <ng-template #ligne let-e>
+      <td class="muted">{{ e.date | date:'dd/MM/yyyy HH:mm' }}</td>
+      <td>{{ e.auteur }}</td>
+      <td>{{ e.ancienStatut || '—' }}</td>
+      <td>{{ e.nouveauStatut }}</td>
+      <td class="muted">{{ e.commentaire || '—' }}</td>
+    </ng-template>
+  }
+
+</div>

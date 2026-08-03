@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 
 import { MecanicienList } from './mecanicien-list';
 
@@ -8,7 +9,16 @@ describe('MecanicienList', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MecanicienList]
+      imports: [MecanicienList],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {}
+          }
+        }
+      ]
     })
     .compileComponents();
 
