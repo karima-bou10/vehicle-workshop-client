@@ -34,8 +34,8 @@ export class InterventionService {
     return this.http.post<InterventionResponse>(`${this.apiUrl}/new`, payload);
   }
   
-  getInterventionsByVehiculeId(vehiculeId: number): Observable<InterventionModel[]> {
-    return this.http.get<InterventionModel[]>(`${environment.apiUrl}/vehicules/${vehiculeId}/interventions`);
+  listInterventionsByVehiculeId(vehiculeId: number): Observable<InterventionModel[]> {
+    return this.http.get<InterventionModel[]>(`${this.apiUrl}/vehicules/${vehiculeId}/interventions`);
   }
 
   updateIntervention(id: number, payload: any): Observable<InterventionResponse> {

@@ -93,9 +93,6 @@ export class InterventionForm implements OnInit {
         : raw.dateRestitutionPrevue,
     };
 
-    // 🔍 DEBUG — visible dans F12 > Console
-    console.log('📤 Payload envoyé au backend :', JSON.stringify(payload, null, 2));
-
     this.interventionService.create(payload).subscribe({
       next: (created) => {
         this.loading.set(false);
