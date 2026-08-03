@@ -107,6 +107,10 @@ export class InterventionList implements OnInit {
     void this.router.navigate(['/interventions', id]);
   }
 
+  allerEdition(id: number): void {
+    void this.router.navigate(['/interventions', id, 'edit']);
+  }
+
   creerIntervention(): void {
     void this.router.navigate(['/interventions/new']);
   }

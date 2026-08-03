@@ -1,12 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment.development'; 
 import { HistoriqueInterventionResponse } from '../models/historique.model';
 import {
   CreateInterventionRequest,
   DevisRequest,
   InterventionResponse,
+  UpdateInterventionRequest,
   UpdateAffectationRequest,
   UpdateDiagnosticRequest,
   UpdateInterventionStatusRequest
@@ -38,8 +39,37 @@ export class InterventionService {
     return this.http.get<InterventionModel[]>(`${this.apiUrl}/vehicules/${vehiculeId}/interventions`);
   }
 
-  updateIntervention(id: number, payload: any): Observable<InterventionResponse> {
-    return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}`, payload);
+  updateIntervention(id: number, payload: UpdateInterventionRequest): Observable<InterventionResponse> {
+    const editUrl = `${this.apiUrl}/${id}/edit`;
+    const editPrefixUrl = `${this.apiUrl}/edit/${id}`;
+    const directUrl = `${this.apiUrl}/${id}`;
+    const updatePrefixUrl = `${this.apiUrl}/update/${id}`;
+
+    return this.http.put<InterventionResponse>(editUrl, payload).pipe(
+      catchError((firstError: HttpErrorResponse) => {
+        if (firstError.status !== 404) {
+          return throwError(() => firstError);
+        }
+
+        return this.http.put<InterventionResponse>(editPrefixUrl, payload).pipe(
+          catchError((secondError: HttpErrorResponse) => {
+            if (secondError.status !== 404) {
+              return throwError(() => secondError);
+            }
+
+            return this.http.put<InterventionResponse>(directUrl, payload).pipe(
+              catchError((thirdError: HttpErrorResponse) => {
+                if (thirdError.status !== 404) {
+                  return throwError(() => thirdError);
+                }
+
+                return this.http.put<InterventionResponse>(updatePrefixUrl, payload);
+              })
+            );
+          })
+        );
+      })
+    );
   }
 
   updateAffectation(id: number, payload: UpdateAffectationRequest): Observable<InterventionResponse> {

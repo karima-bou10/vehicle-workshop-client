@@ -97,6 +97,17 @@ describe('InterventionDetail', () => {
     expect(fixture.nativeElement.textContent).toContain('Passer en réparation');
   });
 
+  it('should disable Diagnostic and Devis buttons when already filled', () => {
+    fixture.detectChanges();
+
+    const buttons = Array.from<HTMLButtonElement>(fixture.nativeElement.querySelectorAll('button'));
+    const diagnosticButton = buttons.find((button) => button.textContent?.trim() === 'Diagnostic');
+    const devisButton = buttons.find((button) => button.textContent?.trim() === 'Devis');
+
+    expect(diagnosticButton?.disabled).toBeTrue();
+    expect(devisButton?.disabled).toBeTrue();
+  });
+
   it('should open confirmation panel when clicking Passer en réparation', () => {
     fixture.detectChanges();
 

@@ -29,12 +29,11 @@ describe('InterventionHistorique', () => {
               of([
                 {
                   id: 1,
-                  interventionId: 1,
                   ancienStatut: 'RECUE',
                   nouveauStatut: 'DIAGNOSTIC_EN_COURS',
                   commentaire: 'Prise en charge atelier',
                   auteur: 'Conseiller',
-                  date: '2026-07-31T10:00:00'
+                  dateModification: '2026-07-31T10:00:00'
                 }
               ])
           }
