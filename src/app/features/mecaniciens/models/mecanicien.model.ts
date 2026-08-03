@@ -1,9 +1,12 @@
-export interface MecanicienResponse {
+import { InterventionModel } from '../../interventions/models/intervention-model';
+
+export interface Mecanicien {
   id: number;
   nom: string;
   prenom: string;
   specialite: string;
   disponible: boolean;
+  interventions: InterventionModel[];
 }
 
 export interface CreateMecanicienRequest {
@@ -19,8 +22,10 @@ export interface UpdateMecanicienRequest {
   disponible: boolean;
 }
 
-export interface MecanicienFiltre {
-  page: number;
-  size: number;
-  recherche?: string;
-}
+export const SPECIALITES = [
+  'Mécanique générale',
+  'Électricité et électronique',
+  'Carrosserie',
+  'Climatisation',
+  'Diagnostic',
+] as const;

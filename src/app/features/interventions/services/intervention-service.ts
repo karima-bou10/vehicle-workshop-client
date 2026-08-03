@@ -11,6 +11,7 @@ import {
   UpdateDiagnosticRequest,
   UpdateInterventionStatusRequest
 } from '../models/intervention.model';
+import { InterventionModel } from '../models/intervention-model';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,10 @@ export class InterventionService {
 
   create(payload: CreateInterventionRequest): Observable<InterventionResponse> {
     return this.http.post<InterventionResponse>(`${this.apiUrl}/new`, payload);
+  }
+  
+  getInterventionsByVehiculeId(vehiculeId: number): Observable<InterventionModel[]> {
+    return this.http.get<InterventionModel[]>(`${environment.apiUrl}/vehicules/${vehiculeId}/interventions`);
   }
 
   updateIntervention(id: number, payload: any): Observable<InterventionResponse> {
