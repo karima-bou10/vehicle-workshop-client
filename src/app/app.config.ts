@@ -11,12 +11,14 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { errorInterceptor } from './core/interceptors/error-interceptor';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withComponentInputBinding()),
+    provideCharts(withDefaultRegisterables()),
     provideHttpClient(
       // L'ordre compte : authInterceptor ajoute le token, errorInterceptor traite la réponse.
       withInterceptors([authInterceptor, errorInterceptor]),

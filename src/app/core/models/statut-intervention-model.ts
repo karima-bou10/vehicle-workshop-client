@@ -7,7 +7,7 @@ export type StatutIntervention =
   | 'RESTITUEE'
   | 'ANNULEE';
 
-export type StatusVariant  = 'neutral' | 'info' | 'warning' | 'success' | 'danger';
+export type StatusVariant  = 'neutral' | 'warning' | 'success' | 'danger' | 'primary' | 'success-soft' | 'neutral-soft';
 
 interface StatusMetadata {
   label: string;
@@ -15,12 +15,12 @@ interface StatusMetadata {
 }
 
 export const STATUT_METADATA: Record<StatutIntervention, StatusMetadata> = {
-  RECUE:               { label: 'Reçue',               variant: 'neutral' },
-  DIAGNOSTIC_EN_COURS: { label: 'Diagnostic en cours', variant: 'info'    },
-  DEVIS_A_VALIDER:     { label: 'Devis à valider',     variant: 'warning' },
-  EN_REPARATION:       { label: 'En réparation',       variant: 'info'    },
+  RECUE:               { label: 'Reçue',               variant: 'neutral-soft' },
+  DIAGNOSTIC_EN_COURS: { label: 'Diagnostic en cours', variant: 'warning'    },
+  DEVIS_A_VALIDER:     { label: 'Devis à valider',     variant: 'neutral' },
+  EN_REPARATION:       { label: 'En réparation',       variant: 'primary'    },
   TERMINEE:            { label: 'Terminée',            variant: 'success' },
-  RESTITUEE:           { label: 'Restituée',           variant: 'success' },
+  RESTITUEE:           { label: 'Restituée',           variant: 'success-soft' },
   ANNULEE:             { label: 'Annulée',             variant: 'danger'  },
 };
 
