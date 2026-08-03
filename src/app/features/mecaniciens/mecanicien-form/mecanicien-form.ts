@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-
-@Component({
-  selector: 'app-mecanicien-form',
-  imports: [RouterLink],
-=======
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -16,7 +8,6 @@ import { MecanicienService } from '../services/mecanicien-service';
 @Component({
   selector: 'app-mecanicien-form',
   imports: [ReactiveFormsModule, RouterLink, LoadingSpinner],
->>>>>>> develop
   templateUrl: './mecanicien-form.html',
   styleUrl: './mecanicien-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
