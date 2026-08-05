@@ -27,9 +27,9 @@
         <h3 class="carte__titre">Véhicule</h3>
         <dl class="def">
           <dt>ImmatriculationFictive</dt><dd class="mono">{{ v.immatriculationFictive }}</dd>
-          <dt>Marque et modèle</dt><dd>{{ v.marque }} {{ v.modele }}</dd>
-          <dt>Année</dt><dd>{{ v.annee }}</dd>
-          <dt>Kilométrage</dt><dd>{{ v.kilometrage | number }} km</dd>
+          <dt>Marque et modèle</dt><dd class="mono">{{ v.marque }} {{ v.modele }}</dd>
+          <dt>Année</dt><dd class="mono">{{ v.annee }}</dd>
+          <dt>Kilométrage</dt><dd class="mono">{{ v.kilometrage | number }} km</dd>
           <dt>Client fictif</dt><dd class="mono">{{ v.clientFictif}}</dd>
         </dl>
       </section>
@@ -43,16 +43,25 @@
           titre="Aucune intervention"
           description="Ce véhicule n'est jamais passé à l'atelier." />
       } @else {
-        <ul class="historique-vehicule">
-          @for (i of interventions(); track i.id) {
-            <li class="historique-vehicule__ligne">
-              <a class="lien" [routerLink]="['/interventions', i.id]">#{{ i.id }}</a>
-              <span class="historique-vehicule__objet">{{ i.demandeClient }}</span>
-              <app-status-tag [statut]="i.statut" />
-              <span class="muted">{{ i.dateReception | date:'dd/MM/yyyy' }}</span>
-            </li>
-          }
-        </ul>
+            <app-paginated-table
+      [colonnes]="columns"
+      [lignes]="interventions()"
+      [totalElements]="interventions().length"
+      [ligneTemplate]="ligne"
+      messageVide="Aucune intervention trouvée"
+    />
+
+    <ng-template #ligne let-i>
+     <td class="mono">
+      <a class="lien" [routerLink]="['/interventions', i.id]">{{  i.id }}</a>
+    </td>
+      <td>{{ i.typeIntervention }}</td>
+      <td><app-status-tag [value]="i.statut" /></td>
+      <td>{{ i.priorite }}</td>
+      <td>{{ i.nomMecanicien || '—' }}</td>
+      <td class="muted" >{{ i.dateDepot | date: 'dd/MM/yyyy' }}</td>
+      <td style="text-align: right; padding-right: 16px">{{ i.coutEstime ?? '—' }} MAD</td>
+    </ng-template>
       }
     </section>
   </div>
