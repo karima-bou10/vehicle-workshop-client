@@ -33,7 +33,7 @@ export class InterventionForm implements OnInit {
   readonly vehicules = signal<VehiculeModel[]>([]);
   readonly isEditMode = signal(false);
   readonly interventionId = signal<number | null>(null);
-  readonly dateCloture = signal<string | null>(null);
+  readonly dateDepot = signal<string | null>(null);
 
   protected readonly interventionTypes = INTERVENTION_TYPES;
   protected readonly priorities = INTERVENTION_PRIORITIES;
@@ -132,7 +132,7 @@ export class InterventionForm implements OnInit {
       dateRestitutionPrevue: raw.dateRestitutionPrevue
         ? `${raw.dateRestitutionPrevue}T00:00:00`
         : raw.dateRestitutionPrevue,
-      dateCloture: this.dateCloture()
+      dateDepot: this.dateDepot()
     };
     const saveRequest = this.isEditMode() && editId
       ? this.interventionService.updateIntervention(editId, updatePayload)
@@ -174,7 +174,7 @@ export class InterventionForm implements OnInit {
     this.errorMessage.set(null);
     this.interventionService.getById(id).subscribe({
       next: (intervention) => {
-        this.dateCloture.set(intervention.dateCloture);
+        this.dateDepot.set(intervention.dateDepot);
         this.form.patchValue({
           vehiculeId: String(intervention.vehiculeId),
           typeIntervention: intervention.typeIntervention as InterventionType,

@@ -28,7 +28,7 @@ export class InterventionList implements OnInit {
   readonly registrationWarning = signal<string | null>(null);
 
   readonly columns: TableColumn[] = [
-    { key: 'id',                     label: '#',             width: '60px' },
+    { key: 'id',                     label: 'reference',             width: '60px' },
     { key: 'typeIntervention',       label: 'Type' },
     { key: 'statut',                 label: 'Statut' },
     { key: 'priorite',               label: 'Priorité' },
@@ -107,10 +107,6 @@ export class InterventionList implements OnInit {
     void this.router.navigate(['/interventions', id]);
   }
 
-  allerEdition(id: number): void {
-    void this.router.navigate(['/interventions', id, 'edit']);
-  }
-
   creerIntervention(): void {
     void this.router.navigate(['/interventions/new']);
   }
@@ -125,6 +121,10 @@ export class InterventionList implements OnInit {
 
   allerAffectation(id: number): void {
     void this.router.navigate(['/interventions', id, 'affectation']);
+  }
+
+  allerEdition(id: number): void {
+    void this.router.navigate(['/interventions', id, 'edit']);
   }
 
   voirHistorique(id: number): void {

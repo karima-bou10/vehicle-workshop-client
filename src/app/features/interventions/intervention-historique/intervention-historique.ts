@@ -56,13 +56,7 @@ export class InterventionHistorique implements OnInit {
     });
   }
 
-  protected retourDetail(): void {
-    const id = this.interventionId();
-    if (id) {
-      void this.router.navigate(['/interventions', id]);
-      return;
-    }
-
+  protected retourListIntervention(): void {
     void this.router.navigate(['/interventions']);
   }
 }
