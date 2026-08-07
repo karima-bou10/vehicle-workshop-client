@@ -55,6 +55,7 @@ export interface InterventionFiltre {
 /** Une ligne de HistoriqueIntervention côté backend. */
 export interface HistoriqueIntervention {
   id: number;
+  reference : String 
   statutPrecedent: StatutIntervention | null;
   statutNouveau: StatutIntervention;
   commentaire: string | null;

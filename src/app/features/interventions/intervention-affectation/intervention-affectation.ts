@@ -41,7 +41,7 @@ export class InterventionAffectation implements OnInit {
   );
 
   ngOnInit(): void {
-    this.mecanicienService.lister(0, 1000).subscribe({
+    this.mecanicienService.disponibles(0, 1000).subscribe({
       next: (page) => this.mecaniciens.set(page.content),
       error: () => this.errorMessage.set('Impossible de charger la liste des mécaniciens.')
     });

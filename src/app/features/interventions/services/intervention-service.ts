@@ -43,7 +43,7 @@ export class InterventionService {
     const editUrl = `${this.apiUrl}/${id}/edit`;
     const editPrefixUrl = `${this.apiUrl}/edit/${id}`;
     const directUrl = `${this.apiUrl}/${id}`;
-    const updatePrefixUrl = `${this.apiUrl}/update/${id}`;
+    const updatePrefixUrl = `${this.apiUrl}/${id}/edit`;
 
     return this.http.put<InterventionResponse>(editUrl, payload).pipe(
       catchError((firstError: HttpErrorResponse) => {
