@@ -48,12 +48,24 @@ export class InterventionDetail implements OnInit {
     () => this.pendingTransition() === 'ANNULEE'
   );
 
-readonly diagnosticRenseigne = computed(
-() => this.intervention()?.statut === "DEVIS_VALIDE");
+readonly diagnosticDesactive = computed(() => {
+
+const statut = this.intervention()?.statut ?? '';
+
+    return [
+
+    'DEVIS_A_VALIDER',
+
+    'TERMINEE',
+
+    'RESTITUEE',
+
+    'EN_REPARATION'].includes(statut);
+});
    /*
     () => (this.intervention()?.diagnostic?.trim().length ?? 0) > 0
     */
-  );
+
 
   readonly devisRenseigne = computed(
     () => this.intervention()?.coutEstime !== null
