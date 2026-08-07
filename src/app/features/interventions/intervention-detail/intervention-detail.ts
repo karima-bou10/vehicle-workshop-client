@@ -75,8 +75,10 @@ const statut = this.intervention()?.statut ?? '';
     */
 
 
-  readonly devisRenseigne = computed(
-    () => this.intervention()?.coutEstime !== null
+  readonly devisRenseigne = computed(() =>
+    ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+    this.intervention()?.statut ?? ""
+  )
   );
 
 readonly passerReparation = computed(() =>
