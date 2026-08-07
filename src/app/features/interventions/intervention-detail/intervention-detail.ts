@@ -62,6 +62,14 @@ const statut = this.intervention()?.statut ?? '';
 
     'EN_REPARATION'].includes(statut);
 });
+
+    readonly test = computed(() =>
+  ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+    this.intervention()?.statut ?? ""
+  )
+);
+
+  
    /*
     () => (this.intervention()?.diagnostic?.trim().length ?? 0) > 0
     */
@@ -78,7 +86,7 @@ readonly passerReparation = computed(() =>
 );
 
   
-  readonly modificationAutorisee = computed(() =>
+  readonly modificationNonAutorisee = computed(() =>
   ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
     this.intervention()?.statut ?? ""
   )
@@ -114,7 +122,7 @@ readonly passerReparation = computed(() =>
 
 
   allerDiagnostic(): void {
-    if (this.diagnosticRenseigne()) {
+    if (this.diagnosticDesactive()) {
       return;
     }
     const id = this.intervention()?.id;
