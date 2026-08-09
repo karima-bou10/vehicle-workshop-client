@@ -38,6 +38,10 @@ export class InterventionService {
     return this.http.get<InterventionModel[]>(`${this.apiUrl}/vehicules/${vehiculeId}/interventions`);
   }
 
+  listInterventionsByMecanicienId(mecanicienId: number): Observable<InterventionModel[]> {
+    return this.http.get<InterventionModel[]>(`${this.apiUrl}/mecaniciens/${mecanicienId}/interventions`);
+  }
+
   updateIntervention(id: number, payload: any): Observable<InterventionResponse> {
     return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}`, payload);
   }

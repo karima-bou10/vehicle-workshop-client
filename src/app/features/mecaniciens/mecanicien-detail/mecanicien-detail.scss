@@ -1,0 +1,33 @@
+.titre {
+  font-size: 15px;
+  padding-top: 8px;
+}
+
+.historique-vehicule {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__ligne {
+    display: grid;
+    grid-template-columns: 60px 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+
+    &:last-child { border-bottom: none; }
+
+    @media (max-width: 620px) {
+      grid-template-columns: 60px 1fr;
+      row-gap: 6px;
+    }
+  }
+
+  &__objet {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

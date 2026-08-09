@@ -1,0 +1,53 @@
+@if (loading()) {
+<app-loading-spinner [pleinePage]="true" message="Chargement de la fiche mécanicien…" />
+} @else if (mecanicien(); as m) {
+
+<div class="page">
+
+    <div class="page__entete">
+    <div>
+        <h2 class="titre mono">{{ m.prenom }} {{ m.nom }} — {{ m.specialite }}</h2>
+    </div>
+
+    <div class="page__actions">
+        <a class="btn btn--ghost" routerLink="/mecaniciens">Retour</a>
+        <a class="btn btn--ghost" [routerLink]="['/mecaniciens', m.id, 'modifier']">Modifier</a>
+        <a class="btn btn--primary"
+            [routerLink]="['/interventions', 'new']"
+            [queryParams]="{ mecanicienId: m.id }">
+            Nouvelle intervention
+        </a>
+    </div>
+    </div>
+
+    <section class="carte">
+        <h3 class="carte__titre">Historique atelier</h3>
+
+        @if (interventions().length === 0) {
+            <app-empty-state
+            titre="Aucune intervention"
+            description="Ce mecanicien n'a été jamais affecté à une intervention." />
+        } @else {
+                <app-paginated-table
+                    [colonnes]="columns"
+                    [lignes]="interventions()"
+                    [totalElements]="interventions().length"
+                    [ligneTemplate]="ligne"
+                    messageVide="Aucune intervention trouvée"
+                />
+
+        <ng-template #ligne let-i>
+            <td style="padding-left: 20px">
+            <a class="lien" [routerLink]="['/interventions', i.id]">{{  i.id }}</a>
+            </td>
+            <td style="padding-left: 20px">{{ i.typeIntervention }}</td>
+            <td style="padding-left: 20px"><app-status-tag [value]="i.statut" /></td>
+            <td style="padding-left: 20px">{{ i.priorite }}</td>
+            <td style="padding-left: 20px" >{{ i.marque || '—' }}</td>
+            <td class="muted" style="padding-left: 20px">{{ i.dateDepot | date: 'dd/MM/yyyy' }}</td>
+            <td style="text-align: right; padding-right: 16px">{{ i.coutEstime ?? '—' }} MAD</td>
+        </ng-template>
+    }
+    </section>
+</div>
+}

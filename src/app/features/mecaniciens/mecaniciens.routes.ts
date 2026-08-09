@@ -19,4 +19,9 @@ export const MECANICIENS_ROUTES: Routes = [
     loadComponent: () =>
       import('./mecanicien-form/mecanicien-form').then(m => m.MecanicienForm),
   },
+  {
+    path: ':id',
+    data: { titre: 'Fiche mécanicien' },
+    loadComponent: () => import('./mecanicien-detail/mecanicien-detail').then(m => m.MecanicienDetail),
+  },
 ];
