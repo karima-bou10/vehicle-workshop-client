@@ -71,6 +71,7 @@
     variante="danger"
     [enCours]="deleting()"
     (confirmer)="confirmDelete()"
+    [afficherConfirmer]="true"
     (annuler)="toDelete.set(null)" />
 
     <app-confirmation-dialog
@@ -78,6 +79,7 @@
     titre="Supprimer le véhicule"
     [message]="alertMessage()"
     libelleConfirmer="Fermer"
+    [afficherConfirmer]="true"
     [modeAlert]="true"
     (confirmer)="openAlert.set(false)"/>
 </div>

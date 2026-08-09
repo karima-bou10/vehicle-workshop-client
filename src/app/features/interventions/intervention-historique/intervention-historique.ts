@@ -25,7 +25,7 @@ export class InterventionHistorique implements OnInit {
   readonly errorMessage = signal<string | null>(null);
 
   readonly columns: TableColumn[] = [
-    { key: 'date',          label: 'Date' },
+    { key: 'dateModification', label: 'Date' },
     { key: 'auteur',        label: 'Auteur' },
     { key: 'ancienStatut',  label: 'Ancien statut' },
     { key: 'nouveauStatut', label: 'Nouveau statut' },
@@ -56,13 +56,7 @@ export class InterventionHistorique implements OnInit {
     });
   }
 
-  protected retourDetail(): void {
-    const id = this.interventionId();
-    if (id) {
-      void this.router.navigate(['/interventions', id]);
-      return;
-    }
-
+  protected retourListIntervention(): void {
     void this.router.navigate(['/interventions']);
   }
 }

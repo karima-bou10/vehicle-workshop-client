@@ -28,7 +28,7 @@
     />
 
     <ng-template #ligne let-i>
-      <td class="mono">{{ i.id }}</td>
+      <td class="mono">{{ i.reference }}</td>
       <td>{{ i.typeIntervention }}</td>
       <td><app-status-tag [value]="i.statut" /></td>
       <td>{{ i.priorite }}</td>

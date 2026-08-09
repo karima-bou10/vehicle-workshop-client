@@ -18,9 +18,10 @@
       </div>
       <div class="page__actions">
         <button type="button" class="btn btn--ghost" (click)="retourListe()">Retour</button>
-        <button type="button" class="btn btn--ghost" (click)="allerDiagnostic()">Diagnostic</button>
-        <button type="button" class="btn btn--ghost" (click)="allerDevis()">Devis</button>
-        <button type="button" class="btn btn--ghost" (click)="allerAffectation()">Affectation</button>
+        <button type="button" class="btn btn--ghost" (click)="allerEdition()"[disabled]="modificationNonAutorisee()">Modifier</button>
+        <button type="button" class="btn btn--ghost" (click)="allerDiagnostic()" [disabled]="diagnosticDesactive()"> Diagnostic</button>
+        <button type="button" class="btn btn--ghost" (click)="allerDevis()" [disabled]="devisRenseigne()">Devis</button>
+        <button type="button" class="btn btn--ghost" (click)="allerAffectation()" [disabled]="passerReparation()" >Affectation</button>
         <button type="button" class="btn btn--ghost" (click)="allerHistorique()">Historique</button>
       </div>
     </div>
@@ -100,7 +101,7 @@
             rows="3"
             [value]="commentaireSaisie()"
             (input)="commentaireSaisie.set($any($event.target).value)"
-            [placeholder]="commentaireRequis() ? 'Motif d\'annulation obligatoire…' : 'Commentaire optionnel…'"
+            [placeholder]="commentaireRequis() ? 'Motif d\'annulation obligatoire…' : 'Commentaire obligatoire…'"
             [class.is-invalid]="commentaireRequis() && !commentaireSaisie().trim()">
           </textarea>
           @if (commentaireRequis() && !commentaireSaisie().trim()) {

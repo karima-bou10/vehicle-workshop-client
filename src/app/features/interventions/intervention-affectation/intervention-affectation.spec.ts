@@ -4,17 +4,13 @@ import { of } from 'rxjs';
 
 import { InterventionAffectation } from './intervention-affectation';
 import { InterventionService } from '../services/intervention-service';
-import { AuthService } from '../../../core/services/auth-service';
 
 describe('InterventionAffectation', () => {
   let component: InterventionAffectation;
   let fixture: ComponentFixture<InterventionAffectation>;
-  let updateStatusCalls = 0;
   let router: Router;
 
   beforeEach(async () => {
-    updateStatusCalls = 0;
-
     await TestBed.configureTestingModule({
       imports: [InterventionAffectation],
       providers: [
@@ -63,33 +59,7 @@ describe('InterventionAffectation', () => {
                 immatriculationVehicule: 'AA-123-BB',
                 mecanicienId: 5,
                 nomMecanicien: 'Yacine'
-              }),
-            updateStatus: () =>
-              (() => {
-                updateStatusCalls += 1;
-                return of({
-                  id: 1,
-                  typeIntervention: 'REPARATION',
-                  descriptionClient: 'Fuite huile',
-                  diagnostic: 'Joint à remplacer',
-                  statut: 'EN_REPARATION',
-                  priorite: 'HAUTE',
-                  coutEstime: 200,
-                  dateDepot: '2026-07-31',
-                  dateRestitutionPrevue: '2026-08-02',
-                  dateCloture: '',
-                  vehiculeId: 12,
-                  immatriculationVehicule: 'AA-123-BB',
-                  mecanicienId: 5,
-                  nomMecanicien: 'Yacine'
-                });
-              })()
-          }
-        },
-        {
-          provide: AuthService,
-          useValue: {
-            currentUser: () => ({ username: 'conseiller', role: 'ROLE_MANAGER' })
+              })
           }
         }
       ]
@@ -107,10 +77,13 @@ describe('InterventionAffectation', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should transition to EN_REPARATION when using business action button', () => {
-    (component as any).form.controls.mecanicienId.setValue(5);
-    (component as any).affecterEtPasserReparation();
+  it('should only show one save action button', () => {
+    fixture.detectChanges();
+    const actionButtons = Array.from<HTMLButtonElement>(
+      fixture.nativeElement.querySelectorAll('.form__actions button')
+    );
 
-    expect(updateStatusCalls).toBe(1);
+    expect(actionButtons.length).toBe(1);
+    expect(actionButtons[0].textContent?.trim()).toBe('Enregistrer');
   });
 });

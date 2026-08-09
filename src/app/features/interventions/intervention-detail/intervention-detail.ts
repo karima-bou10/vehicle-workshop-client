@@ -19,6 +19,7 @@ import { canTransitionToStatus } from '../models/intervention-workflow';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InterventionDetail implements OnInit {
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly interventionService = inject(InterventionService);
@@ -47,6 +48,52 @@ export class InterventionDetail implements OnInit {
     () => this.pendingTransition() === 'ANNULEE'
   );
 
+readonly diagnosticDesactive = computed(() => {
+
+const statut = this.intervention()?.statut ?? '';
+
+    return [
+
+    'DEVIS_A_VALIDER',
+
+    'TERMINEE',
+
+    'RESTITUEE',
+
+    'EN_REPARATION'].includes(statut);
+});
+
+    readonly test = computed(() =>
+  ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+    this.intervention()?.statut ?? ""
+  )
+);
+
+  
+   /*
+    () => (this.intervention()?.diagnostic?.trim().length ?? 0) > 0
+    */
+
+
+  readonly devisRenseigne = computed(() =>
+    ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+    this.intervention()?.statut ?? ""
+  )
+  );
+
+readonly passerReparation = computed(() =>
+  ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+    this.intervention()?.statut ?? ""
+  )
+);
+
+  
+  readonly modificationNonAutorisee = computed(() =>
+  ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+    this.intervention()?.statut ?? ""
+  )
+);
+
   readonly canConfirmer = computed(() => {
     if (!this.pendingTransition()) {
       return false;
@@ -74,7 +121,12 @@ export class InterventionDetail implements OnInit {
     void this.router.navigate(['/interventions']);
   }
 
+
+
   allerDiagnostic(): void {
+    if (this.diagnosticDesactive()) {
+      return;
+    }
     const id = this.intervention()?.id;
     if (id) {
       void this.router.navigate(['/interventions', id, 'diagnostic']);
@@ -82,6 +134,9 @@ export class InterventionDetail implements OnInit {
   }
 
   allerDevis(): void {
+    if (this.devisRenseigne()) {
+      return;
+    }
     const id = this.intervention()?.id;
     if (id) {
       void this.router.navigate(['/interventions', id, 'devis']);
@@ -90,8 +145,18 @@ export class InterventionDetail implements OnInit {
 
   allerAffectation(): void {
     const id = this.intervention()?.id;
+        if (this.passerReparation()) {
+      return;
+    }
     if (id) {
       void this.router.navigate(['/interventions', id, 'affectation']);
+    }
+  }
+
+  allerEdition(): void {
+    const id = this.intervention()?.id;
+    if (id) {
+      void this.router.navigate(['/interventions', id, 'edit']);
     }
   }
 

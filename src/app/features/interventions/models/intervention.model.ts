@@ -1,5 +1,6 @@
 export interface InterventionResponse {
   id: number;
+  reference : String | null
   typeIntervention: string;
   descriptionClient: string;
   diagnostic: string | null;
@@ -99,4 +100,11 @@ export interface Intervention {
   createdAt: string | null;
   dueAt: string | null;
   assignedMechanic: string;
+}
+export interface UpdateInterventionRequest {
+  typeIntervention: string;
+  descriptionClient: string;
+  priorite: string;
+  dateDepot?: string | null;
+  dateRestitutionPrevue?: string | null;
 }

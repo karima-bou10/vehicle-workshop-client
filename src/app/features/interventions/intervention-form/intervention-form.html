@@ -2,8 +2,8 @@
 
   <div class="page__entete">
     <div>
-      <h2 class="page__titre">Nouvelle intervention</h2>
-      <p class="page__sous-titre">Renseigner les informations de l'intervention.</p>
+      <h2 class="page__titre">{{ formTitle() }}</h2>
+      <p class="page__sous-titre">{{ formSubtitle() }}</p>
     </div>
   </div>
 
@@ -15,11 +15,18 @@
     <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
 
       <div class="field">
-        <label for="vehiculeId">Véhicule (ID) *</label>
-        <input id="vehiculeId" type="number" formControlName="vehiculeId" min="1"
-               [class.is-invalid]="form.controls.vehiculeId.invalid && form.controls.vehiculeId.touched" />
+        <label for="vehiculeId">Véhicule *</label>
+        <select id="vehiculeId" formControlName="vehiculeId"
+                [class.is-invalid]="form.controls.vehiculeId.invalid && form.controls.vehiculeId.touched">
+          <option value="" disabled selected>-- Sélectionnez un véhicule --</option>
+          @for (vehicule of vehicules(); track vehicule.id) {
+            <option [value]="vehicule.id">
+              {{ vehicule.immatriculationFictive }} - {{ vehicule.marque }} {{ vehicule.modele }} ({{ vehicule.annee }})
+            </option>
+          }
+        </select>
         @if (form.controls.vehiculeId.invalid && form.controls.vehiculeId.touched) {
-          <span class="field__error">Identifiant de véhicule obligatoire (min. 1).</span>
+          <span class="field__error">Sélectionner un véhicule est obligatoire.</span>
         }
       </div>
 
@@ -64,7 +71,7 @@
       <div class="form__actions">
         <button type="button" class="btn btn--ghost" (click)="cancel()">Annuler</button>
         <button type="submit" class="btn btn--primary" [disabled]="!canSubmit()">
-          @if (loading()) { Création… } @else { Créer l'intervention }
+          {{ submitLabel() }}
         </button>
       </div>
 
