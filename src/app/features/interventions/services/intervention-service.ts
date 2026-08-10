@@ -39,6 +39,10 @@ export class InterventionService {
     return this.http.get<InterventionModel[]>(`${this.apiUrl}/vehicules/${vehiculeId}/interventions`);
   }
 
+  listInterventionsByMecanicienId(mecanicienId: number): Observable<InterventionModel[]> {
+    return this.http.get<InterventionModel[]>(`${this.apiUrl}/mecaniciens/${mecanicienId}/interventions`);
+  }
+
   updateIntervention(id: number, payload: UpdateInterventionRequest): Observable<InterventionResponse> {
     const editUrl = `${this.apiUrl}/${id}/edit`;
     const editPrefixUrl = `${this.apiUrl}/edit/${id}`;

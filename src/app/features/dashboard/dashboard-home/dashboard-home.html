@@ -65,7 +65,7 @@
       </div>
 
       <!-- Graphique Barres : Charge par mécanicien -->
-      <div class="carte bg-white rounded-lg shadow p-6" *hasRole="'ROLE_MANAGER'">
+      <div class="carte bg-white rounded-lg shadow p-6">
         <h2 class="carte__titre text-lg font-semibold mb-4 text-gray-700">Charge par Mécanicien (Indisponibles)</h2>
         @if (charges().length === 0) {
           <app-empty-state titre="Aucune charge"

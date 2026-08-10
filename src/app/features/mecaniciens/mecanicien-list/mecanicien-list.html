@@ -43,15 +43,18 @@
 
   <ng-template #ligne let-m>
     <td>
-      <span class="nom">{{ m.prenom }} {{ m.nom }}</span>
+      <a class="nom lien" [routerLink]="['/mecaniciens', m.id]">{{ m.prenom }} {{ m.nom }}</a>
     </td>
     <td>
       <span class="specialite">{{ m.specialite }}</span>
     </td>
     <td>
-      <app-status-tag
-        [libelle]="m.disponible ? 'Actif' : 'Inactif'"
-        [ton]="m.disponible ? 'success' : 'neutral'" />
+        <span class="tag" 
+        [class.tag--success]="m.disponible" 
+        [class.tag--neutral]="!m.disponible">
+          <span class="tag__dot" aria-hidden="true"></span>
+            {{ m.disponible ? 'Disponible' : 'Indisponible' }}
+        </span>
     </td>
     <td style="text-align:center">
       <span class="charge" [class.charge--saturee]="(m.interventions?.length ?? 0) >= 3">

@@ -7,7 +7,6 @@ import { DashboardService } from '../services/dashboard-service';
 import { DashboardResume, ChargeMecanicien } from '../models/dashboard-model';
 import { LoadingSpinner } from "../../../shared/ui/loading-spinner/loading-spinner";
 import { EmptyState } from "../../../shared/ui/empty-state/empty-state";
-import { HasRole } from '../../../shared/directives/has-role';
 import { AuthService } from '../../../core/services/auth-service';
 import { STATUT_METADATA } from "../../../core/models";
 
@@ -18,7 +17,7 @@ function cssVar(nom: string): string {
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, LoadingSpinner, EmptyState, HasRole],
+  imports: [CommonModule, BaseChartDirective, LoadingSpinner, EmptyState],
   templateUrl: './dashboard-home.html',
   styleUrl: './dashboard-home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

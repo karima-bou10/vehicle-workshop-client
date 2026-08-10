@@ -7,14 +7,13 @@ import { Page, emptyPage } from '../../../core/models';
 import { NotificationService } from '../../../core/services/notification-service';
 import { ConfirmationDialog } from '../../../shared/ui/confirmation-dialog/confirmation-dialog';
 import { PaginatedTable, TableColumn } from '../../../shared/ui/paginated-table/paginated-table';
-import { StatusTag } from '../../../shared/ui/status-tag/status-tag';
 import { Mecanicien } from '../models/mecanicien.model';
 import { MecanicienService } from '../services/mecanicien-service';
 
 const TAILLE_PAGE = 10;
 @Component({
   selector: 'app-mecanicien-list',
-  imports: [RouterLink, PaginatedTable, StatusTag, ConfirmationDialog, ReactiveFormsModule],
+  imports: [RouterLink, PaginatedTable, ConfirmationDialog, ReactiveFormsModule],
   templateUrl: './mecanicien-list.html',
   styleUrl: './mecanicien-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
