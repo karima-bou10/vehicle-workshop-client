@@ -38,6 +38,13 @@
   .mono { font-family: var(--font-mono); font-size: 12.5px; }
 }
 
+:host ::ng-deep .table tbody td {
+  padding-left: 16px;
+  padding-right: 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
 .pagination {
   display: flex;
   align-items: center;

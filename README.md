@@ -59,3 +59,8 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+En tant que gestionnaire d'atelier,
+je veux filtrer la liste des interventions par véhicule, par statut (Reçue, Diagnostic en cours, Devis à valider, En cours, Terminée, Restituée) et par mécanicien assigné,
+afin de retrouver rapidement les opérations effectuées ou en cours sur les véhicules et adapter mon suivi en conséquence.
+

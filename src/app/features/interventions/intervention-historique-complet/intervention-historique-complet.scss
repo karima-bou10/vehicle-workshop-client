@@ -1,0 +1,18 @@
+.filtres {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: end;
+	margin-bottom: 16px;
+}
+
+.filtres label {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 220px;
+}
+
+.filtres__recherche-reference {
+	max-width: 360px;
+}

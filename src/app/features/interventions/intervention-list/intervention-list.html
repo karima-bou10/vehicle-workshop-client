@@ -2,13 +2,83 @@
   <div class="page__entete">
     <div>
       <h2 class="page__titre">Interventions</h2>
-      <p class="page__sous-titre">{{ interventions().length }} intervention(s) enregistrée(s)</p>
+      @if (modeRetards()) {
+        <p class="page__sous-titre">Interventions en retard: {{ filteredInterventions().length }} affichée(s) sur {{ interventions().length }}</p>
+      } @else {
+        <p class="page__sous-titre">{{ filteredInterventions().length }} intervention(s) affichée(s) sur {{ interventions().length }}</p>
+      }
     </div>
     <div class="page__actions">
+      <button type="button" class="btn btn--ghost" (click)="exporterCsv()">
+        Export CSV
+      </button>
       <button type="button" class="btn btn--primary" (click)="creerIntervention()">
         Nouvelle intervention
       </button>
+      <button type="button" class="btn btn--primary" (click)="voirHistoriqueComplet()">
+        Historique complet des interventions
+      </button>
     </div>
+
+  </div>
+
+  <div class="filtres">
+    <div class="filtres__ligne-complete">
+      <label class="recherche-globale">
+        <span>Recherche par référence</span>
+        <input
+          type="search"
+          [value]="searchGlobale()"
+          (input)="searchGlobale.set($any($event.target).value)"
+          placeholder="Référence"
+          aria-label="Recherche globale des interventions"
+        />
+      </label>
+    </div>
+
+    <label>
+      <span>Véhicule</span>
+      <input
+        type="text"
+        list="vehicule-options"
+        [value]="selectedVehicule()"
+        (input)="selectedVehicule.set($any($event.target).value)"
+        placeholder="Tapez au moins 2 caractères"
+        aria-label="Filtrer par véhicule"
+      />
+      <datalist id="vehicule-options">
+        @for (vehicule of vehiculeSuggestions(); track vehicule) {
+          <option [value]="vehicule"></option>
+        }
+      </datalist>
+      @if (selectedVehicule().trim().length > 0 && selectedVehicule().trim().length < 2) {
+        <small class="muted">Tapez au moins 2 caractères pour filtrer.</small>
+      }
+    </label>
+
+    <label>
+      <span>Statut</span>
+      <select [value]="selectedStatut()" (change)="selectedStatut.set($any($event.target).value)">
+        <option value="">Tous</option>
+        @for (statut of statutOptions().filter((value) => value); track statut) {
+          <option [value]="statut">{{ statut }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      <span>Mécanicien</span>
+      <select [value]="selectedMecanicien()" (change)="selectedMecanicien.set($any($event.target).value)">
+        <option value="">Tous</option>
+        @for (mecanicien of mecanicienOptions().filter((value) => value); track mecanicien) {
+          <option [value]="mecanicien">{{ mecanicien }}</option>
+        }
+      </select>
+    </label>
+
+    <button type="button" class="btn btn--ghost" (click)="reinitialiserFiltres()">
+      Réinitialiser
+    </button>
   </div>
 
   @if (loading()) {
@@ -21,8 +91,8 @@
     }
     <app-paginated-table
       [colonnes]="columns"
-      [lignes]="interventions()"
-      [totalElements]="interventions().length"
+      [lignes]="filteredInterventions()"
+      [totalElements]="filteredInterventions().length"
       [ligneTemplate]="ligne"
       messageVide="Aucune intervention trouvée"
     />
@@ -38,6 +108,24 @@
       <td style="text-align: right; padding-right: 16px">{{ i.coutEstime ?? '—' }} MAD</td>
       <td>
         <div class="actions-ligne">
+          <button type="button" class="bouton-icone" title="Modifier" (click)="modifierIntervention(i.id)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+            </svg>
+          </button>
+        <button type="button" class="bouton-icone bouton-supprimer" title="Supprimer" (click)="supprimerIntervention(i.id)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+          </svg>
+        </button>
+
           <button type="button" class="bouton-icone" title="Détail" (click)="voirDetail(i.id)">
             <svg
               viewBox="0 0 24 24"
@@ -51,7 +139,7 @@
               <circle cx="12" cy="12" r="3" />
             </svg>
           </button>
-          <button
+          <!---<button
             type="button"
             class="bouton-icone"
             title="Diagnostic"
@@ -108,7 +196,7 @@
               <path d="M12 1v22" />
               <path d="M17 5.5a5 5 0 0 0-10 0c0 6 10 4 10 10a5 5 0 0 1-10 0" />
             </svg>
-          </button>
+          </button>-->
           <button
             type="button"
             class="bouton-icone"

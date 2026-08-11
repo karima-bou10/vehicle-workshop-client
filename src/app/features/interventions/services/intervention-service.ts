@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment.development'; 
 import { HistoriqueInterventionResponse } from '../models/historique.model';
 import {
@@ -23,16 +23,65 @@ export class InterventionService {
 
   private apiUrl = `${environment.apiUrl}/intervention`;
 
+  private toBoolean(value: unknown): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'number') {
+      return value === 1;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      return normalized === 'true' || normalized === '1' || normalized === 'oui';
+    }
+
+    return false;
+  }
+
+  private normalizeIntervention(intervention: InterventionResponse): InterventionResponse {
+    const raw = intervention as unknown as Record<string, unknown>;
+    const deletedValue = raw['deleted'] ?? raw['isDeleted'] ?? raw['supprimee'];
+
+    return {
+      ...intervention,
+      deleted: this.toBoolean(deletedValue)
+    };
+  }
+
+  private normalizeInterventions(interventions: InterventionResponse[]): InterventionResponse[] {
+    return interventions.map((intervention) => this.normalizeIntervention(intervention));
+  }
+
   getAll(): Observable<InterventionResponse[]> {
-    return this.http.get<InterventionResponse[]>(this.apiUrl);
+    return this.http
+      .get<InterventionResponse[]>(this.apiUrl)
+      .pipe(map((response) => this.normalizeInterventions(response)));
+  }
+
+  getHistoriqueComplet(): Observable<InterventionResponse[]> {
+    return this.http
+      .get<InterventionResponse[]>(`${this.apiUrl}/historique`)
+      .pipe(map((response) => this.normalizeInterventions(response)));
+  }
+
+  getInterventionsEnRetard(): Observable<InterventionResponse[]> {
+    return this.http
+      .get<InterventionResponse[]>(`${this.apiUrl}/retards`)
+      .pipe(map((response) => this.normalizeInterventions(response)));
   }
 
   getById(id: number): Observable<InterventionResponse> {
-    return this.http.get<InterventionResponse>(`${this.apiUrl}/${id}`);
+    return this.http
+      .get<InterventionResponse>(`${this.apiUrl}/${id}`)
+      .pipe(map((response) => this.normalizeIntervention(response)));
   }
 
   create(payload: CreateInterventionRequest): Observable<InterventionResponse> {
-    return this.http.post<InterventionResponse>(`${this.apiUrl}/new`, payload);
+    return this.http
+      .post<InterventionResponse>(`${this.apiUrl}/new`, payload)
+      .pipe(map((response) => this.normalizeIntervention(response)));
   }
   
   listInterventionsByVehiculeId(vehiculeId: number): Observable<InterventionModel[]> {
@@ -68,24 +117,33 @@ export class InterventionService {
             );
           })
         );
-      })
+      }),
+      map((response) => this.normalizeIntervention(response))
     );
   }
 
   updateAffectation(id: number, payload: UpdateAffectationRequest): Observable<InterventionResponse> {
-    return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}/affecter`, payload);
+    return this.http
+      .put<InterventionResponse>(`${this.apiUrl}/${id}/affecter`, payload)
+      .pipe(map((response) => this.normalizeIntervention(response)));
   }
 
   updateDiagnostic(id: number, payload: UpdateDiagnosticRequest): Observable<InterventionResponse> {
-    return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}/diagnostic`, payload);
+    return this.http
+      .put<InterventionResponse>(`${this.apiUrl}/${id}/diagnostic`, payload)
+      .pipe(map((response) => this.normalizeIntervention(response)));
   }
 
   addDevis(id: number, payload: DevisRequest): Observable<InterventionResponse> {
-    return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}/devis`, payload);
+    return this.http
+      .put<InterventionResponse>(`${this.apiUrl}/${id}/devis`, payload)
+      .pipe(map((response) => this.normalizeIntervention(response)));
   }
 
   deleteIntervention(id: number): Observable<InterventionResponse> {
-    return this.http.delete<InterventionResponse>(`${this.apiUrl}/${id}`);
+    return this.http
+      .delete<InterventionResponse>(`${this.apiUrl}/${id}`)
+      .pipe(map((response) => this.normalizeIntervention(response)));
   }
 
   getHistory(id: number): Observable<HistoriqueInterventionResponse[]> {
@@ -93,6 +151,10 @@ export class InterventionService {
   }
 
   updateStatus(id: number, payload: UpdateInterventionStatusRequest): Observable<InterventionResponse> {
-    return this.http.put<InterventionResponse>(`${this.apiUrl}/${id}/statut`, payload);
+    return this.http
+      .put<InterventionResponse>(`${this.apiUrl}/${id}/statut`, payload)
+      .pipe(map((response) => this.normalizeIntervention(response)));
   }
+  
+  
 }
