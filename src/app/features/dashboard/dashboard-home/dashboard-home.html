@@ -37,7 +37,13 @@
         <p class="stat__valeur">{{ resume()?.terminees }}</p>
       </div>
 
-      <div class="stat stat__danger">
+      <div
+        class="stat stat__danger"
+        role="button"
+        tabindex="0"
+        (click)="ouvrirInterventionsEnRetard()"
+        (keydown.enter)="ouvrirInterventionsEnRetard()"
+      >
         <h3 class="stat__libelle__danger">Retard de restitution</h3>
         <p class="stat__valeur">{{ resume()?.retardsRestitution }}</p>
       </div>

@@ -14,6 +14,7 @@ export interface InterventionResponse {
   immatriculationVehicule: string | null;
   mecanicienId: number | null;
   nomMecanicien: string | null;
+  deleted : boolean;
 }
 
 export type InterventionType =

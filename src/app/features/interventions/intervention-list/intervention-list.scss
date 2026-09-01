@@ -1,0 +1,38 @@
+.filtres {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: end;
+	margin-bottom: 16px;
+}
+
+.filtres label {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 220px;
+}
+
+.filtres__ligne-complete {
+	flex: 1 1 100%;
+}
+
+.filtres__ligne-complete label {
+	width: 100%;
+}
+
+.filtres__ligne-complete input {
+	width: 100%;
+}
+
+.filtres__ligne-complete .recherche-globale {
+	max-width: 360px;
+}
+
+.recherche-globale input {
+	padding-left: 36px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	background-size: 16px;
+}

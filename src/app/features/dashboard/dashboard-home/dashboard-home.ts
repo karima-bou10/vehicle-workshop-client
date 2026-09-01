@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { DashboardService } from '../services/dashboard-service';
 import { DashboardResume, ChargeMecanicien } from '../models/dashboard-model';
@@ -26,6 +27,7 @@ function cssVar(nom: string): string {
 export class DashboardHome {
   private readonly dashboardService = inject(DashboardService);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   readonly nom = this.auth.displayName;
 
@@ -108,5 +110,9 @@ export class DashboardHome {
         this.chargement.set(false);
       }
     });
+  }
+
+  ouvrirInterventionsEnRetard(): void {
+    void this.router.navigate(['/interventions'], { queryParams: { filtre: 'retards' } });
   }
 }

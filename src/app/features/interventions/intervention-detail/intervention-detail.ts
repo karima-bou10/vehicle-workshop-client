@@ -78,8 +78,7 @@ const statut = this.intervention()?.statut ?? '';
   readonly devisRenseigne = computed(() =>
     ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
     this.intervention()?.statut ?? ""
-  )
-  );
+  ));
 
 readonly passerReparation = computed(() =>
   ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
