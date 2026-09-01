@@ -36,9 +36,12 @@ export class InterventionAffectation implements OnInit {
     initialValue: this.form.status
   });
 
-  protected readonly canSave = computed(
-    () => this.formStatus() === 'VALID' && !this.saving()
-  );
+protected readonly canSave = computed(
+  () =>
+    this.mecaniciens().length > 0 &&
+    this.formStatus() === 'VALID' &&
+    !this.saving()
+);
 
   ngOnInit(): void {
     this.mecanicienService.disponibles(0, 1000).subscribe({

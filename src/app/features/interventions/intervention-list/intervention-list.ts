@@ -10,6 +10,7 @@ import { LoadingSpinner } from '../../../shared/ui/loading-spinner/loading-spinn
 import { Page } from '../../../core/models/page';
 import { VehiculeModel } from '../../vehicules/models/vehicule-model';
 
+
 @Component({
   selector: 'app-intervention-list',
   imports: [DatePipe, StatusTag, PaginatedTable, LoadingSpinner],
@@ -250,7 +251,7 @@ export class InterventionList implements OnInit {
     this.selectedVehicule.set('');
     this.selectedStatut.set('');
     this.selectedMecanicien.set('');
-  }
+      }
 
   allerDiagnostic(id: number): void {
     void this.router.navigate(['/interventions', id, 'diagnostic']);
@@ -278,6 +279,13 @@ export class InterventionList implements OnInit {
 
   }
 
+  peutModifier(intervention: InterventionResponse): boolean {
+  return (
+    intervention.statut === 'RECUE' ||
+    intervention.statut === 'DIAGNOSTIC_EN_COURS'
+  );
+  }
+  
   supprimerIntervention(id: number): void {
   if (confirm('Voulez-vous vraiment supprimer cette intervention ?')) {
     this.interventionService.deleteIntervention(id).subscribe({

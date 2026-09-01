@@ -14,6 +14,7 @@ export interface InterventionResponse {
   immatriculationVehicule: string | null;
   mecanicienId: number | null;
   nomMecanicien: string | null;
+  prenomMecanicien: string | null;
   deleted : boolean;
 }
 

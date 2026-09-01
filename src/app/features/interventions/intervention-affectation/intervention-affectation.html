@@ -24,15 +24,22 @@
 
         <div class="field">
           <label for="mecanicienId">Mécanicien *</label>
-          <select id="mecanicienId" formControlName="mecanicienId"
-                  [class.is-invalid]="form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched">
-            <option value="" disabled selected>-- Sélectionnez un mécanicien --</option>
-            @for (mecanicien of mecaniciens(); track mecanicien.id) {
-              <option [value]="mecanicien.id">
-                {{ mecanicien.prenom }} {{ mecanicien.nom }}
-              </option>
-            }
-          </select>
+          @if (mecaniciens().length === 0) {
+          <p class="muted" style="color:var(--danger)">
+            Aucun mécanicien disponible pour l'affectation.
+          </p>
+          }
+        <select id="mecanicienId" formControlName="mecanicienId" [disabled]="mecaniciens().length === 0"
+          [class.is-invalid]="form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched">
+
+          <option value="" disabled>-- Sélectionnez un mécanicien --</option>
+
+          @for (mecanicien of mecaniciens(); track mecanicien.id) {
+          <option [value]="mecanicien.id">
+            {{ mecanicien.prenom }} {{ mecanicien.nom }}
+          </option>
+          }
+        </select>
           @if (form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched) {
             <span class="field__error">Sélectionner un mécanicien est obligatoire.</span>
           }

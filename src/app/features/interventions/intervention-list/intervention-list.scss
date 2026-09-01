@@ -36,3 +36,15 @@
 	background-position: 10px center;
 	background-size: 16px;
 }
+
+.bouton-icone:disabled {
+	color: #9ca3af;
+	cursor: not-allowed;
+	opacity: 0.4;
+	background-color: transparent;
+}
+
+.bouton-icone:disabled:hover {
+	color: #9ca3af;
+	background-color: transparent;
+}
