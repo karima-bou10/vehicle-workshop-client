@@ -11,7 +11,7 @@
 
     <div class="page__entete">
       <div>
-        <h2 class="page__titre">Intervention #{{ ci.id }}</h2>
+        <h2 class="page__titre"> {{ ci.reference }}</h2>
         <p class="page__sous-titre">
           {{ ci.typeIntervention }} — {{ vehiculeLibelle() }} — <span class="mono">{{ ci.immatriculationVehicule || '—' }}</span>
         </p>
@@ -54,7 +54,8 @@
           <dt>Date de clôture</dt>     <dd>{{ ci.dateCloture | date:'dd/MM/yyyy' }}</dd>
           <dt>Véhicule</dt>            <dd class="mono">{{ ci.immatriculationVehicule || '—' }}</dd>
           <dt>Marque / modèle</dt>     <dd>{{ vehiculeLibelle() }}</dd>
-          <dt>Mécanicien</dt>          <dd>{{ ci.nomMecanicien || '—' }}</dd>
+          <dt>Mécanicien</dt>          <dd>{{ ci.nomMecanicien || '—' }} {{ci.prenomMecanicien}}</dd>
+         
         </dl>
       </section>
 
