@@ -5,7 +5,8 @@
       <h2 class="page__titre">Mécaniciens</h2>
       <p class="page__sous-titre">{{ page().totalElements }} membre(s) de l'équipe atelier</p>
     </div>
-    <div class="page__actions">
+    <div *hasRole="'ROLE_MANAGER'"
+          class="page__actions">
       <a class="btn btn--primary" routerLink="/mecaniciens/nouveau">Ajouter un mécanicien</a>
     </div>
   </header>
@@ -31,7 +32,7 @@
   </div>
 
   <app-paginated-table
-    [colonnes]="colonnes"
+    [colonnes]="colonnes()"
     [lignes]="page().content"
     [pageIndex]="page().number"
     [taillePage]="page().size"
@@ -61,7 +62,7 @@
         {{ m.interventions?.length ?? 0 }}
       </span>
     </td>
-    <td>
+    <td *hasRole="'ROLE_MANAGER'">
       <div class="actions-ligne">
         <a class="bouton-icone" [routerLink]="['/mecaniciens', m.id, 'modifier']" title="Modifier">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
@@ -70,7 +71,8 @@
           </svg>
         </a>
 
-        <button type="button"
+        <button
+                type="button"
                 class="bouton-icone bouton-icone--danger"
                 [title]="'Retirer de l\'équipe'"
                 (click)="aSupprimer.set(m)">

@@ -34,7 +34,7 @@ const NAV: NavItem[] = [
     libelle: 'Mécaniciens',
     route: '/mecaniciens',
     icone: 'M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19M10 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 4.7a3 3 0 0 1 0 5.8',
-    roles: ['ROLE_MANAGER'],
+    roles: ['ROLE_USER', 'ROLE_MANAGER'],
   },
 ];
 

@@ -9,11 +9,13 @@ import { ConfirmationDialog } from '../../../shared/ui/confirmation-dialog/confi
 import { PaginatedTable, TableColumn } from '../../../shared/ui/paginated-table/paginated-table';
 import { Mecanicien } from '../models/mecanicien.model';
 import { MecanicienService } from '../services/mecanicien-service';
+import { HasRole } from '../../../shared/directives/has-role';
+import { AuthService } from '../../../core/services/auth-service';
 
 const TAILLE_PAGE = 10;
 @Component({
   selector: 'app-mecanicien-list',
-  imports: [RouterLink, PaginatedTable, ConfirmationDialog, ReactiveFormsModule],
+  imports: [RouterLink, PaginatedTable, ConfirmationDialog, ReactiveFormsModule, HasRole],
   templateUrl: './mecanicien-list.html',
   styleUrl: './mecanicien-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,6 +23,7 @@ const TAILLE_PAGE = 10;
 export class MecanicienList {
   private readonly service = inject(MecanicienService);
   private readonly notif = inject(NotificationService);
+  private readonly authService = inject(AuthService);
 
   readonly page = signal<Page<Mecanicien>>(emptyPage<Mecanicien>(TAILLE_PAGE));
   readonly chargement = signal(false);
@@ -31,13 +34,31 @@ export class MecanicienList {
   readonly search = new FormControl('', { nonNullable: true });
   currentPage = 0;
 
-  readonly colonnes: TableColumn[] = [
-    { key: 'nom', label: 'Mécanicien' },
-    { key: 'specialite', label: 'Spécialité' },
-    { key: 'etat', label: 'État', width: '120px' },
-    { key: 'interventions', label: 'Interventions', width: '130px', align: 'center' },
-    { key: 'actions', label: '', width: '90px', align: 'right' },
-  ];
+  // readonly colonnes: TableColumn[] = [
+  //   { key: 'nom', label: 'Mécanicien' },
+  //   { key: 'specialite', label: 'Spécialité' },
+  //   { key: 'etat', label: 'État', width: '120px' },
+  //   { key: 'interventions', label: 'Interventions', width: '130px', align: 'center' },
+  //   { key: 'actions', label: 'Actions', width: '90px', align: 'center' },
+  // ];
+
+  readonly colonnes = computed(() => {
+    const baseColumns: TableColumn[] = [
+      { key: 'nom', label: 'Mécanicien' },
+      { key: 'specialite', label: 'Spécialité' },
+      { key: 'etat', label: 'État', width: '120px' },
+      { key: 'interventions', label: 'Interventions', width: '130px', align: 'center' },
+    ];
+    if (this.authService.hasRole('ROLE_MANAGER')) {
+      baseColumns.push({
+        key: 'actions',
+        label: 'Actions',
+        width: '90px',
+        align: 'center'
+      });
+    }
+    return baseColumns;
+  });
 
   readonly nbInterventions = computed(() => this.aSupprimer()?.interventions.length ?? 0);
   
