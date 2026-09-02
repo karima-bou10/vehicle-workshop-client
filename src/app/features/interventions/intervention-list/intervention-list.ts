@@ -112,7 +112,7 @@ export class InterventionList implements OnInit {
     { key: 'nomMecanicien',          label: 'Mécanicien' },
     { key: 'dateDepot',              label: 'Date dépôt' },
     { key: 'coutEstime',             label: 'Coût estimé', align: 'right' },
-    { key: '_actions',               label: '',              width: '120px' },
+    { key: '_actions',               label: 'Actions',              width: '120px' },
   ];
 
   ngOnInit(): void {

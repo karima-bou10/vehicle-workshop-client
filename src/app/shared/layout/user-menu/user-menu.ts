@@ -25,7 +25,6 @@ export class UserMenu {
     const u = this.auth.currentUser();
    
     if (!u) return '';
-     console.log("roleLibelle", u.role);
     return ROLE_LABELS[u.role];
   };
 

@@ -47,7 +47,7 @@ export class VehiculeList {
     { key: 'annee', label: 'Année' },
     { key: 'kilometrage', label: 'Kilométrage', width: '120px', align: 'right' },
     //{ key: 'interventions', label: 'Interventions', width: '90px', align: 'center' },
-    { key: 'actions', label: 'actions', width: '90px', align: 'right' },
+    { key: 'actions', label: 'Actions', width: '90px', align: 'right' },
   ];
 
   constructor() {
