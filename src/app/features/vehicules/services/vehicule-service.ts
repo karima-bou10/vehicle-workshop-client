@@ -21,6 +21,21 @@ export class VehiculeService {
 
     return this.http.get<Page<VehiculeModel>>(`${this.base}/getVehicules`, { params });
   }
+getAllVehiculesDisponiblePourIntervention(
+  search?: string
+): Observable<VehiculeModel[]> {
+
+  let params = new HttpParams();
+
+  if (search?.trim()) {
+    params = params.set('search', search.trim());
+  }
+
+  return this.http.get<VehiculeModel[]>(
+   `${this.base}/disponibles-pour-intervention`,
+    { params }
+  );
+}
 
   getVehiculeById(id: number): Observable<VehiculeModel> {
     return this.http.get<VehiculeModel>(`${this.base}/${id}`);

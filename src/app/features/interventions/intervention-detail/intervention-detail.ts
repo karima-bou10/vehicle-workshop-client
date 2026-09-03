@@ -10,10 +10,11 @@ import { WorkflowStepper } from '../../../shared/ui/workflow-stepper/workflow-st
 import { LoadingSpinner } from '../../../shared/ui/loading-spinner/loading-spinner';
 import { AuthService } from '../../../core/services/auth-service';
 import { canTransitionToStatus } from '../models/intervention-workflow';
+import { HasRole } from '../../../shared/directives/has-role';
 
 @Component({
   selector: 'app-intervention-detail',
-  imports: [DatePipe, StatusTag, WorkflowStepper, LoadingSpinner],
+  imports: [DatePipe, StatusTag, WorkflowStepper, LoadingSpinner,HasRole],
   templateUrl: './intervention-detail.html',
   styleUrl: './intervention-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

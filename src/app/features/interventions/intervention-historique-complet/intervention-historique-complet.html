@@ -1,70 +1,106 @@
 <div class="page">
+
   <div class="page__entete">
     <div>
-      <h2 class="page__titre">Historique complet des interventions</h2>
-      <p class="page__sous-titre">{{ filteredInterventions().length }} intervention(s) affichée(s) sur {{ interventions().length }}</p>
+      <h2 class="page__titre">
+        Historique complet des interventions
+      </h2>
+
+      <p class="page__sous-titre">
+        {{ interventions().length }} intervention(s) affichée(s)
+        sur {{ page().totalElements }}
+      </p>
     </div>
+
     <div class="page__actions">
-      <button type="button" class="btn btn--ghost" (click)="retourListeInterventions()">Retour</button>
+      <button type="button" class="btn btn--ghost" (click)="retourListeInterventions()">
+        Retour
+      </button>
     </div>
   </div>
 
   <div class="filtres">
-    <label class="filtres__recherche-reference">
+    <label class="recherche-globale">
       <span>Recherche par référence</span>
-      <input
-        type="search"
-        [value]="referenceSearch()"
-        (input)="referenceSearch.set($any($event.target).value)"
-        placeholder="Référence"
-        aria-label="Recherche par référence"
-      />
-    </label>
 
-    <label>
-      <span>Delete</span>
-      <select [value]="deletedFilter()" (change)="deletedFilter.set($any($event.target).value)">
-        <option value="">Tous</option>
-        <option value="supprimee">Supprimée</option>
-        <option value="non-supprimee">Non supprimée</option>
-      </select>
+      <input type="search" [value]="searchGlobale()" (input)="onSearchChange($any($event.target).value)"
+        placeholder="Référence" aria-label="Recherche globale des interventions" />
     </label>
   </div>
 
   @if (loading()) {
-    <app-loading-spinner [pleinePage]="true" message="Chargement de l'historique complet…" />
+
+  <app-loading-spinner [pleinePage]="true" message="Chargement de l'historique complet…" />
+
   } @else if (errorMessage()) {
-    <p class="muted">{{ errorMessage() }}</p>
+
+  <p class="muted">
+    {{ errorMessage() }}
+  </p>
+
   } @else {
-    @if (registrationWarning()) {
-      <p class="muted">{{ registrationWarning() }}</p>
-    }
 
-    @if (filteredInterventions().length === 0) {
-      <app-empty-state
-        titre="Aucune intervention"
-        description="Aucune intervention ne correspond aux filtres sélectionnés."
-      />
-    } @else {
-      <app-paginated-table
-        [colonnes]="columns"
-        [lignes]="filteredInterventions()"
-        [totalElements]="filteredInterventions().length"
-        [ligneTemplate]="ligne"
-        messageVide="Aucune intervention trouvée"
-      />
-
-      <ng-template #ligne let-i>
-        <td class="mono">{{ i.reference }}</td>
-        <td>{{ i.typeIntervention }}</td>
-        <td><app-status-tag [value]="i.statut" /></td>
-        <td>{{ i.priorite }}</td>
-        <td class="mono">{{ i.immatriculationVehicule }}</td>
-        <td>{{ i.nomMecanicien || '—' }}</td>
-        <td class="muted">{{ i.dateDepot | date: 'dd/MM/yyyy' }}</td>
-        <td style="text-align: right; padding-right: 16px">{{ i.coutEstime ?? '—' }} MAD</td>
-        <td>{{ i.deleted ? 'Supprimée' : 'Non' }}</td>
-      </ng-template>
-    }
+  @if (registrationWarning()) {
+  <p class="muted">
+    {{ registrationWarning() }}
+  </p>
   }
+
+  @if (interventions().length === 0) {
+
+  <app-empty-state titre="Aucune intervention"
+    description="Aucune intervention ne correspond aux filtres sélectionnés." />
+
+  } @else {
+
+  <app-paginated-table [colonnes]="columns" [lignes]="interventions()" [pageIndex]="page().number"
+    [taillePage]="page().size" [totalElements]="page().totalElements" [ligneTemplate]="ligne"
+    messageVide="Aucune intervention trouvée" (pageChange)="onPageChange($event)" />
+
+  <ng-template #ligne let-i>
+
+    <td class="mono">
+      {{ i.reference }}
+    </td>
+
+    <td>
+      {{ i.typeIntervention }}
+    </td>
+
+    <td>
+      <app-status-tag [value]="i.statut" />
+    </td>
+
+      <td>
+        <span class="priorite-badge" [class.priorite-haute]="i.priorite === 'HAUTE'"
+          [class.priorite-moyenne]="i.priorite === 'MOYENNE'" [class.priorite-basse]="i.priorite === 'BASSE'"
+          [class.priorite-urgente]="i.priorite === 'URGENTE'">
+          {{ i.priorite }}
+        </span>
+      </td>
+
+    <td class="mono">
+      {{ i.immatriculationVehicule }}
+    </td>
+
+    <td>
+      {{ i.nomMecanicien || '—' }}
+    </td>
+
+    <td class="muted">
+      {{ i.dateDepot | date: 'dd/MM/yyyy' }}
+    </td>
+
+    <td style="text-align: right; padding-right: 16px">
+      {{ i.coutEstime ?? '—' }} MAD
+    </td>
+
+    <td>
+      {{ i.deleted ? 'Archivée' : 'actif' }}
+    </td>
+
+  </ng-template>
+  }
+  }
+
 </div>

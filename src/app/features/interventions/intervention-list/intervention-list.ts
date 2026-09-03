@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe,NgIf } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InterventionService } from '../services/intervention-service';
 import { InterventionResponse } from '../models/intervention.model';
@@ -9,11 +9,12 @@ import { PaginatedTable, TableColumn } from '../../../shared/ui/paginated-table/
 import { LoadingSpinner } from '../../../shared/ui/loading-spinner/loading-spinner';
 import { Page } from '../../../core/models/page';
 import { VehiculeModel } from '../../vehicules/models/vehicule-model';
+import { HasRole } from '../../../shared/directives/has-role';
 
 
 @Component({
   selector: 'app-intervention-list',
-  imports: [DatePipe, StatusTag, PaginatedTable, LoadingSpinner],
+  imports: [DatePipe, StatusTag, PaginatedTable, LoadingSpinner,HasRole],
   templateUrl: './intervention-list.html',
   styleUrl: './intervention-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -33,6 +34,35 @@ export class InterventionList implements OnInit {
   readonly selectedVehicule = signal('');
   readonly selectedStatut = signal('');
   readonly selectedMecanicien = signal('');
+  readonly selectedTypeIntervention = signal('');
+  readonly selectedPrioriteIntervention = signal('');
+  
+
+
+  currentPage = 0;
+  pageSize = 10;
+  readonly page = signal<Page<InterventionResponse>>({
+    content: [],
+    totalElements: 0,
+    totalPages: 0,
+    number: 0,
+    size: 10,
+    first: true,
+    last: true
+  });
+
+  readonly colonnes: TableColumn[] = [
+    { key: 'nom', label: 'Mécanicien' },
+    { key: 'specialite', label: 'Spécialité' },
+    { key: 'etat', label: 'État', width: '120px' },
+    { key: 'interventions', label: 'Interventions', width: '130px', align: 'center' },
+    { key: 'actions', label: '', width: '90px', align: 'right' },
+  ];
+
+
+  showDeleteModal = false;
+  interventionIdToDelete: number | null = null;
+
 
   readonly vehiculeOptions = computed(() => {
     const values = this.interventions()
@@ -61,47 +91,20 @@ export class InterventionList implements OnInit {
     return [''].concat(Array.from(new Set(values)).sort((a, b) => a.localeCompare(b, 'fr')));
   });
 
-  readonly mecanicienOptions = computed(() => {
-    const values = this.interventions()
-      .map((intervention) => intervention.nomMecanicien?.trim())
-      .filter((value): value is string => Boolean(value) && value !== '—');
+readonly mecanicienOptions = computed(() => {
+  const values = this.interventions()
+    .filter((intervention) => intervention.mecanicienId !== null)
+    .map((intervention) => ({
+      id: intervention.mecanicienId!,
+      nom: `${intervention.nomMecanicien ?? ''} ${intervention.prenomMecanicien ?? ''}`.trim()
+    }));
 
-    return [''].concat(Array.from(new Set(values)).sort((a, b) => a.localeCompare(b, 'fr')));
-  });
+  return Array.from(
+    new Map(values.map((mecanicien) => [mecanicien.id, mecanicien])).values()
+  ).sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+});
 
-  readonly filteredInterventions = computed(() => {
-    const rechercheGlobale = this.searchGlobale().trim().toLowerCase();
-    const vehicule = this.selectedVehicule().trim().toLowerCase();
-    const statut = this.selectedStatut().toLowerCase();
-    const mecanicien = this.selectedMecanicien().toLowerCase();
 
-    return this.interventions().filter((intervention) => {
-      const texteRecherche = [
-        intervention.reference,
-        intervention.typeIntervention,
-        intervention.statut,
-        intervention.priorite,
-        intervention.immatriculationVehicule,
-        intervention.nomMecanicien,
-        intervention.dateDepot,
-        intervention.coutEstime,
-        intervention.deleted ? 'supprimée' : 'non'
-      ]
-        .map((value) => (value === null || value === undefined ? '' : String(value).toLowerCase()))
-        .join(' ');
-      const interventionVehicule = (intervention.immatriculationVehicule ?? '').toLowerCase();
-      const interventionStatut = (intervention.statut ?? '').toLowerCase();
-      const interventionMecanicien = (intervention.nomMecanicien ?? '').toLowerCase();
-      const vehiculeMatches = vehicule.length < 2 || interventionVehicule.startsWith(vehicule);
-
-      return (
-        (!rechercheGlobale || texteRecherche.includes(rechercheGlobale)) &&
-        vehiculeMatches &&
-        (!statut || interventionStatut === statut) &&
-        (!mecanicien || interventionMecanicien.includes(mecanicien))
-      );
-    });
-  });
 
   readonly columns: TableColumn[] = [
     { key: 'id',                     label: 'reference',             width: '60px' },
@@ -119,30 +122,97 @@ export class InterventionList implements OnInit {
     this.loadInterventions();
   }
 
-  private loadInterventions(): void {
-    this.loading.set(true);
-    this.errorMessage.set(null);
-    this.registrationWarning.set(null);
-    const filtre = this.route.snapshot.queryParamMap.get('filtre');
-    const source$ = filtre === 'retards'
-      ? this.interventionService.getInterventionsEnRetard()
-      : this.interventionService.getAll();
+  
+private loadInterventions(): void {
+  this.loading.set(true);
+  this.errorMessage.set(null);
+  this.registrationWarning.set(null);
 
-    this.modeRetards.set(filtre === 'retards');
+  const filtre = this.route.snapshot.queryParamMap.get('filtre');
 
-    source$.subscribe({
-      next: (response: InterventionResponse[]) => {
-        this.interventions.set(response);
-        this.loading.set(false);
-        this.loadVehicleRegistrations(response);
-      },
-      error: (error: unknown) => {
-        console.error('Failed to load interventions.', error);
-        this.errorMessage.set('Impossible de charger les interventions.');
-        this.loading.set(false);
-      }
-    });
+  this.modeRetards.set(filtre === 'retards');
+
+  // Cas : interventions en retard
+  if (filtre === 'retards') {
+    this.interventionService
+      .getInterventionsEnRetard(this.currentPage, this.pageSize)
+      .subscribe({
+        next: (response: Page<InterventionResponse>) => {
+          this.page.set(response);
+          this.interventions.set(response.content);
+          this.loading.set(false);
+
+          this.loadVehicleRegistrations(response.content);
+        },
+        error: (error: unknown) => {
+          console.error(error);
+          this.errorMessage.set(
+            'Impossible de charger les interventions.'
+          );
+          this.loading.set(false);
+        }
+      });
+
+    return;
   }
+
+  // Filtres de recherche
+  const params = {
+    reference: this.searchGlobale(),
+    immatriculation: this.selectedVehicule(),
+    statut: this.selectedStatut(),
+    typeIntervention: this.selectedTypeIntervention(),
+    priorite: this.selectedPrioriteIntervention(),
+    mecanicienId: this.selectedMecanicien()
+      ? Number(this.selectedMecanicien())
+      : undefined
+  };
+
+  // Vérifier s'il y a au moins un filtre
+  const hasSearch =
+    !!params.reference?.trim() ||
+    !!params.immatriculation?.trim() ||
+    !!params.typeIntervention?.trim() ||
+    !!params.statut?.trim() ||
+    !!params.priorite?.trim() ||
+
+    params.mecanicienId !== undefined;
+
+  // Recherche backend ou récupération normale
+  const source$ = hasSearch
+    ? this.interventionService.search(
+        params,
+        this.currentPage,
+        this.pageSize
+      )
+    : this.interventionService.getAll(
+        this.currentPage,
+        this.pageSize
+      );
+
+  source$.subscribe({
+    next: (response: Page<InterventionResponse>) => {
+      this.page.set(response);
+      this.interventions.set(response.content);
+      this.loading.set(false);
+
+      this.loadVehicleRegistrations(response.content);
+    },
+    error: (error: unknown) => {
+      console.error(
+        'Failed to load interventions.',
+        error
+      );
+
+      this.errorMessage.set(
+        'Impossible de charger les interventions.'
+      );
+
+      this.loading.set(false);
+    }
+  });
+}
+
 
   private loadVehicleRegistrations(interventions: InterventionResponse[]): void {
     const missingVehicleIds = Array.from(
@@ -214,7 +284,7 @@ export class InterventionList implements OnInit {
 
     const lignes = [
       '\ufeff' + colonnes.join(';'),
-      ...this.filteredInterventions().map((intervention) =>
+      ...this.interventions().map((intervention) =>
         [
           intervention.reference ?? intervention.id,
           intervention.typeIntervention,
@@ -246,12 +316,18 @@ export class InterventionList implements OnInit {
     void this.router.navigate(['/interventions/historique']);
   }
 
-  reinitialiserFiltres(): void {
-    this.searchGlobale.set('');
-    this.selectedVehicule.set('');
-    this.selectedStatut.set('');
-    this.selectedMecanicien.set('');
-      }
+reinitialiserFiltres(): void {
+  this.searchGlobale.set('');
+  this.selectedVehicule.set('');
+  this.selectedStatut.set('');
+  this.selectedMecanicien.set('');
+  this.selectedTypeIntervention.set('');
+  this.selectedPrioriteIntervention.set('');
+
+  this.currentPage = 0;
+
+  this.loadInterventions();
+}
 
   allerDiagnostic(id: number): void {
     void this.router.navigate(['/interventions', id, 'diagnostic']);
@@ -285,17 +361,77 @@ export class InterventionList implements OnInit {
     intervention.statut === 'DIAGNOSTIC_EN_COURS'
   );
   }
+
+  peutArchiver(intervention: InterventionResponse): boolean {
+  return intervention.statut === 'TERMINEE'
+      || intervention.statut === 'RESTITUEE'
+      || intervention.statut === 'ANNULEE';
+}
   
-  supprimerIntervention(id: number): void {
-  if (confirm('Voulez-vous vraiment supprimer cette intervention ?')) {
-    this.interventionService.deleteIntervention(id).subscribe({
+supprimerIntervention(id: number): void {
+  this.interventionIdToDelete = id;
+  this.showDeleteModal = true;
+  }
+  annulerSuppression(): void {
+  this.showDeleteModal = false;
+  this.interventionIdToDelete = null;
+}
+
+confirmerSuppression(): void {
+  if (!this.interventionIdToDelete) {
+    return;
+  }
+
+  this.interventionService
+    .deleteIntervention(this.interventionIdToDelete)
+    .subscribe({
       next: () => {
         this.loadInterventions();
+        this.showDeleteModal = false;
+        this.interventionIdToDelete = null;
       },
       error: (err) => {
         console.error(err);
+        this.showDeleteModal = false;
       }
     });
   }
+onSearchChange(value: string): void {
+  this.searchGlobale.set(value);
+  this.currentPage = 0;
+  this.loadInterventions();
+}
+
+onStatutChange(value: string): void {
+  this.selectedStatut.set(value);
+  this.currentPage = 0;
+  this.loadInterventions();
+}
+
+  onVehiculeChange(value: string): void {
+    console.log('vehicule', value);
+  this.selectedVehicule.set(value);
+  this.currentPage = 0;
+  this.loadInterventions();
+}
+
+onMecanicienChange(value: string): void {
+  this.selectedMecanicien.set(value);
+  this.currentPage = 0;
+  this.loadInterventions();
+  }
+  onTypeInterventionChange(value: string): void {
+  this.selectedTypeIntervention.set(value);
+  this.currentPage = 0;
+  this.loadInterventions();
+  }
+  onPrioriteInterventionChange(value: string): void{
+    this.selectedPrioriteIntervention.set(value);
+    this.currentPage = 0;
+    this.loadInterventions();
+  }
+onPageChange(nouvellePage: number): void {
+  this.currentPage = nouvellePage;
+  this.loadInterventions();
 }
 }

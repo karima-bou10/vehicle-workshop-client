@@ -3,9 +3,13 @@
     <div>
       <h2 class="page__titre">Interventions</h2>
       @if (modeRetards()) {
-        <p class="page__sous-titre">Interventions en retard: {{ filteredInterventions().length }} affichée(s) sur {{ interventions().length }}</p>
+      <p class="page__sous-titre">
+        Interventions en retard : {{ page().totalElements }} intervention(s)
+      </p>
       } @else {
-        <p class="page__sous-titre">{{ filteredInterventions().length }} intervention(s) affichée(s) sur {{ interventions().length }}</p>
+      <p class="page__sous-titre">
+        {{ page().totalElements }} intervention(s)
+      </p>
       }
     </div>
     <div class="page__actions">
@@ -16,7 +20,7 @@
         Nouvelle intervention
       </button>
       <button type="button" class="btn btn--primary" (click)="voirHistoriqueComplet()">
-        Historique complet des interventions
+        Archives des interventions
       </button>
     </div>
 
@@ -29,59 +33,104 @@
         <input
           type="search"
           [value]="searchGlobale()"
-          (input)="searchGlobale.set($any($event.target).value)"
+            (input)="onSearchChange($any($event.target).value)"
           placeholder="Référence"
           aria-label="Recherche globale des interventions"
         />
       </label>
     </div>
 
-    <label>
-      <span>Statut</span>
-      <select [value]="selectedStatut()" (change)="selectedStatut.set($any($event.target).value)">
-        <option value="">Tous</option>
-        @for (statut of statutOptions().filter((value) => value); track statut) {
-          <option [value]="statut">{{ statut }}</option>
-        }
-      </select>
-    </label>
+      <label>
+        <span>Type d’intervention</span>
 
-    <label>
-      <span>Mécanicien</span>
-      <select [value]="selectedMecanicien()" (change)="selectedMecanicien.set($any($event.target).value)">
-        <option value="">Tous</option>
-        @for (mecanicien of mecanicienOptions().filter((value) => value); track mecanicien) {
-          <option [value]="mecanicien">{{ mecanicien }}</option>
-        }
-      </select>
-    </label>
+              <select [value]="selectedTypeIntervention()" (change)="onTypeInterventionChange($any($event.target).value)">
+                <option value="">Tous</option>
+
+                <option value="DIAGNOSTIC">Diagnostic</option>
+                <option value="REVISION">Révision</option>
+                <option value="REPARATION">Réparation</option>
+                <option value="CONTROLE">Contrôle</option>
+                <option value="PNEUMATIQUES">Pneumatiques</option>
+                <option value="AUTRE">Autre</option>
+              </select>
+      </label>
+
+      <label>
+        <span>Priorité</span>
+        <select [value]="selectedPrioriteIntervention()" (change)="onPrioriteInterventionChange($any($event.target).value)">
+          <option>BASSE</option>
+          <option>MOYENNE</option>
+          <option>HAUTE</option>
+          <option>URGENTE</option>
+        </select>
+      </label>
+
+        <label>
+          <span>Status</span>
+          <select [value]="selectedStatut()" (change)="onStatutChange($any($event.target).value)">
+            <option value="">Tous</option>
+            @for (statut of statutOptions().filter((value) => value); track statut) {
+            <option [value]="statut">{{ statut }}</option>
+            }
+          </select>
+        </label>
+
+<label>
+  <span>Mécanicien</span>
+
+  <select [value]="selectedMecanicien()" (change)="onMecanicienChange($any($event.target).value)">
+    <option value="">Tous</option>
+
+    @for (mecanicien of mecanicienOptions(); track mecanicien.id) {
+    <option [value]="mecanicien.id">
+      {{ mecanicien.nom }}
+    </option>
+    }
+  </select>
+</label>
+
+<label>
+  <span>Véhicule</span>
+
+  <select [value]="selectedVehicule()" (change)="onVehiculeChange($any($event.target).value)">
+    <option value="">Tous</option>
+    @for (vehicule of vehiculeOptions(); track vehicule) {
+    <option [value]="vehicule">
+      {{ vehicule }}
+    </option>
+    }
+  </select>
+</label>
 
     <button type="button" class="btn btn--ghost" (click)="reinitialiserFiltres()">
       Réinitialiser
     </button>
   </div>
 
-  @if (loading()) {
-    <app-loading-spinner [pleinePage]="true" message="Chargement des interventions…" />
-  } @else if (errorMessage()) {
-    <p class="muted">{{ errorMessage() }}</p>
-  } @else {
-    @if (registrationWarning()) {
-      <p class="muted">{{ registrationWarning() }}</p>
-    }
-    <app-paginated-table
-      [colonnes]="columns"
-      [lignes]="filteredInterventions()"
-      [totalElements]="filteredInterventions().length"
-      [ligneTemplate]="ligne"
-      messageVide="Aucune intervention trouvée"
-    />
+      @if (loading()) {
+        <app-loading-spinner [pleinePage]="true" message="Chargement des interventions…" />
+      } @else if (errorMessage()) {
+        <p class="muted">{{ errorMessage() }}</p>
+      } @else {
+        @if (registrationWarning()) {
+          <p class="muted">{{ registrationWarning() }}</p>
+        }
+<app-paginated-table [colonnes]="columns" [lignes]="interventions()" [pageIndex]="page().number"
+  [taillePage]="page().size" [totalElements]="page().totalElements" [ligneTemplate]="ligne"
+  messageVide="Aucune intervention trouvée" (pageChange)="onPageChange($event)" />
+
 
     <ng-template #ligne let-i>
       <td class="mono">{{ i.reference }}</td>
       <td>{{ i.typeIntervention }}</td>
       <td><app-status-tag [value]="i.statut" /></td>
-      <td>{{ i.priorite }}</td>
+      <td>
+        <span class="priorite-badge" [class.priorite-haute]="i.priorite === 'HAUTE'"
+          [class.priorite-moyenne]="i.priorite === 'MOYENNE'" [class.priorite-basse]="i.priorite === 'BASSE'"
+          [class.priorite-urgente]="i.priorite === 'URGENTE'">
+          {{ i.priorite }}
+        </span>
+      </td>
       <td class="mono">{{ i.immatriculationVehicule }}</td>
       <td>{{ i.nomMecanicien || '—' }}</td>
       <td class="muted">{{ i.dateDepot | date: 'dd/MM/yyyy' }}</td>
@@ -89,22 +138,24 @@
       <td>
         <div class="actions-ligne">
         <button type="button" class="bouton-icone" [disabled]="!peutModifier(i)"
-            [title]="peutModifier(i) ? 'Modifier' : 'Modification interdite'" (click)="modifierIntervention(i)">
+            [title]="peutModifier(i) ? 'Modifier' : 'Modification interdite'" (click)="modifierIntervention(i.id)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
                 stroke-linejoin="round">
                 <path d="M12 20h9" />
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
             </svg>
         </button>
-        <button type="button" class="bouton-icone bouton-archiver" title="Archiver" aria-label="Archiver l’intervention"
-            (click)="supprimerIntervention(i.id)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M21 8v13H3V8" />
-                <path d="M1 3h22v5H1z" />
-                <path d="M10 12h4" />
-            </svg>
+        <button  *hasRole="'ROLE_MANAGER'" type="button" class="bouton-icone bouton-archiver" [disabled]="!peutArchiver(i)"
+          [title]="peutArchiver(i) ? 'Archiver' : 'Archivage interdit à ce stade'" aria-label="Archiver l’intervention"
+          (click)="supprimerIntervention(i.id)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M21 8v13H3V8" />
+            <path d="M1 3h22v5H1z" />
+            <path d="M10 12h4" />
+          </svg>
         </button>
+        
 
           <button type="button" class="bouton-icone" title="Détail" (click)="voirDetail(i.id)">
             <svg
@@ -199,4 +250,29 @@
       </td>
     </ng-template>
   }
+  @if(showDeleteModal){
+  <div class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Archiver l'intervention</h3>
+      </div>
+  
+      <div class="modal-body">
+        <p>
+          Êtes-vous sûr de vouloir archiver cette intervention ?
+        </p>
+      </div>
+  
+      <div class="modal-footer">
+        <button type="button" class="btn-annuler" (click)="annulerSuppression()">
+          Annuler
+        </button>
+  
+        <button type="button" class="btn-confirmer" (click)="confirmerSuppression()">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+}
 </div>
