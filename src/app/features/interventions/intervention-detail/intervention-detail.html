@@ -21,7 +21,7 @@
         <button type="button" class="btn btn--ghost" (click)="allerEdition()"[disabled]="modificationNonAutorisee()">Modifier</button>
         <button type="button" class="btn btn--ghost" (click)="allerDiagnostic()" [disabled]="diagnosticDesactive()"> Diagnostic</button>
         <button type="button" class="btn btn--ghost" (click)="allerDevis()" [disabled]="devisRenseigne()">Devis</button>
-        <button type="button" class="btn btn--ghost" (click)="allerAffectation()" [disabled]="passerReparation()" >Affectation</button>
+        <button *hasRole="'ROLE_MANAGER'" type="button" class="btn btn--ghost" (click)="allerAffectation()" [disabled]="passerReparation()" >Affectation</button>
         <button type="button" class="btn btn--ghost" (click)="allerHistorique()">Historique</button>
       </div>
     </div>
@@ -64,25 +64,25 @@
     <div class="form__actions">
       @if (!pendingTransition()) {
         @if (canPasserEnReparation()) {
-          <button type="button" class="btn btn--primary"
+          <button *hasRole="'ROLE_MANAGER'" type="button" class="btn btn--primary"
                   (click)="ouvrirConfirmation('EN_REPARATION')" [disabled]="actionLoading()">
             Passer en réparation
           </button>
         }
         @if (canPasserTerminee()) {
-          <button type="button" class="btn btn--primary"
+          <button *hasRole="'ROLE_MANAGER'" type="button" class="btn btn--primary"
                   (click)="ouvrirConfirmation('TERMINEE')" [disabled]="actionLoading()">
             Terminer la réparation
           </button>
         }
         @if (canPasserRestituee()) {
-          <button type="button" class="btn btn--primary"
+          <button *hasRole="'ROLE_MANAGER'" type="button" class="btn btn--primary"
                   (click)="ouvrirConfirmation('RESTITUEE')" [disabled]="actionLoading()">
             Restituer au client
           </button>
         }
         @if (ci.statut !== 'ANNULEE' && ci.statut !== 'RESTITUEE' && ci.statut !== 'TERMINEE') {
-          <button type="button" class="btn btn--danger"
+          <button *hasRole="'ROLE_MANAGER'" type="button" class="btn btn--danger"
                   (click)="ouvrirConfirmation('ANNULEE')" [disabled]="actionLoading()">
             Annuler l'intervention
           </button>

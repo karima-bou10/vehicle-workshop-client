@@ -16,3 +16,30 @@
 .filtres__recherche-reference {
 	max-width: 360px;
 }
+.priorite-badge {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.priorite-haute {
+	background-color: #dc2626;
+	color: white;
+}
+
+.priorite-moyenne {
+	background-color: #f59e0b;
+	color: white;
+}
+
+.priorite-basse {
+	background-color: #16a34a;
+	color: white;
+}
+
+.priorite-urgente {
+	background-color: #991b1b;
+	color: white;
+}

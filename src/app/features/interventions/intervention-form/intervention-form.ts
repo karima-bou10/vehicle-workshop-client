@@ -13,6 +13,7 @@ import {
 import { InterventionService } from '../services/intervention-service';
 import { VehiculeService } from '../../vehicules/services/vehicule-service';
 import { type VehiculeModel } from '../../vehicules/models/vehicule-model';
+import { NotificationService } from '../../../core/services/notification-service';
 
 @Component({
   selector: 'app-intervention-form',
@@ -27,6 +28,7 @@ export class InterventionForm implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly interventionService = inject(InterventionService);
   private readonly vehiculeService = inject(VehiculeService);
+   private readonly notif = inject(NotificationService);
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -73,29 +75,38 @@ export class InterventionForm implements OnInit {
     return this.isEditMode() ? 'Enregistrer les modifications' : "Créer l'intervention";
   });
 
-  ngOnInit(): void {
-    this.vehiculeService.getAllVehicules({ page: 0, size: 1000 }).subscribe({
-      next: (page) => this.vehicules.set(page.content),
-      error: () => this.errorMessage.set('Impossible de charger la liste des véhicules.')
+ngOnInit(): void {
+  this.vehiculeService
+    .getAllVehiculesDisponiblePourIntervention()
+    .subscribe({
+      next: (vehicules) => this.vehicules.set(vehicules),
+      error: () =>
+        this.errorMessage.set(
+          'Impossible de charger la liste des véhicules.'
+        )
     });
 
-    const idParam = this.route.snapshot.paramMap.get('id');
-    const interventionId = Number(idParam);
-    if (idParam && !Number.isNaN(interventionId) && interventionId > 0) {
-      this.isEditMode.set(true);
-      this.interventionId.set(interventionId);
-      this.loadInterventionForEdit(interventionId);
-      return;
-    }
+  const idParam = this.route.snapshot.paramMap.get('id');
+  const interventionId = Number(idParam);
 
-    const vehiculeIdParam = this.route.snapshot.queryParamMap.get('vehiculeId');
-    if (vehiculeIdParam) {
-      const id = Number(vehiculeIdParam);
-      if (!Number.isNaN(id) && id > 0) {
-        this.form.controls.vehiculeId.setValue(vehiculeIdParam);
-      }
+  if (idParam && !Number.isNaN(interventionId) && interventionId > 0) {
+    this.isEditMode.set(true);
+    this.interventionId.set(interventionId);
+    this.loadInterventionForEdit(interventionId);
+    return;
+  }
+
+  const vehiculeIdParam =
+    this.route.snapshot.queryParamMap.get('vehiculeId');
+
+  if (vehiculeIdParam) {
+    const id = Number(vehiculeIdParam);
+
+    if (!Number.isNaN(id) && id > 0) {
+      this.form.controls.vehiculeId.setValue(vehiculeIdParam);
     }
   }
+}
 
   protected onSubmit(): void {
     if (!this.form.valid) {
@@ -141,6 +152,7 @@ export class InterventionForm implements OnInit {
     saveRequest.subscribe({
       next: (saved) => {
         this.loading.set(false);
+        this.notif.success(editId ? 'Intervention mis à jour.' : `intervention ajoutée avec succès.`);
         void this.router.navigate(['/interventions', saved.id]);
       },
       error: (error: unknown) => {

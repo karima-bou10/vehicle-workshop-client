@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse,HttpParams } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment.development'; 
 import { HistoriqueInterventionResponse } from '../models/historique.model';
@@ -13,6 +13,7 @@ import {
   UpdateInterventionStatusRequest
 } from '../models/intervention.model';
 import { InterventionModel } from '../models/intervention-model';
+import { Page } from '../../../core/models';
 
 @Injectable({
   providedIn: 'root'
@@ -54,23 +55,118 @@ export class InterventionService {
     return interventions.map((intervention) => this.normalizeIntervention(intervention));
   }
 
-  getAll(): Observable<InterventionResponse[]> {
-    return this.http
-      .get<InterventionResponse[]>(this.apiUrl)
-      .pipe(map((response) => this.normalizeInterventions(response)));
+getAll(page: number, size: number): Observable<Page<InterventionResponse>> {
+  return this.http
+    .get<Page<InterventionResponse>>(
+      `${this.apiUrl}?page=${page}&size=${size}`
+    );
+}
+search(
+  params: {
+    reference?: string;
+    immatriculation?: string;
+    statut?: string;
+    priorite?: string;
+    typeIntervention?: string;
+    vehiculeId?: number;
+    mecanicienId?: number;
+    includeArchived?: boolean;
+  },
+  page: number,
+  size: number
+): Observable<Page<InterventionResponse>> {
+
+  let httpParams = new HttpParams()
+    .set('page', page)
+    .set('size', size);
+
+  if (params.reference?.trim()) {
+    httpParams = httpParams.set(
+      'reference',
+      params.reference.trim()
+    );
   }
 
-  getHistoriqueComplet(): Observable<InterventionResponse[]> {
-    return this.http
-      .get<InterventionResponse[]>(`${this.apiUrl}/historique`)
-      .pipe(map((response) => this.normalizeInterventions(response)));
+  if (params.immatriculation?.trim()) {
+    httpParams = httpParams.set(
+      'immatriculation',
+      params.immatriculation.trim()
+    );
   }
 
-  getInterventionsEnRetard(): Observable<InterventionResponse[]> {
-    return this.http
-      .get<InterventionResponse[]>(`${this.apiUrl}/retards`)
-      .pipe(map((response) => this.normalizeInterventions(response)));
+  if (params.statut?.trim()) {
+    httpParams = httpParams.set(
+      'statut',
+      params.statut.trim()
+    );
   }
+
+  if (params.priorite?.trim()) {
+    httpParams = httpParams.set(
+      'priorite',
+      params.priorite.trim()
+    );
+  }
+
+  if (params.typeIntervention?.trim()) {
+    httpParams = httpParams.set(
+      'typeIntervention',
+      params.typeIntervention.trim()
+    );
+  }
+
+  if (params.vehiculeId !== undefined) {
+    httpParams = httpParams.set(
+      'vehiculeId',
+      params.vehiculeId.toString()
+    );
+  }
+
+  if (params.mecanicienId !== undefined) {
+    httpParams = httpParams.set(
+      'mecanicienId',
+      params.mecanicienId.toString()
+    );
+  }
+
+     if (params.includeArchived !== undefined) {
+  httpParams = httpParams.set(
+    'includeArchived',
+    params.includeArchived
+  );
+} 
+
+  return this.http.get<Page<InterventionResponse>>(
+    `${this.apiUrl}/search`,
+    { params: httpParams }
+  );
+}
+getHistoriqueComplet(
+  page: number,
+  size: number
+): Observable<Page<InterventionResponse>> {
+  return this.http
+    .get<Page<InterventionResponse>>(
+      `${this.apiUrl}/historique?page=${page}&size=${size}`
+    )
+    .pipe(
+      map((response) => ({
+        ...response,
+        content: this.normalizeInterventions(response.content)
+      }))
+    );
+}
+
+getInterventionsEnRetard(
+  page: number,
+  size: number
+): Observable<Page<InterventionResponse>> {
+
+  return this.http.get<Page<InterventionResponse>>(
+    `${this.apiUrl}/retards?page=${page}&size=${size}`
+  );
+}
+
 
   getById(id: number): Observable<InterventionResponse> {
     return this.http
