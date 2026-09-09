@@ -71,6 +71,7 @@ search(
     vehiculeId?: number;
     mecanicienId?: number;
     includeArchived?: boolean;
+    retard?: boolean;
   },
   page: number,
   size: number
@@ -135,7 +136,12 @@ search(
     params.includeArchived
   );
 } 
-
+if (params.retard !== undefined) {
+  httpParams = httpParams.set(
+    'retard',
+    params.retard.toString()
+  );
+}
   return this.http.get<Page<InterventionResponse>>(
     `${this.apiUrl}/search`,
     { params: httpParams }
@@ -255,6 +261,86 @@ getInterventionsEnRetard(
       .put<InterventionResponse>(`${this.apiUrl}/${id}/statut`, payload)
       .pipe(map((response) => this.normalizeIntervention(response)));
   }
+
+  exportCsv(
+  params: {
+    reference?: string;
+    immatriculation?: string;
+    statut?: string;
+    priorite?: string;
+    typeIntervention?: string;
+    vehiculeId?: number;
+    mecanicienId?: number;
+    retard?: boolean;
+  }
+): Observable<Blob> {
+
+  let httpParams = new HttpParams();
+
+  if (params.reference?.trim()) {
+    httpParams = httpParams.set(
+      'reference',
+      params.reference.trim()
+    );
+  }
+
+  if (params.immatriculation?.trim()) {
+    httpParams = httpParams.set(
+      'immatriculation',
+      params.immatriculation.trim()
+    );
+  }
+
+  if (params.statut?.trim()) {
+    httpParams = httpParams.set(
+      'statut',
+      params.statut.trim()
+    );
+  }
+
+  if (params.priorite?.trim()) {
+    httpParams = httpParams.set(
+      'priorite',
+      params.priorite.trim()
+    );
+  }
+
+  if (params.typeIntervention?.trim()) {
+    httpParams = httpParams.set(
+      'typeIntervention',
+      params.typeIntervention.trim()
+    );
+  }
+
+  if (params.vehiculeId !== undefined) {
+    httpParams = httpParams.set(
+      'vehiculeId',
+      params.vehiculeId.toString()
+    );
+  }
+
+  if (params.mecanicienId !== undefined) {
+    httpParams = httpParams.set(
+      'mecanicienId',
+      params.mecanicienId.toString()
+    );
+  }
+
+  if (params.retard !== undefined) {
+    httpParams = httpParams.set(
+      'retard',
+      params.retard.toString()
+    );
+  }
+
+  return this.http.get(
+    `${this.apiUrl}/export/csv`,
+    {
+      params: httpParams,
+      responseType: 'blob'
+    }
+  );
+}
   
   
 }

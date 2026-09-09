@@ -82,6 +82,7 @@ export interface UpdateAffectationRequest {
 
 export interface DevisRequest {
   coutEstime: number;
+  dateRestitutionPrevue : string
 }
 
 export interface UpdateInterventionStatusRequest {

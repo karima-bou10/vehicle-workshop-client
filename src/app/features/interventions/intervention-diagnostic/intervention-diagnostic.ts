@@ -23,7 +23,8 @@ export class InterventionDiagnostic implements OnInit {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
-
+  readonly showConfirmation = signal(false);
+  readonly diagnosticInitial = signal('');
   protected readonly form = this.fb.nonNullable.group({
     diagnostic: ['', [Validators.required, Validators.minLength(5)]]
   });
@@ -31,10 +32,28 @@ export class InterventionDiagnostic implements OnInit {
   private readonly formStatus = toSignal(this.form.statusChanges, {
     initialValue: this.form.status
   });
+ readonly diagnostic = toSignal(
+  this.form.controls.diagnostic.valueChanges,
+  {
+    initialValue: this.form.controls.diagnostic.value
+  }
+);
 
-  protected readonly canSave = computed(
-    () => this.formStatus() === 'VALID' && !this.saving()
+protected readonly canSave = computed(() => {
+  const valeurActuelle = this.diagnostic().trim();
+  const valeurInitiale = this.diagnosticInitial().trim();
+
+  return (
+    this.formStatus() === 'VALID' &&
+    valeurActuelle !== valeurInitiale &&
+    !this.saving()
   );
+});
+
+  protected readonly isModification = computed(() => {
+  const diagnostic = this.intervention()?.diagnostic;
+  return !!diagnostic && diagnostic.trim().length > 0;
+});
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -49,8 +68,10 @@ export class InterventionDiagnostic implements OnInit {
     this.interventionService.getById(interventionId).subscribe({
       next: (response) => {
         this.intervention.set(response);
+        const diagnostic = response.diagnostic ?? '';
+        this.diagnosticInitial.set(diagnostic);
         this.form.patchValue({
-          diagnostic: response.diagnostic ?? ''
+          diagnostic: diagnostic,
         });
         this.loading.set(false);
       },
@@ -63,8 +84,22 @@ export class InterventionDiagnostic implements OnInit {
   }
 
   protected enregistrerDiagnostic(): void {
-    this.executeSave();
+    if (!this.canSave()) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.showConfirmation.set(true);
   }
+
+      protected confirmerDiagnostic(): void {
+      this.showConfirmation.set(false);
+      this.executeSave();
+    }
+
+    protected annulerConfirmation(): void {
+      this.showConfirmation.set(false);
+    }
 
   protected retourDetail(): void {
     const interventionId = this.intervention()?.id;

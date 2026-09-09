@@ -35,29 +35,66 @@
     <div class="grille grille--2">
 
       <section class="carte">
-        <h3 class="carte__titre">Détails</h3>
+        <h3 class="carte__titre">Informations générales</h3>
         <dl class="def">
           <dt>Type</dt>              <dd>{{ ci.typeIntervention }}</dd>
           <dt>Description client</dt><dd>{{ ci.descriptionClient }}</dd>
-          <dt>Diagnostic</dt>        <dd>{{ ci.diagnostic || '—' }}</dd>
           <dt>Statut</dt>            <dd><app-status-tag [value]="ci.statut" /></dd>
           <dt>Priorité</dt>          <dd>{{ ci.priorite }}</dd>
-          <dt>Coût estimé</dt>       <dd>{{ ci.coutEstime ?? '—' }} MAD</dd>
         </dl>
       </section>
 
       <section class="carte">
-        <h3 class="carte__titre">Dates &amp; affectation</h3>
+        <h3 class="carte__titre">Véhicule &amp; affectation</h3>
         <dl class="def">
-          <dt>Date de dépôt</dt>       <dd>{{ ci.dateDepot | date:'dd/MM/yyyy' }}</dd>
-          <dt>Restitution prévue</dt>  <dd>{{ ci.dateRestitutionPrevue | date:'dd/MM/yyyy' }}</dd>
-          <dt>Date de clôture</dt>     <dd>{{ ci.dateCloture | date:'dd/MM/yyyy' }}</dd>
           <dt>Véhicule</dt>            <dd class="mono">{{ ci.immatriculationVehicule || '—' }}</dd>
           <dt>Marque / modèle</dt>     <dd>{{ vehiculeLibelle() }}</dd>
           <dt>Mécanicien</dt>          <dd>{{ ci.nomMecanicien || '—' }} {{ci.prenomMecanicien}}</dd>
          
         </dl>
       </section>
+
+            <section class="carte">
+              <h3 class="carte__titre">Devis</h3>
+              <dl class="def">
+               <dt>État du devis</dt>
+
+<dd>
+
+@if (ci.statut === 'EN_REPARATION') {
+
+Devis validé
+
+} @else if (ci.statut === 'DEVIS_A_VALIDER') {
+
+Devis établi
+
+} @else {
+
+Devis non établi
+
+}
+
+</dd>
+              <dt>Diagnostic</dt>
+              <dd>{{ ci.diagnostic || '—' }}</dd>
+              <dt>Coût estimé</dt>
+              <dd>{{ ci.coutEstime ?? '—' }} MAD</dd>
+              </dl>
+            </section>
+
+                        <section class="carte">
+                          <h3 class="carte__titre">Dates</h3>
+                          <dl class="def">
+                            <dt>Date de dépôt</dt>
+                            <dd>{{ ci.dateDepot | date : 'dd/MM/yyyy HH:mm' }}</dd>
+                            <dt>Date de clôture</dt>
+                            <dd>{{ ci.dateCloture |date : 'dd/MM/yyyy HH:mm'}}</dd>
+                            <dt>Restitution prévue</dt>
+                            <dd>{{ ci.dateRestitutionPrevue | date : 'dd/MM/yyyy HH:mm'}}</dd>
+                          </dl>
+                        </section>
+            
 
     </div>
 

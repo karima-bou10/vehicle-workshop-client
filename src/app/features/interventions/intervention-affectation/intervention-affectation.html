@@ -5,7 +5,7 @@
       <h2 class="page__titre">Affectation mécanicien</h2>
       @if (intervention()) {
         <p class="page__sous-titre">
-          Intervention #{{ intervention()!.id }} — statut : <strong>{{ intervention()!.statut }}</strong>
+          Intervention : {{ intervention()!.reference }} — statut : <strong>{{ intervention()!.statut }}</strong>
         </p>
       }
     </div>
@@ -19,40 +19,105 @@
   } @else if (errorMessage()) {
     <p class="muted" style="color:var(--danger)">{{ errorMessage() }}</p>
   } @else {
-    <div class="carte">
-      <form class="form" [formGroup]="form">
+<div class="carte">
+  <form class="form" [formGroup]="form">
 
-        <div class="field">
-          <label for="mecanicienId">Mécanicien *</label>
-          @if (mecaniciens().length === 0) {
-          <p class="muted" style="color:var(--danger)">
-            Aucun mécanicien disponible pour l'affectation.
-          </p>
-          }
-        <select id="mecanicienId" formControlName="mecanicienId" [disabled]="mecaniciens().length === 0"
-          [class.is-invalid]="form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched">
+    <!-- Mécanicien actuellement affecté -->
+    <div class="field">
+      <label>Mécanicien actuel</label>
 
-          <option value="" disabled>-- Sélectionnez un mécanicien --</option>
+      @if (mecanicienActuel()) {
+      <p class="muted">
+        {{ mecanicienActuel()?.prenom }}
+        {{ mecanicienActuel()?.nom }}
 
-          @for (mecanicien of mecaniciens(); track mecanicien.id) {
-          <option [value]="mecanicien.id">
-            {{ mecanicien.prenom }} {{ mecanicien.nom }}
-          </option>
-          }
-        </select>
-          @if (form.controls.mecanicienId.invalid && form.controls.mecanicienId.touched) {
-            <span class="field__error">Sélectionner un mécanicien est obligatoire.</span>
-          }
-        </div>
-
-        <div class="form__actions">
-          <button type="button" class="btn btn--ghost" [disabled]="!canSave()" (click)="affecter()">
-            Enregistrer
-          </button>
-        </div>
-
-      </form>
+        @if (!mecanicienActuel()?.disponible) {
+        <span> — Indisponible</span>
+        }
+      </p>
+      } @else {
+      <p class="muted">
+        Aucun mécanicien affecté.
+      </p>
+      }
     </div>
-  }
 
+
+    <!-- Nouveau mécanicien -->
+    <div class="field">
+      <label for="mecanicienId">Nouveau mécanicien *</label>
+
+      @if (mecaniciens().length === 0) {
+      <p class="muted" style="color:var(--danger)">
+        Aucun mécanicien disponible pour la réaffectation.
+      </p>
+      }
+
+      <select id="mecanicienId" formControlName="mecanicienId" [disabled]="mecaniciens().length === 0"
+        [class.is-invalid]="
+          form.controls.mecanicienId.invalid &&
+          form.controls.mecanicienId.touched
+        ">
+        <option value="" disabled>
+          -- Sélectionnez un mécanicien --
+        </option>
+
+        @for (mecanicien of mecaniciens(); track mecanicien.id) {
+        <option [value]="mecanicien.id">
+          {{ mecanicien.prenom }} {{ mecanicien.nom }}
+        </option>
+        }
+      </select>
+              @if (mecanicienDejaAffecte()) {
+              <span class="field__error">
+                Ce mécanicien est déjà affecté à cette intervention.
+              </span>
+              }
+      @if (
+      form.controls.mecanicienId.invalid &&
+      form.controls.mecanicienId.touched
+      ) {
+      <span class="field__error">
+        Sélectionner un mécanicien est obligatoire.
+      </span>
+      }
+    </div>
+
+
+    <div class="form__actions">
+      <button type="button" class="btn btn--ghost" [disabled]="!canSave()" (click)="affecter()">
+        Affecter
+      </button>
+    </div>
+
+  </form>
+</div>
+
+  }
+@if (showConfirmation()) {
+<div class="modal-overlay">
+  <div class="modal">
+    <h3>Confirmer l'affectation</h3>
+
+    <p>
+      Voulez-vous vraiment affecter
+      <strong>
+        {{ mecanicienSelectionne()?.prenom }}
+        {{ mecanicienSelectionne()?.nom }}
+      </strong>
+      à cette intervention ?
+    </p>
+
+    <div class="modal__actions">
+      <button type="button" class="btn-annuler" (click)="annulerAffectation()">
+        Annuler
+      </button>
+
+      <button type="button" class="btn-confirmer" (click)="confirmerAffectation()">
+        Confirmer
+      </button>
+    </div>
+  </div>
+</div>
+}
 </div>

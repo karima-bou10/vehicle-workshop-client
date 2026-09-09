@@ -5,7 +5,7 @@
       <h2 class="page__titre">Diagnostic</h2>
       @if (intervention()) {
         <p class="page__sous-titre">
-          Intervention #{{ intervention()!.id }} — statut : <strong>{{ intervention()!.statut }}</strong>
+          Intervention : {{ intervention()!.reference }} — statut : <strong>{{ intervention()!.statut }}</strong>
         </p>
       }
     </div>
@@ -32,13 +32,47 @@
         </div>
 
         <div class="form__actions">
-          <button type="button" class="btn btn--ghost" [disabled]="!canSave()" (click)="enregistrerDiagnostic()">
-            Enregistrer
-          </button>
+        <button type="button" class="btn btn--ghost" [disabled]="!canSave()" (click)="enregistrerDiagnostic()">
+
+          {{ isModification() ? 'Modifier' : 'Ajouter' }}
+
+        </button>
         </div>
 
       </form>
     </div>
+  }
+  @if (showConfirmation()) {
+  <div class="modal-overlay">
+    <div class="modal">
+  
+      <h3>
+        {{ isModification() ? 'Confirmer la modification' : 'Confirmer l’ajout' }}
+      </h3>
+  
+      <p>
+        @if (isModification()) {
+        Voulez-vous vraiment modifier le diagnostic de cette intervention ?
+        } @else {
+        Voulez-vous vraiment ajouter ce diagnostic à cette intervention et passer son statut à
+         <span class="text-primary">Dignostic en cours ?</span> 
+        }
+      </p>
+  
+      <div class="modal__actions">
+  
+        <button type="button" class="btn btn--ghost" (click)="annulerConfirmation()">
+          Annuler
+        </button>
+  
+        <button type="button" class="btn" (click)="confirmerDiagnostic()">
+          {{ isModification() ? 'Modifier' : 'Ajouter' }}
+        </button>
+  
+      </div>
+  
+    </div>
+  </div>
   }
 
 </div>
