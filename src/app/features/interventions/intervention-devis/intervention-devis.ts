@@ -23,22 +23,71 @@ export class InterventionDevis implements OnInit {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly dateMinRestitution = signal('');
+
+  // Ajout : popup de confirmation
+  readonly showConfirmation = signal(false);
+
+  // Ajout : valeurs initiales pour détecter une modification
+  readonly coutEstimeInitial = signal(0);
+  readonly dateRestitutionPrevueInitiale = signal('');
 
   protected readonly form = this.fb.nonNullable.group({
-    coutEstime: [0, [Validators.required, Validators.min(1)]]
+    coutEstime: [0, [Validators.required, Validators.min(1)]],
+    dateRestitutionPrevue: ['', Validators.required]
   });
 
   private readonly formStatus = toSignal(this.form.statusChanges, {
     initialValue: this.form.status
   });
 
+  // Ajout : valeurs réactives du formulaire
+  readonly coutEstime = toSignal(
+    this.form.controls.coutEstime.valueChanges,
+    { initialValue: this.form.controls.coutEstime.value }
+  );
+
+  readonly dateRestitutionPrevue = toSignal(
+    this.form.controls.dateRestitutionPrevue.valueChanges,
+    { initialValue: this.form.controls.dateRestitutionPrevue.value }
+  );
+
   protected readonly hasDiagnostic = computed(
     () => (this.intervention()?.diagnostic?.trim().length ?? 0) > 0
   );
 
-  protected readonly canSave = computed(
-    () => this.formStatus() === 'VALID' && this.hasDiagnostic() && !this.saving()
-  );
+  // Détermine si un devis existe déjà
+  protected readonly isModification = computed(() => {
+    const intervention = this.intervention();
+
+    return intervention?.coutEstime !== null &&
+           intervention?.coutEstime !== undefined;
+  });
+
+  // Autorise l'enregistrement uniquement si :
+  // - formulaire valide
+  // - diagnostic présent
+  // - pas déjà en sauvegarde
+  // - ou bien une vraie modification a été faite
+  protected readonly canSave = computed(() => {
+    const coutModifie =
+      Number(this.coutEstime()) !== this.coutEstimeInitial();
+
+    const dateModifiee =
+      this.dateRestitutionPrevue() !==
+      this.dateRestitutionPrevueInitiale();
+
+    return (
+      this.formStatus() === 'VALID' &&
+      this.hasDiagnostic() &&
+      !this.saving() &&
+      (
+        !this.isModification() ||
+        coutModifie ||
+        dateModifiee
+      )
+    );
+  });
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -53,9 +102,20 @@ export class InterventionDevis implements OnInit {
     this.interventionService.getById(interventionId).subscribe({
       next: (response) => {
         this.intervention.set(response);
-        this.form.patchValue({
-          coutEstime: response.coutEstime ?? 0
-        });
+      const now = new Date();
+
+      const minDateTime =
+        `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      this.dateMinRestitution.set(minDateTime);
+
+       this.form.patchValue({
+  coutEstime: response.coutEstime ?? 0,
+  dateRestitutionPrevue:
+  response.dateRestitutionPrevue?.substring(0, 16) ?? ''
+});
+
+        this.form.markAsPristine();
         this.loading.set(false);
       },
       error: (error: unknown) => {
@@ -67,47 +127,82 @@ export class InterventionDevis implements OnInit {
   }
 
   protected enregistrerDevis(): void {
-    if (!this.form.valid) {
+    if (!this.canSave()) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const currentIntervention = this.intervention();
-    if (!currentIntervention) {
-      return;
-    }
-
-    if (!this.hasDiagnostic()) {
-      this.errorMessage.set('Le diagnostic doit être renseigné avant le devis.');
-      return;
-    }
-
-    this.saving.set(true);
-    this.errorMessage.set(null);
-    const payload = this.form.getRawValue();
-
-    this.interventionService
-      .addDevis(currentIntervention.id, {
-        coutEstime: Number(payload.coutEstime)
-      })
-      .subscribe({
-        next: (updated) => {
-          this.intervention.set(updated);
-          this.saving.set(false);
-          void this.router.navigate(['/interventions', updated.id]);
-        },
-        error: (error: unknown) => {
-          console.error('Failed to save quote.', error);
-          this.errorMessage.set("Impossible d'enregistrer le devis.");
-          this.saving.set(false);
-        }
-      });
+    // Même logique que pour le diagnostic :
+    // on affiche d'abord la confirmation.
+    this.showConfirmation.set(true);
   }
+
+  protected confirmerDevis(): void {
+    this.showConfirmation.set(false);
+    this.executeSave();
+  }
+
+  protected annulerConfirmation(): void {
+    this.showConfirmation.set(false);
+  }
+
+private executeSave(): void {
+  if (!this.form.valid || !this.intervention()) {
+    this.form.markAllAsTouched();
+    return;
+  }
+
+  const currentIntervention = this.intervention();
+
+  if (!currentIntervention) {
+    return;
+  }
+
+  if (!this.hasDiagnostic()) {
+    this.errorMessage.set(
+      'Le diagnostic doit être renseigné avant le devis.'
+    );
+    return;
+  }
+
+  this.saving.set(true);
+  this.errorMessage.set(null);
+
+  const payload = this.form.getRawValue();
+
+this.interventionService
+  .addDevis(currentIntervention.id, {
+    coutEstime: Number(payload.coutEstime),
+    dateRestitutionPrevue: payload.dateRestitutionPrevue
+  })
+  .subscribe({
+    next: (updated) => {
+      this.intervention.set(updated);
+      this.saving.set(false);
+
+      void this.router.navigate([
+        '/interventions',
+        updated.id
+      ]);
+    },
+    error: (error: unknown) => {
+      console.error('Failed to save quote.', error);
+      this.errorMessage.set(
+        "Impossible d'enregistrer le devis."
+      );
+      this.saving.set(false);
+    }
+  });
+}
 
   protected retourDetail(): void {
     const interventionId = this.intervention()?.id;
+
     if (interventionId) {
-      void this.router.navigate(['/interventions', interventionId]);
+      void this.router.navigate([
+        '/interventions',
+        interventionId
+      ]);
       return;
     }
 

@@ -61,11 +61,11 @@ const statut = this.intervention()?.statut ?? '';
 
     'RESTITUEE',
 
-    'EN_REPARATION'].includes(statut);
+    'EN_REPARATION','ANNULEE'].includes(statut);
 });
 
     readonly test = computed(() =>
-  ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+  ["EN_REPARATION", "TERMINEE", "RESTITUEE","ANNULEE"].includes(
     this.intervention()?.statut ?? ""
   )
 );
@@ -77,19 +77,19 @@ const statut = this.intervention()?.statut ?? '';
 
 
   readonly devisRenseigne = computed(() =>
-    ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+    ["EN_REPARATION", "TERMINEE", "RESTITUEE","ANNULEE"].includes(
     this.intervention()?.statut ?? ""
   ));
 
 readonly passerReparation = computed(() =>
-  ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+  ["EN_REPARATION", "TERMINEE", "RESTITUEE","ANNULEE"].includes(
     this.intervention()?.statut ?? ""
   )
 );
 
   
   readonly modificationNonAutorisee = computed(() =>
-  ["EN_REPARATION", "TERMINEE", "RESTITUEE"].includes(
+  ["EN_REPARATION", "TERMINEE", "RESTITUEE","ANNULEE","DEVIS_A_VALIDER"].includes(
     this.intervention()?.statut ?? ""
   )
 );

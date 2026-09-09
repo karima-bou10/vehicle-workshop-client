@@ -57,7 +57,9 @@
 
       <label>
         <span>Priorité</span>
+
         <select [value]="selectedPrioriteIntervention()" (change)="onPrioriteInterventionChange($any($event.target).value)">
+          <option value="">Tous</option>
           <option>BASSE</option>
           <option>MOYENNE</option>
           <option>HAUTE</option>
@@ -69,9 +71,11 @@
           <span>Status</span>
           <select [value]="selectedStatut()" (change)="onStatutChange($any($event.target).value)">
             <option value="">Tous</option>
-            @for (statut of statutOptions().filter((value) => value); track statut) {
-            <option [value]="statut">{{ statut }}</option>
-            }
+            <option>DIAGNOSTIC_EN_COURS</option>
+            <option>DEVIS_A_VALIDER</option>
+            <option>EN_REPARATION</option>  
+            <option>TERMINEE</option>
+            <option>RESTITUEE</option>  
           </select>
         </label>
 
@@ -81,7 +85,7 @@
   <select [value]="selectedMecanicien()" (change)="onMecanicienChange($any($event.target).value)">
     <option value="">Tous</option>
 
-    @for (mecanicien of mecanicienOptions(); track mecanicien.id) {
+  @for (mecanicien of allMecaniciens(); track mecanicien.id) {
     <option [value]="mecanicien.id">
       {{ mecanicien.nom }}
     </option>
@@ -92,20 +96,19 @@
 <label>
   <span>Véhicule</span>
 
-  <select [value]="selectedVehicule()" (change)="onVehiculeChange($any($event.target).value)">
-    <option value="">Tous</option>
-    @for (vehicule of vehiculeOptions(); track vehicule) {
-    <option [value]="vehicule">
-      {{ vehicule }}
-    </option>
-    }
-  </select>
+  <input type="text" [value]="selectedVehicule()" (input)="onVehiculeChange($any($event.target).value)"
+    placeholder="Saisir une immatriculation" />
 </label>
+
 
     <button type="button" class="btn btn--ghost" (click)="reinitialiserFiltres()">
       Réinitialiser
     </button>
   </div>
+  <label class="checkbox-retard">
+    <input type="checkbox" [checked]="afficherRetards()" (change)="onRetardsChange($any($event.target).checked)" />
+    <span>Retards</span>
+  </label>
 
       @if (loading()) {
         <app-loading-spinner [pleinePage]="true" message="Chargement des interventions…" />

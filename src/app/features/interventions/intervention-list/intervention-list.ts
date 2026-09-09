@@ -36,6 +36,12 @@ export class InterventionList implements OnInit {
   readonly selectedMecanicien = signal('');
   readonly selectedTypeIntervention = signal('');
   readonly selectedPrioriteIntervention = signal('');
+  readonly allMecaniciens = signal<
+
+{ id: number; nom: string }[]
+
+    >([]);
+  readonly afficherRetards = signal(false);
   
 
 
@@ -63,7 +69,11 @@ export class InterventionList implements OnInit {
   showDeleteModal = false;
   interventionIdToDelete: number | null = null;
 
-
+onRetardsChange(checked: boolean): void {
+  this.afficherRetards.set(checked);
+  this.currentPage = 0;
+  this.loadInterventions();
+}
   readonly vehiculeOptions = computed(() => {
     const values = this.interventions()
       .map((intervention) => intervention.immatriculationVehicule?.trim())
@@ -120,7 +130,29 @@ readonly mecanicienOptions = computed(() => {
 
   ngOnInit(): void {
     this.loadInterventions();
+    this.loadMecaniciens();
   }
+  private loadMecaniciens(): void {
+  this.interventionService.getAll(0, 1000).subscribe({
+    next: (response) => {
+      const mecaniciens = Array.from(
+        new Map(
+          response.content
+            .filter(i => i.mecanicienId)
+            .map(i => [
+              i.mecanicienId,
+              {
+                id: i.mecanicienId!,
+                nom: `${i.nomMecanicien ?? ''} ${i.prenomMecanicien ?? ''}`.trim()
+              }
+            ])
+        ).values()
+      );
+
+      this.allMecaniciens.set(mecaniciens);
+    }
+  });
+}
 
   
 private loadInterventions(): void {
@@ -128,12 +160,10 @@ private loadInterventions(): void {
   this.errorMessage.set(null);
   this.registrationWarning.set(null);
 
-  const filtre = this.route.snapshot.queryParamMap.get('filtre');
+this.modeRetards.set(this.afficherRetards());
 
-  this.modeRetards.set(filtre === 'retards');
 
-  // Cas : interventions en retard
-  if (filtre === 'retards') {
+/**if (this.afficherRetards()) {
     this.interventionService
       .getInterventionsEnRetard(this.currentPage, this.pageSize)
       .subscribe({
@@ -154,7 +184,8 @@ private loadInterventions(): void {
       });
 
     return;
-  }
+  }*/
+  
 
   // Filtres de recherche
   const params = {
@@ -165,7 +196,8 @@ private loadInterventions(): void {
     priorite: this.selectedPrioriteIntervention(),
     mecanicienId: this.selectedMecanicien()
       ? Number(this.selectedMecanicien())
-      : undefined
+      : undefined,
+    retard: this.afficherRetards()
   };
 
   // Vérifier s'il y a au moins un filtre
@@ -175,20 +207,21 @@ private loadInterventions(): void {
     !!params.typeIntervention?.trim() ||
     !!params.statut?.trim() ||
     !!params.priorite?.trim() ||
+     params.retard
 
     params.mecanicienId !== undefined;
 
   // Recherche backend ou récupération normale
-  const source$ = hasSearch
-    ? this.interventionService.search(
-        params,
-        this.currentPage,
-        this.pageSize
-      )
-    : this.interventionService.getAll(
-        this.currentPage,
-        this.pageSize
-      );
+const source$ = hasSearch || this.afficherRetards()
+  ? this.interventionService.search(
+      params,
+      this.currentPage,
+      this.pageSize
+    )
+  : this.interventionService.getAll(
+      this.currentPage,
+      this.pageSize
+    );
 
   source$.subscribe({
     next: (response: Page<InterventionResponse>) => {
@@ -264,53 +297,36 @@ private loadInterventions(): void {
     void this.router.navigate(['/interventions/new']);
   }
 
-  exporterCsv(): void {
-    const colonnes = [
-      'reference',
-      'typeIntervention',
-      'statut',
-      'priorite',
-      'immatriculationVehicule',
-      'nomMecanicien',
-      'dateDepot',
-      'coutEstime',
-      'deleted'
-    ];
+exporterCsv(): void {
 
-    const toCsvValue = (value: unknown): string => {
-      const texte = value === null || value === undefined ? '-' : String(value).trim() || '-';
-      return `"${texte.replaceAll('"', '""')}"`;
-    };
+  const filters = {
+    reference: this.searchGlobale(),
+    immatriculation: this.selectedVehicule(),
+    statut: this.selectedStatut(),
+    typeIntervention: this.selectedTypeIntervention(),
+    priorite: this.selectedPrioriteIntervention(),
+    mecanicienId: this.selectedMecanicien()
+      ? Number(this.selectedMecanicien())
+      : undefined,
+    retard: this.afficherRetards()
+  };
 
-    const lignes = [
-      '\ufeff' + colonnes.join(';'),
-      ...this.interventions().map((intervention) =>
-        [
-          intervention.reference ?? intervention.id,
-          intervention.typeIntervention,
-          intervention.statut,
-          intervention.priorite,
-          intervention.immatriculationVehicule,
-          intervention.nomMecanicien,
-          intervention.dateDepot,
-          intervention.coutEstime ?? '',
-          intervention.deleted ? 'Supprimée' : 'Non'
-        ]
-          .map(toCsvValue)
-          .join(';')
-      )
-    ].join('\r\n');
+  this.interventionService
+    .exportCsv(filters)
+    .subscribe(blob => {
 
-    const fichier = new Blob([lignes], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(fichier);
-    const lien = document.createElement('a');
+      const url = URL.createObjectURL(blob);
 
-    lien.href = url;
-    lien.download = `interventions-${new Date().toISOString().slice(0, 10)}.csv`;
-    lien.click();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download =
+        `interventions-${new Date().toISOString().slice(0, 10)}.csv`;
 
-    URL.revokeObjectURL(url);
-  }
+      a.click();
+
+      URL.revokeObjectURL(url);
+    });
+}
 
   voirHistoriqueComplet(): void {
     void this.router.navigate(['/interventions/historique']);
@@ -323,6 +339,7 @@ reinitialiserFiltres(): void {
   this.selectedMecanicien.set('');
   this.selectedTypeIntervention.set('');
   this.selectedPrioriteIntervention.set('');
+  this.afficherRetards.set(false);
 
   this.currentPage = 0;
 
@@ -357,8 +374,7 @@ reinitialiserFiltres(): void {
 
   peutModifier(intervention: InterventionResponse): boolean {
   return (
-    intervention.statut === 'RECUE' ||
-    intervention.statut === 'DIAGNOSTIC_EN_COURS'
+    intervention.statut === 'RECUE'
   );
   }
 

@@ -1,3 +1,81 @@
 :host { display: block; }
 
 .carte { max-width: 820px; }
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal {
+    width: 100%;
+    max-width: 450px;
+
+    background: var(--surface, #fff);
+    border-radius: 12px;
+    padding: 1.5rem;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+
+    animation: modalIn 0.2s ease-out;
+}
+
+.modal h3 {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    color : #4d04cb;
+}
+
+.modal p {
+    margin: 0 0 1.5rem;
+    line-height: 1.5;
+    color: var(--text, #333);
+}
+
+.modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.modal__actions .btn {
+    min-width: 100px;
+}
+
+/* Bouton principal : Ajouter / Modifier */
+.modal__actions .btn--primary {
+    background: var(--primary);
+    color: white;
+    border: 1px solid var(--primary);
+}
+
+/* Annuler */
+.modal__actions .btn--ghost {
+    background: transparent;
+}
+
+/* Animation */
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+.modal p span{
+    color: #4d04cb;
+    font-weight: 600;
+
+}

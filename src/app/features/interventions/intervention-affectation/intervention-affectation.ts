@@ -27,6 +27,9 @@ export class InterventionAffectation implements OnInit {
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly mecaniciens = signal<Mecanicien[]>([]);
+  readonly mecanicienActuel = signal<Mecanicien | null>(null);
+  readonly showConfirmation = signal(false);
+  readonly mecanicienSelectionne = signal<Mecanicien | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     mecanicienId: ['', [Validators.required, Validators.pattern(/^\d+$/)]]
@@ -36,47 +39,122 @@ export class InterventionAffectation implements OnInit {
     initialValue: this.form.status
   });
 
-protected readonly canSave = computed(
-  () =>
-    this.mecaniciens().length > 0 &&
-    this.formStatus() === 'VALID' &&
-    !this.saving()
+  readonly mecanicienId = toSignal(
+  this.form.controls.mecanicienId.valueChanges,
+  { initialValue: this.form.controls.mecanicienId.value }
 );
 
-  ngOnInit(): void {
-    this.mecanicienService.disponibles(0, 1000).subscribe({
-      next: (page) => this.mecaniciens.set(page.content),
-      error: () => this.errorMessage.set('Impossible de charger la liste des mécaniciens.')
-    });
+protected readonly canSave = computed(() => {
+  const mecanicienActuelId = this.mecanicienActuel()?.id;
+  const mecanicienSelectionne = Number(this.mecanicienId());
 
-    const idParam = this.route.snapshot.paramMap.get('id');
-    const interventionId = Number(idParam);
+  return (
+    this.mecaniciens().length > 0 &&
+    this.formStatus() === 'VALID' &&
+    !this.saving() &&
+    mecanicienActuelId !== mecanicienSelectionne
+  );
+});
+  
+    protected readonly mecanicienDejaAffecte = computed(() => {
+  const intervention = this.intervention();
+      const selectedId = this.mecanicienId();
 
-    if (!idParam || Number.isNaN(interventionId)) {
-      this.errorMessage.set("Identifiant d'intervention invalide.");
-      this.loading.set(false);
-      return;
-    }
+  return !!intervention &&
+    !!selectedId &&
+    intervention.mecanicienId === +selectedId;
+});
 
-    this.interventionService.getById(interventionId).subscribe({
-      next: (response) => {
-        this.intervention.set(response);
-        this.form.patchValue({
-          mecanicienId: response.mecanicienId ? String(response.mecanicienId) : ''
+ngOnInit(): void {
+  const idParam = this.route.snapshot.paramMap.get('id');
+  const interventionId = Number(idParam);
+
+  if (!idParam || Number.isNaN(interventionId)) {
+    this.errorMessage.set("Identifiant d'intervention invalide.");
+    this.loading.set(false);
+    return;
+  }
+
+  // Charger l'intervention
+  this.interventionService.getById(interventionId).subscribe({
+    next: (response) => {
+      this.intervention.set(response);
+
+      // Charger le mécanicien actuellement affecté
+      if (response.mecanicienId) {
+        this.mecanicienService.parId(response.mecanicienId).subscribe({
+          next: (mecanicien) => {
+            this.mecanicienActuel.set(mecanicien);
+          },
+          error: (error) => {
+            console.error(
+              'Impossible de charger le mécanicien actuel.',
+              error
+            );
+          }
         });
-        this.loading.set(false);
-      },
-      error: (error: unknown) => {
-        console.error('Failed to load intervention for assignment.', error);
-        this.errorMessage.set("Impossible de charger l'intervention.");
-        this.loading.set(false);
       }
-    });
+
+      // Charger uniquement les mécaniciens disponibles
+      this.mecanicienService.disponibles(0, 1000).subscribe({
+        next: (page) => {
+          this.mecaniciens.set(page.content);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.errorMessage.set(
+            'Impossible de charger la liste des mécaniciens.'
+          );
+          this.loading.set(false);
+        }
+      });
+    },
+
+    error: (error: unknown) => {
+      console.error(
+        'Failed to load intervention for assignment.',
+        error
+      );
+
+      this.errorMessage.set(
+        "Impossible de charger l'intervention."
+      );
+
+      this.loading.set(false);
+    }
+  });
+}
+
+protected affecter(): void {
+  if (!this.form.valid) {
+    this.form.markAllAsTouched();
+    return;
   }
 
-  protected affecter(): void {
-    this.executeSave();
+  if (this.mecanicienDejaAffecte()) {
+    return;
   }
+
+  const mecanicienId = Number(this.mecanicienId());
+
+  const mecanicien = this.mecaniciens()
+    .find(m => m.id === mecanicienId);
+
+  if (!mecanicien) {
+    return;
+  }
+
+  this.mecanicienSelectionne.set(mecanicien);
+  this.showConfirmation.set(true);
+  }
+  protected confirmerAffectation(): void {
+  this.showConfirmation.set(false);
+  this.executeSave();
+}
+
+protected annulerAffectation(): void {
+  this.showConfirmation.set(false);
+}
 
   protected retourDetail(): void {
     const interventionId = this.intervention()?.id;
@@ -129,4 +207,6 @@ protected readonly canSave = computed(
         }
       });
   }
+
+
 }

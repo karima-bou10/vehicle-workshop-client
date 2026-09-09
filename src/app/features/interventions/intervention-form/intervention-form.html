@@ -14,21 +14,24 @@
 
     <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
 
-      <div class="field">
-        <label for="vehiculeId">Véhicule *</label>
-        <select id="vehiculeId" formControlName="vehiculeId"
-                [class.is-invalid]="form.controls.vehiculeId.invalid && form.controls.vehiculeId.touched">
-          <option value="" disabled selected>-- Sélectionnez un véhicule --</option>
-          @for (vehicule of vehicules(); track vehicule.id) {
-            <option [value]="vehicule.id">
-              {{ vehicule.immatriculationFictive }} - {{ vehicule.marque }} {{ vehicule.modele }} ({{ vehicule.annee }})
-            </option>
-          }
-        </select>
-        @if (form.controls.vehiculeId.invalid && form.controls.vehiculeId.touched) {
-          <span class="field__error">Sélectionner un véhicule est obligatoire.</span>
-        }
-      </div>
+<div class="field">
+
+  <label for="vehiculeId">Véhicule *</label>
+
+
+
+<select id="vehiculeId" formControlName="vehiculeId">
+  @for (vehicule of vehicules(); track vehicule.id) {
+  <option [value]="vehicule.id">
+    {{ vehicule.immatriculationFictive }}
+    -
+    {{ vehicule.marque }}
+    {{ vehicule.modele }}
+  </option>
+  }
+</select>
+
+</div>
 
       <div class="field">
         <label for="typeIntervention">Type d'intervention *</label>
@@ -48,16 +51,16 @@
         </select>
       </div>
 
-      <div class="field">
+      <!---<div class="field">
         <label for="dateDepot">Date de dépôt *</label>
         <input id="dateDepot" type="date" formControlName="dateDepot" />
-      </div>
+      </div>-->
 
-      <div class="field">
+     <!-----<div class="field">
         <label for="dateRestitutionPrevue">Restitution prévue *</label>
         <input id="dateRestitutionPrevue" type="date" formControlName="dateRestitutionPrevue"
                [min]="form.controls.dateDepot.value" />
-      </div>
+      </div>-->
 
       <div class="field form__pleine-largeur">
         <label for="descriptionClient">Description client *</label>

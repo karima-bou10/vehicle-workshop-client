@@ -36,6 +36,8 @@ export class InterventionForm implements OnInit {
   readonly isEditMode = signal(false);
   readonly interventionId = signal<number | null>(null);
   readonly dateDepot = signal<string | null>(null);
+  readonly vehiculeActuel = signal('');
+  readonly initialFormValue = signal<any>(null);
 
   protected readonly interventionTypes = INTERVENTION_TYPES;
   protected readonly priorities = INTERVENTION_PRIORITIES;
@@ -53,10 +55,52 @@ export class InterventionForm implements OnInit {
   private readonly formStatus = toSignal(this.form.statusChanges, {
     initialValue: this.form.status
   });
-
-  protected readonly canSubmit = computed(
-    () => this.formStatus() === 'VALID' && !this.loading()
+  private readonly formValue = toSignal(
+  this.form.valueChanges,
+  {
+    initialValue: this.form.getRawValue()
+  }
   );
+  
+  protected readonly hasChanges = computed(() => {
+
+  this.formValue();
+
+  const initial = this.initialFormValue();
+
+  if (!initial) {
+    return false;
+  }
+
+  const normalize = (value: any) => ({
+    ...value,
+    descriptionClient: value.descriptionClient
+      ?.trim()
+      .replace(/\s+/g, ' ')
+  });
+
+  return JSON.stringify(
+    normalize(this.form.getRawValue())
+  ) !== JSON.stringify(
+    normalize(initial)
+  );
+});
+
+
+protected readonly canSubmit = computed(() => {
+
+  this.formValue();
+
+  return (
+    this.form.valid &&
+    !this.loading() &&
+    (
+      !this.isEditMode() ||
+      this.hasChanges()
+    )
+  );
+});
+
 
   protected readonly formTitle = computed(() =>
     this.isEditMode() ? "Modifier l'intervention" : 'Nouvelle intervention'
@@ -76,15 +120,21 @@ export class InterventionForm implements OnInit {
   });
 
 ngOnInit(): void {
-  this.vehiculeService
-    .getAllVehiculesDisponiblePourIntervention()
-    .subscribe({
-      next: (vehicules) => this.vehicules.set(vehicules),
-      error: () =>
-        this.errorMessage.set(
-          'Impossible de charger la liste des véhicules.'
-        )
-    });
+this.vehiculeService
+  .getAllVehicules({ page: 0, size: 1000 })
+  .subscribe({
+    next: (page) => {
+      this.vehicules.set(page.content);
+
+      if (this.isEditMode() && this.interventionId()) {
+        this.loadInterventionForEdit(this.interventionId()!);
+      }
+    },
+    error: () =>
+      this.errorMessage.set(
+        'Impossible de charger la liste des véhicules.'
+      )
+  });
 
   const idParam = this.route.snapshot.paramMap.get('id');
   const interventionId = Number(idParam);
@@ -108,20 +158,28 @@ ngOnInit(): void {
   }
 }
 
+  
   protected onSubmit(): void {
     if (!this.form.valid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const raw = this.form.getRawValue();
+const raw = this.form.getRawValue();
 
-    // Defensive guard: vehiculeId must be a valid positive integer
-    const vehiculeId = Number(raw.vehiculeId);
-    if (Number.isNaN(vehiculeId) || vehiculeId < 1) {
-      this.errorMessage.set('Veuillez sélectionner un véhicule valide.');
-      return;
-    }
+let vehiculeId = Number(raw.vehiculeId);
+
+if (!this.isEditMode()) {
+
+  if (Number.isNaN(vehiculeId) || vehiculeId < 1) {
+    this.errorMessage.set(
+      'Veuillez sélectionner un véhicule valide.'
+    );
+    return;
+  }
+
+}
+
 
     this.loading.set(true);
     this.errorMessage.set(null);
@@ -152,7 +210,7 @@ ngOnInit(): void {
     saveRequest.subscribe({
       next: (saved) => {
         this.loading.set(false);
-        this.notif.success(editId ? 'Intervention mis à jour.' : `intervention ajoutée avec succès.`);
+        this.notif.success(editId ? 'Intervention mis à jour avec succès' : `intervention ajoutée avec succès.`);
         void this.router.navigate(['/interventions', saved.id]);
       },
       error: (error: unknown) => {
@@ -181,31 +239,60 @@ ngOnInit(): void {
     });
   }
 
-  private loadInterventionForEdit(id: number): void {
-    this.loading.set(true);
-    this.errorMessage.set(null);
-    this.interventionService.getById(id).subscribe({
-      next: (intervention) => {
-        this.dateDepot.set(intervention.dateDepot);
-        this.form.patchValue({
-          vehiculeId: String(intervention.vehiculeId),
-          typeIntervention: intervention.typeIntervention as InterventionType,
-          descriptionClient: intervention.descriptionClient,
-          priorite: intervention.priorite as InterventionPriority,
-          dateDepot: intervention.dateDepot.split('T')[0],
-          dateRestitutionPrevue: intervention.dateRestitutionPrevue.split('T')[0]
-        });
-        this.loading.set(false);
-      },
-      error: (error: unknown) => {
-        console.error('Failed to load intervention for edit.', error);
-        this.errorMessage.set("Impossible de charger l'intervention à modifier.");
-        this.loading.set(false);
-      }
-    });
-  }
+private loadInterventionForEdit(id: number): void {
+  this.loading.set(true);
+  this.errorMessage.set(null);
+
+  this.interventionService.getById(id).subscribe({
+    next: (intervention) => {
+
+ this.vehiculeActuel.set(
+  `${intervention.immatriculationVehicule} `
+);
+
+
+      this.dateDepot.set(intervention.dateDepot);
+
+const vehiculeExiste = this.vehicules().some(
+  v => v.id === intervention.vehiculeId
+);
+
+
+
+this.form.patchValue({
+ vehiculeId: intervention.vehiculeId.toString(),
+  typeIntervention: intervention.typeIntervention as InterventionType,
+  descriptionClient: intervention.descriptionClient,
+  priorite: intervention.priorite as InterventionPriority,
+  dateDepot: intervention.dateDepot.split('T')[0],
+  dateRestitutionPrevue: intervention.dateRestitutionPrevue.split('T')[0]
+});
+      this.initialFormValue.set(
+  this.form.getRawValue()
+);
+      this.form.markAsPristine();
+      this.loading.set(false);
+    },
+    error: (error: unknown) => {
+      console.error('Failed to load intervention for edit.', error);
+      this.errorMessage.set(
+        "Impossible de charger l'intervention à modifier."
+      );
+      this.loading.set(false);
+    }
+  });
+}
 
   protected cancel(): void {
     void this.router.navigate(['/interventions']);
   }
+  protected readonly interventionVehiculeLibelle = computed(() => {
+  const id = Number(this.form.controls.vehiculeId.value);
+
+  const vehicule = this.vehicules().find(v => v.id === id);
+
+  return vehicule
+    ? `${vehicule.immatriculationFictive} - ${vehicule.marque} ${vehicule.modele}`
+    : 'Non disponible';
+});
 }
