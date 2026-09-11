@@ -87,9 +87,9 @@ Devis non établi
                           <h3 class="carte__titre">Dates</h3>
                           <dl class="def">
                             <dt>Date de dépôt</dt>
-                            <dd>{{ ci.dateDepot | date : 'dd/MM/yyyy HH:mm' }}</dd>
+                            <dd>{{ ci.dateDepot | date : 'dd/MM/yyyy  HH:mm' }}</dd>
                             <dt>Date de clôture</dt>
-                            <dd>{{ ci.dateCloture |date : 'dd/MM/yyyy HH:mm'}}</dd>
+                            <dd>{{ ci.dateCloture |date : 'dd/MM/yyyy  HH:mm'}}</dd>
                             <dt>Restitution prévue</dt>
                             <dd>{{ ci.dateRestitutionPrevue | date : 'dd/MM/yyyy HH:mm'}}</dd>
                           </dl>
@@ -118,7 +118,7 @@ Devis non établi
             Restituer au client
           </button>
         }
-        @if (ci.statut !== 'ANNULEE' && ci.statut !== 'RESTITUEE' && ci.statut !== 'TERMINEE') {
+        @if (ci.statut !== 'EN_REPARATION' && ci.statut !== 'ANNULEE' && ci.statut !== 'RESTITUEE' && ci.statut !== 'TERMINEE') {
           <button *hasRole="'ROLE_MANAGER'" type="button" class="btn btn--danger"
                   (click)="ouvrirConfirmation('ANNULEE')" [disabled]="actionLoading()">
             Annuler l'intervention
